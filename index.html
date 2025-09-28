@@ -3,155 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Viral Video</title>
+  <title>Viral Video Gallery</title>
 
-  <!-- ফেসবুক এবং অন্যান্য সোশ্যাল মিডিয়ার জন্য Open Graph (OG) মেটা ট্যাগ -->
+  <!-- ডিফল্ট ফেসবুক মেটা ট্যাগ (যদি কেউ সরাসরি সাইট শেয়ার করে) -->
   <meta property="og:title" content="NEW Viral Videos - Watch Now!" />
-  <meta property="og:description" content="Check out the latest collection of viral videos from our gallery." />
-  <meta property="og:image" content="https://i.ibb.co/yYwDk6b/viral-video-preview.jpg" /> <!-- এখানে আপনার ওয়েবসাইটের একটি সাধারণ ছবি বা লোগোর লিংক দিন -->
-  <meta property="og:url" content="https://arman-10fe4.web.app/" /> <!-- এখানে আপনার ওয়েবসাইটের সঠিক URL দিন -->
+  <meta property="og:description" content="Check out the latest collection of viral videos." />
+  <meta property="og:image" content="https://i.ibb.co/yYwDk6b/viral-video-preview.jpg" />
+  <meta property="og:url" content="https://arman-10fe4.web.app/" /> <!-- আপনার ওয়েবসাইটের URL -->
   <meta property="og:type" content="website" />
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f4f4f4;
-      color: #333;
-      line-height: 1.6;
-    }
-    .header {
-      background: linear-gradient(135deg, #ff416c, #ff4b2b);
-      color: #fff;
-      text-align: center;
-      padding: 2rem 0;
-      margin-bottom: 20px;
-    }
-    .header h1 {
-      margin: 0;
-      font-size: 2.5rem;
-    }
-    .image-gallery {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-    }
-    .image-item {
-      position: relative;
-      overflow: hidden;
-      height: 250px;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.6s ease-out, transform 0.6s ease-out, box-shadow 0.3s ease;
-      cursor: pointer; /* মাউস আনলে হাতের চিহ্ন দেখাবে */
-    }
-    .image-item:hover {
-        box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-        transform: translateY(-5px);
-    }
-    .image-item.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .image-item img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    .loader {
-      text-align: center;
-      padding: 50px;
-      font-size: 1.2rem;
-      grid-column: 1 / -1;
-    }
+    body { font-family: Arial, sans-serif; margin: 0; background-color: #f4f4f4; }
+    .header { background: linear-gradient(135deg, #ff416c, #ff4b2b); color: #fff; text-align: center; padding: 2rem 0; margin-bottom: 20px; }
+    .header h1 { margin: 0; font-size: 2.5rem; }
+    .image-gallery { max-width: 1200px; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .image-item { position: relative; overflow: hidden; height: 250px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); opacity: 0; transform: translateY(20px); transition: all 0.4s ease; cursor: pointer; }
+    .image-item:hover { box-shadow: 0 6px 15px rgba(0,0,0,0.2); transform: translateY(-5px); }
+    .image-item.visible { opacity: 1; transform: translateY(0); }
+    .image-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .loader { text-align: center; padding: 50px; font-size: 1.2rem; grid-column: 1 / -1; }
 
-    /* ================================== */
-    /*        পপ-আপ এর জন্য নতুন CSS       */
-    /* ================================== */
-    .popup {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.8);
-        z-index: 1000;
-        display: none; /* ডিফল্টভাবে লুকানো থাকবে */
-        justify-content: center;
-        align-items: center;
-        padding: 20px;
-        box-sizing: border-box;
-    }
-    .popup-content {
-        background-color: #fff;
-        padding: 25px;
-        border-radius: 10px;
-        position: relative;
-        max-width: 600px;
-        width: 100%;
-        text-align: center;
-        animation: fadeIn 0.4s ease-out;
-    }
-    @keyframes fadeIn {
-        from { opacity: 0; transform: scale(0.9); }
-        to { opacity: 1; transform: scale(1); }
-    }
-    .close-btn {
-        position: absolute;
-        top: 10px;
-        right: 15px;
-        font-size: 2rem;
-        color: #888;
-        cursor: pointer;
-        line-height: 1;
-    }
-    .close-btn:hover {
-        color: #000;
-    }
-    .popup-image-container {
-        position: relative; /* প্লে-বাটনকে ঠিক মাঝখানে আনার জন্য এটি জরুরি */
-        margin-bottom: 15px;
-    }
-    .popup-image-container img {
-        width: 100%;
-        max-height: 70vh;
-        object-fit: contain;
-        border-radius: 8px;
-    }
-    .popup-title {
-        font-size: 1.8rem;
-        margin-top: 0;
-        margin-bottom: 20px;
-    }
-    .popup-play-btn { /* পপ-আপের ভেতরের প্লে-বাটন */
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      width: 70px;
-      height: 70px;
-      background: rgba(255, 75, 43, 0.85);
-      color: #fff;
-      font-size: 1.8rem;
-      text-decoration: none;
-      border-radius: 50%;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-      transition: all 0.3s ease;
-    }
-    .popup-play-btn:hover {
-      background: rgba(230, 58, 31, 0.95);
-      transform: translate(-50%, -50%) scale(1.2);
-    }
+    /* পপ-আপ স্টাইল */
+    .popup { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.85); z-index: 1000; display: none; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+    .popup-content { background-color: #fff; padding: 25px; border-radius: 10px; position: relative; max-width: 600px; width: 100%; text-align: center; animation: fadeIn 0.4s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    .close-btn { position: absolute; top: 10px; right: 15px; font-size: 2rem; color: #888; cursor: pointer; line-height: 1; }
+    .popup-image-container { position: relative; margin-bottom: 15px; }
+    .popup-image-container img { width: 100%; max-height: 70vh; object-fit: contain; border-radius: 8px; }
+    .popup-title { font-size: 1.8rem; margin: 0 0 15px; }
+    .popup-play-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; justify-content: center; align-items: center; width: 70px; height: 70px; background: rgba(255, 75, 43, 0.85); color: #fff; font-size: 1.8rem; text-decoration: none; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: all 0.3s ease; }
+    .popup-play-btn:hover { background: rgba(230, 58, 31, 0.95); transform: translate(-50%, -50%) scale(1.2); }
+    
+    /* শেয়ার বাটন স্টাইল */
+    .share-section { margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }
+    .share-btn { background-color: #1877f2; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-size: 1rem; cursor: pointer; transition: background-color 0.3s; }
+    .share-btn:hover { background-color: #166fe5; }
+    .copy-feedback { margin-top: 10px; color: green; font-weight: bold; display: none; }
   </style>
 </head>
 <body>
@@ -164,9 +51,6 @@
     <div class="loader">Loading Videos from Database...</div>
   </div>
 
-  <!-- =============================== -->
-  <!--      পপ-আপ এর জন্য নতুন HTML      -->
-  <!-- =============================== -->
   <div class="popup" id="videoPopup">
       <div class="popup-content">
           <span class="close-btn" id="closePopupBtn">&times;</span>
@@ -175,6 +59,11 @@
               <img id="popupThumbnail" src="" alt="Video Thumbnail">
               <a id="popupPlayBtn" class="popup-play-btn" href="#" target="_blank">▶</a>
           </div>
+          <div class="share-section">
+            <p>Share this video with your friends!</p>
+            <button class="share-btn" id="shareBtn">Copy Share Link</button>
+            <p class="copy-feedback" id="copyFeedback">Link Copied!</p>
+          </div>
       </div>
   </div>
 
@@ -182,6 +71,12 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
     import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
+    // =========================================================================
+    // !! গুরুত্বপূর্ণ !! : ধাপ ২ সম্পন্ন করার পর এই URL টি পরিবর্তন করতে হবে !!
+    // =========================================================================
+    const cloudFunctionUrl = 'YOUR_CLOUD_FUNCTION_URL_HERE'; 
+    // যেমন: 'https://us-central1-arman-10fe4.cloudfunctions.net/share'
 
     const firebaseConfig = {
       apiKey: "AIzaSyDNkDNawZwfjWbpI4db4iOkyuUxuaUt4bs",
@@ -197,117 +92,103 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', async function() {
       const videoGallery = document.getElementById('videoGallery');
       const videoPopup = document.getElementById('videoPopup');
       const closePopupBtn = document.getElementById('closePopupBtn');
+      const shareBtn = document.getElementById('shareBtn');
+      let currentVideoId = null;
 
-      // গ্যালারির ছবিগুলোতে ক্লিক ইভেন্ট যোগ করা হচ্ছে
       videoGallery.addEventListener('click', (event) => {
-          const clickedItem = event.target.closest('.image-item');
-          if (clickedItem) {
-              const videoId = clickedItem.dataset.id;
-              openPopup(videoId);
-          }
+        const clickedItem = event.target.closest('.image-item');
+        if (clickedItem) {
+          openPopup(clickedItem.dataset.id);
+        }
       });
       
-      // পপ-আপ বন্ধ করার ইভেন্ট
       closePopupBtn.addEventListener('click', closePopup);
       videoPopup.addEventListener('click', (event) => {
-          if (event.target === videoPopup) { // যদি কালো ব্যাকগ্রাউন্ডে ক্লিক করা হয়
-              closePopup();
-          }
+        if (event.target === videoPopup) {
+          closePopup();
+        }
       });
 
-      // পপ-আপ খোলার ফাংশন
-      async function openPopup(videoId) {
-        document.getElementById('popupTitle').textContent = "Loading...";
-        document.getElementById('popupThumbnail').src = ""; // পুরনো ছবি মুছে ফেলা হচ্ছে
-        document.getElementById('popupPlayBtn').href = "#";
+      shareBtn.addEventListener('click', () => {
+        if (cloudFunctionUrl === 'YOUR_CLOUD_FUNCTION_URL_HERE') {
+            alert("Please configure the Cloud Function URL first!");
+            return;
+        }
+        const shareLink = `${cloudFunctionUrl}?id=${currentVideoId}`;
+        navigator.clipboard.writeText(shareLink).then(() => {
+          const feedback = document.getElementById('copyFeedback');
+          feedback.style.display = 'block';
+          setTimeout(() => { feedback.style.display = 'none'; }, 2000);
+        });
+      });
 
-        videoPopup.style.display = 'flex'; // পপ-আপ দেখানো হচ্ছে
+      async function openPopup(videoId) {
+        currentVideoId = videoId;
+        document.getElementById('popupTitle').textContent = "Loading...";
+        document.getElementById('popupThumbnail').src = "";
+        videoPopup.style.display = 'flex';
 
         try {
-            const docRef = doc(db, "videos", videoId);
-            const docSnap = await getDoc(docRef);
-
-            if (docSnap.exists()) {
-                const videoData = docSnap.data();
-                document.getElementById('popupTitle').textContent = videoData.title;
-                document.getElementById('popupThumbnail').src = videoData.thumbnailUrl;
-                document.getElementById('popupPlayBtn').href = videoData.videoUrl;
-                document.title = videoData.title; // ব্রাউজার টাইটেল পরিবর্তন
-            } else {
-                document.getElementById('popupTitle').textContent = "Video not found!";
-            }
+          const docRef = doc(db, "videos", videoId);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const videoData = docSnap.data();
+            document.getElementById('popupTitle').textContent = videoData.title;
+            document.getElementById('popupThumbnail').src = videoData.thumbnailUrl;
+            document.getElementById('popupPlayBtn').href = videoData.videoUrl;
+            document.title = videoData.title;
+            // URL পরিবর্তন করে ইউনিক আইডি যোগ করা হচ্ছে
+            window.history.pushState({}, videoData.title, `?id=${videoId}`);
+          } else {
+            document.getElementById('popupTitle').textContent = "Video not found!";
+          }
         } catch (error) {
-            console.error("Error fetching video data for popup: ", error);
-            document.getElementById('popupTitle').textContent = "Failed to load video.";
+          document.getElementById('popupTitle').textContent = "Failed to load video.";
         }
       }
 
-      // পপ-আপ বন্ধ করার ফাংশন
       function closePopup() {
         videoPopup.style.display = 'none';
-        document.title = "Viral Video Gallery"; // ব্রাউজার টাইটেল আগের অবস্থায় ফিরিয়ে আনা
+        document.title = "Viral Video Gallery";
+        window.history.pushState({}, "Viral Video Gallery", window.location.pathname);
+        currentVideoId = null;
       }
 
-      // গ্যালারির সব ভিডিও দেখানো ফাংশন
       async function displayGallery() {
-        try {
-          const querySnapshot = await getDocs(collection(db, "videos"));
-          videoGallery.innerHTML = ''; 
-
-          if (querySnapshot.empty) {
-            videoGallery.innerHTML = '<p style="text-align: center;">No videos found.</p>';
-            return;
-          }
-
-          querySnapshot.forEach((doc) => {
-            const videoData = doc.data();
-            const imageItem = document.createElement('div');
-            imageItem.classList.add('image-item');
-            imageItem.dataset.id = doc.id; // প্রতিটি আইটেমে ভিডিওর ID যোগ করা হচ্ছে
-            
-            // এখন আর প্লে-বাটন নেই
-            imageItem.innerHTML = `<img src="${videoData.thumbnailUrl}" alt="${videoData.title}">`;
-            
-            videoGallery.appendChild(imageItem);
-          });
-          
-          initializeScrollAnimation();
-        } catch (error) {
-          console.error("Error fetching videos: ", error);
-          videoGallery.innerHTML = '<p style="text-align: center; color: red;">Failed to load videos.</p>';
-        }
+        const querySnapshot = await getDocs(collection(db, "videos"));
+        videoGallery.innerHTML = ''; 
+        querySnapshot.forEach((doc) => {
+          const videoData = doc.data();
+          const imageItem = document.createElement('div');
+          imageItem.className = 'image-item';
+          imageItem.dataset.id = doc.id;
+          imageItem.innerHTML = `<img src="${videoData.thumbnailUrl}" alt="${videoData.title}">`;
+          videoGallery.appendChild(imageItem);
+        });
+        initializeScrollAnimation();
       }
       
-      // স্ক্রল অ্যানিমেশন
       function initializeScrollAnimation() {
-        const imageItems = document.querySelectorAll('.image-item');
-        if (imageItems.length === 0) return;
-
         const observer = new IntersectionObserver((entries) => {
           entries.forEach(entry => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('visible');
-            }
+            if (entry.isIntersecting) entry.target.classList.add('visible');
           });
         }, { threshold: 0.1 });
-
-        imageItems.forEach(item => observer.observe(item));
+        document.querySelectorAll('.image-item').forEach(item => observer.observe(item));
       }
 
-      // পেইজ লোড হওয়ার পর কাজ শুরু
-      displayGallery();
-
-      // যদি URL এ আইডি থাকে (ফেসবুক থেকে শেয়ার করা লিংকের জন্য)
+      await displayGallery();
+      
       const urlParams = new URLSearchParams(window.location.search);
       const videoIdFromUrl = urlParams.get('id');
       if (videoIdFromUrl) {
-          openPopup(videoIdFromUrl);
+        openPopup(videoIdFromUrl);
       }
     });
   </script>
 </body>
-</html>
+  </html>
