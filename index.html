@@ -1,83 +1,153 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Viral Video Gallery</title>
-
-  <!-- ডিফল্ট ফেসবুক মেটা ট্যাগ (যদি কেউ সরাসরি সাইট শেয়ার করে) -->
-  <meta property="og:title" content="NEW Viral Videos - Watch Now!" />
-  <meta property="og:description" content="Check out the latest collection of viral videos." />
-  <meta property="og:image" content="https://i3.wp.com/desipornphoto.com/wp-content/uploads/2023/03/20221001_003249.jpg?ssl=1" />
-  <meta property="og:url" content="https://arman-10fe4.web.app/" /> <!-- আপনার ওয়েবসাইটের URL -->
-  <meta property="og:type" content="website" />
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NEW Viral Video</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; background-color: #f4f4f4; }
-    .header { background: linear-gradient(135deg, #ff416c, #ff4b2b); color: #fff; text-align: center; padding: 2rem 0; margin-bottom: 20px; }
-    .header h1 { margin: 0; font-size: 2.5rem; }
-    .image-gallery { max-width: 1200px; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-    .image-item { position: relative; overflow: hidden; height: 250px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); opacity: 0; transform: translateY(20px); transition: all 0.4s ease; cursor: pointer; }
-    .image-item:hover { box-shadow: 0 6px 15px rgba(0,0,0,0.2); transform: translateY(-5px); }
-    .image-item.visible { opacity: 1; transform: translateY(0); }
-    .image-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .loader { text-align: center; padding: 50px; font-size: 1.2rem; grid-column: 1 / -1; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      background-color: #f4f4f4; color: #333; line-height: 1.6;
+    }
+    a { color: inherit; text-decoration: none; }
+    .header {
+      background: linear-gradient(135deg, #ff416c, #ff4b2b);
+      color: #fff; text-align: center;
+      padding: 2rem 0; margin-bottom: 20px;
+    }
+    .header h1 { margin: 0; font-size: 2rem; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 16px 40px; }
 
-    /* পপ-আপ স্টাইল */
-    .popup { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.85); z-index: 1000; display: none; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
-    .popup-content { background-color: #fff; padding: 25px; border-radius: 10px; position: relative; max-width: 600px; width: 100%; text-align: center; animation: fadeIn 0.4s ease-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-    .close-btn { position: absolute; top: 10px; right: 15px; font-size: 2rem; color: #888; cursor: pointer; line-height: 1; }
-    .popup-image-container { position: relative; margin-bottom: 15px; }
-    .popup-image-container img { width: 100%; max-height: 70vh; object-fit: contain; border-radius: 8px; }
-    .popup-title { font-size: 1.8rem; margin: 0 0 15px; }
-    .popup-play-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; justify-content: center; align-items: center; width: 70px; height: 70px; background: rgba(255, 75, 43, 0.85); color: #fff; font-size: 1.8rem; text-decoration: none; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: all 0.3s ease; }
-    .popup-play-btn:hover { background: rgba(230, 58, 31, 0.95); transform: translate(-50%, -50%) scale(1.2); }
-    
-    /* শেয়ার বাটন স্টাইল */
-    .share-section { margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }
-    .share-btn { background-color: #1877f2; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-size: 1rem; cursor: pointer; transition: background-color 0.3s; }
-    .share-btn:hover { background-color: #166fe5; }
-    .copy-feedback { margin-top: 10px; color: green; font-weight: bold; display: none; }
+    /* Gallery */
+    .image-gallery {
+      display: grid; gap: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+    .image-item {
+      position: relative; overflow: hidden; height: 250px; border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      background: #fff;
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+      cursor: pointer;
+    }
+    .image-item.visible { opacity: 1; transform: translateY(0); }
+    .image-item img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .play-btn {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex; justify-content: center; align-items: center;
+      width: 60px; height: 60px; border-radius: 50%;
+      background: rgba(255, 75, 43, 0.85); color: #fff;
+      font-size: 1.5rem; font-weight: bold;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      transition: all 0.25s ease;
+    }
+    .play-btn:hover {
+      background: rgba(230, 58, 31, 0.95);
+      transform: translate(-50%, -50%) scale(1.15);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    }
+    .empty {
+      grid-column: 1 / -1;
+      text-align: center; padding: 40px; color: #777;
+    }
+
+    /* Detail */
+    .video-detail { display: none; }
+    .back-bar {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 12px;
+    }
+    .back-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #fff; border-radius: 8px; padding: 8px 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .detail-hero {
+      position: relative; border-radius: 12px; overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1); background: #fff;
+    }
+    .detail-hero img {
+      width: 100%; height: auto; display: block;
+      max-height: 70vh; object-fit: cover;
+    }
+    .detail-body {
+      background: #fff; margin-top: 16px; padding: 18px;
+      border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    }
+    .detail-title { margin: 0 0 10px; font-size: 1.6rem; }
+    .detail-desc { margin: 0; color: #444; white-space: pre-wrap; }
+
+    /* Fullscreen Loader Overlay */
+    #loaderOverlay {
+      position: fixed; inset: 0;
+      background: rgba(255,255,255,0.85);
+      display: none; /* showLoader() চালু করবে */
+      align-items: center; justify-content: center;
+      z-index: 9999;
+    }
+    .spinner {
+      width: 64px; height: 64px;
+      border: 6px solid #e9e9e9;
+      border-top-color: #ff4b2b; /* brand color */
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Utils */
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
-  
   <div class="header">
-    <h1>NEW Viral Video</h1>
-  </div>
-  
-  <div class="image-gallery" id="videoGallery">
-    <div class="loader">Loading Videos from Database...</div>
+    <h1 id="pageTitle">NEW Viral Video</h1>
   </div>
 
-  <div class="popup" id="videoPopup">
-      <div class="popup-content">
-          <span class="close-btn" id="closePopupBtn">&times;</span>
-          <h2 class="popup-title" id="popupTitle"></h2>
-          <div class="popup-image-container">
-              <img id="popupThumbnail" src="" alt="Video Thumbnail">
-              <a id="popupPlayBtn" class="popup-play-btn" href="#" target="_blank">▶</a>
-          </div>
-          <div class="share-section">
-            <p>Share this video with your friends!</p>
-            <button class="share-btn" id="shareBtn">Copy Share Link</button>
-            <p class="copy-feedback" id="copyFeedback">Link Copied!</p>
-          </div>
+  <div class="container">
+    <!-- Gallery View -->
+    <div class="image-gallery" id="videoGallery"></div>
+
+    <!-- Detail View -->
+    <div class="video-detail" id="videoDetail">
+      <div class="back-bar">
+        <a id="backLink" class="back-link" href="#">
+          ← Back to Gallery
+        </a>
       </div>
+
+      <div class="detail-hero">
+        <img id="detailThumbnail" src="" alt="Video thumbnail">
+        <a class="play-btn" id="detailPlayBtn" href="#" target="_blank" title="Play video">▶</a>
+      </div>
+
+      <div class="detail-body">
+        <h2 class="detail-title" id="detailTitle">Loading…</h2>
+        <p class="detail-desc" id="detailDescription"></p>
+      </div>
+    </div>
   </div>
 
+  <!-- Center Spinner Overlay -->
+  <div id="loaderOverlay" aria-live="polite">
+    <div class="spinner" role="status" aria-label="Loading"></div>
+  </div>
 
   <script type="module">
+    // Firebase SDK
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+    import {
+      getFirestore, collection, getDocs, doc, getDoc
+    } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
-    // =========================================================================
-    // !! গুরুত্বপূর্ণ !! : ধাপ ২ সম্পন্ন করার পর এই URL টি পরিবর্তন করতে হবে !!
-    // =========================================================================
-    const cloudFunctionUrl = 'YOUR_CLOUD_FUNCTION_URL_HERE'; 
-    // যেমন: 'https://us-central1-arman-10fe4.cloudfunctions.net/share'
-
+    // Firebase config (unchanged)
     const firebaseConfig = {
       apiKey: "AIzaSyDNkDNawZwfjWbpI4db4iOkyuUxuaUt4bs",
       authDomain: "arman-10fe4.firebaseapp.com",
@@ -92,102 +162,151 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    document.addEventListener('DOMContentLoaded', async function() {
+    document.addEventListener('DOMContentLoaded', () => {
+      const pageTitle = document.getElementById('pageTitle');
       const videoGallery = document.getElementById('videoGallery');
-      const videoPopup = document.getElementById('videoPopup');
-      const closePopupBtn = document.getElementById('closePopupBtn');
-      const shareBtn = document.getElementById('shareBtn');
-      let currentVideoId = null;
+      const videoDetail = document.getElementById('videoDetail');
 
-      videoGallery.addEventListener('click', (event) => {
-        const clickedItem = event.target.closest('.image-item');
-        if (clickedItem) {
-          openPopup(clickedItem.dataset.id);
-        }
-      });
-      
-      closePopupBtn.addEventListener('click', closePopup);
-      videoPopup.addEventListener('click', (event) => {
-        if (event.target === videoPopup) {
-          closePopup();
-        }
-      });
+      const detailTitle = document.getElementById('detailTitle');
+      const detailDescription = document.getElementById('detailDescription');
+      const detailThumbnail = document.getElementById('detailThumbnail');
+      const detailPlayBtn = document.getElementById('detailPlayBtn');
+      const backLink = document.getElementById('backLink');
 
-      shareBtn.addEventListener('click', () => {
-        if (cloudFunctionUrl === 'YOUR_CLOUD_FUNCTION_URL_HERE') {
-            alert("Please configure the Cloud Function URL first!");
-            return;
-        }
-        const shareLink = `${cloudFunctionUrl}?id=${currentVideoId}`;
-        navigator.clipboard.writeText(shareLink).then(() => {
-          const feedback = document.getElementById('copyFeedback');
-          feedback.style.display = 'block';
-          setTimeout(() => { feedback.style.display = 'none'; }, 2000);
-        });
-      });
+      const loaderOverlay = document.getElementById('loaderOverlay');
+      const params = new URLSearchParams(window.location.search);
+      const videoId = params.get('id');
 
-      async function openPopup(videoId) {
-        currentVideoId = videoId;
-        document.getElementById('popupTitle').textContent = "Loading...";
-        document.getElementById('popupThumbnail').src = "";
-        videoPopup.style.display = 'flex';
+      backLink.href = window.location.pathname; // Query ছাড়া মূল পেজ
 
+      if (videoId) {
+        showSection('detail');
+        showLoader();
+        renderVideoDetail(videoId).finally(hideLoader);
+      } else {
+        showSection('gallery');
+        showLoader();
+        fetchAndRenderVideos().finally(hideLoader);
+      }
+
+      async function fetchAndRenderVideos() {
         try {
-          const docRef = doc(db, "videos", videoId);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            const videoData = docSnap.data();
-            document.getElementById('popupTitle').textContent = videoData.title;
-            document.getElementById('popupThumbnail').src = videoData.thumbnailUrl;
-            document.getElementById('popupPlayBtn').href = videoData.videoUrl;
-            document.title = videoData.title;
-            // URL পরিবর্তন করে ইউনিক আইডি যোগ করা হচ্ছে
-            window.history.pushState({}, videoData.title, `?id=${videoId}`);
-          } else {
-            document.getElementById('popupTitle').textContent = "Video not found!";
+          const snap = await getDocs(collection(db, "videos"));
+          videoGallery.innerHTML = '';
+
+          if (snap.empty) {
+            videoGallery.innerHTML = '<div class="empty">No videos found in the database.</div>';
+            return;
           }
-        } catch (error) {
-          document.getElementById('popupTitle').textContent = "Failed to load video.";
+
+          snap.forEach((d) => {
+            const v = d.data();
+            const id = d.id;
+            const detailLink = `${window.location.pathname}?id=${encodeURIComponent(id)}`;
+
+            const item = document.createElement('div');
+            item.className = 'image-item';
+            item.innerHTML = `
+              <img src="${v.thumbnailUrl || ''}" alt="${escapeHtml(v.title || 'Video')}">
+              <a class="play-btn" href="${detailLink}" target="_blank" title="Open details">▶</a>
+            `;
+            // Card-এ ক্লিক করলে নতুন ট্যাবে ডিটেইল পেজ
+            item.addEventListener('click', (e) => {
+              if (e.target.closest('.play-btn')) return; // play-btn নিজের মত কাজ করুক
+              window.open(detailLink, '_blank');
+            });
+
+            videoGallery.appendChild(item);
+          });
+
+          initializeScrollAnimation();
+        } catch (err) {
+          console.error('Error fetching videos:', err);
+          videoGallery.innerHTML = '<div class="empty" style="color:red">Failed to load videos. Check console for details.</div>';
         }
       }
 
-      function closePopup() {
-        videoPopup.style.display = 'none';
-        document.title = "Viral Video Gallery";
-        window.history.pushState({}, "Viral Video Gallery", window.location.pathname);
-        currentVideoId = null;
+      async function renderVideoDetail(id) {
+        try {
+          pageTitle.textContent = 'Loading…';
+          document.title = 'Loading…';
+
+          const ref = doc(db, "videos", id);
+          const snap = await getDoc(ref);
+
+          if (!snap.exists()) {
+            pageTitle.textContent = 'Video not found';
+            document.title = 'Video not found';
+            detailTitle.textContent = 'Video not found';
+            detailDescription.textContent = 'The requested video could not be found.';
+            detailThumbnail.src = '';
+            detailPlayBtn.style.display = 'none';
+            return;
+          }
+
+          const v = snap.data();
+          const title = v.title || 'Untitled Video';
+          const description = v.description || 'No description available.';
+          const thumb = v.thumbnailUrl || '';
+          const videoUrl = v.videoUrl || '#';
+
+          pageTitle.textContent = title;
+          document.title = title + ' | NEW Viral Video';
+
+          detailTitle.textContent = title;
+          detailDescription.textContent = description;
+          detailThumbnail.alt = title;
+          detailThumbnail.src = thumb;
+
+          detailPlayBtn.href = videoUrl;
+          detailPlayBtn.style.display = videoUrl && videoUrl !== '#' ? 'flex' : 'none';
+        } catch (err) {
+          console.error('Error loading video detail:', err);
+          pageTitle.textContent = 'Error';
+          document.title = 'Error';
+          detailTitle.textContent = 'Failed to load video';
+          detailDescription.textContent = 'Please try again later.';
+          detailPlayBtn.style.display = 'none';
+        }
       }
 
-      async function displayGallery() {
-        const querySnapshot = await getDocs(collection(db, "videos"));
-        videoGallery.innerHTML = ''; 
-        querySnapshot.forEach((doc) => {
-          const videoData = doc.data();
-          const imageItem = document.createElement('div');
-          imageItem.className = 'image-item';
-          imageItem.dataset.id = doc.id;
-          imageItem.innerHTML = `<img src="${videoData.thumbnailUrl}" alt="${videoData.title}">`;
-          videoGallery.appendChild(imageItem);
-        });
-        initializeScrollAnimation();
+      function showSection(which) {
+        if (which === 'detail') {
+          videoGallery.classList.add('hidden');
+          videoDetail.style.display = 'block';
+        } else {
+          videoDetail.style.display = 'none';
+          videoGallery.classList.remove('hidden');
+          pageTitle.textContent = 'NEW Viral Video';
+          document.title = 'NEW Viral Video';
+        }
       }
-      
+
       function initializeScrollAnimation() {
-        const observer = new IntersectionObserver((entries) => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting) entry.target.classList.add('visible');
+        const items = document.querySelectorAll('.image-item');
+        if (!items.length) return;
+        const obs = new IntersectionObserver((entries, observer) => {
+          entries.forEach(e => {
+            if (e.isIntersecting) {
+              e.target.classList.add('visible');
+              observer.unobserve(e.target);
+            }
           });
-        }, { threshold: 0.1 });
-        document.querySelectorAll('.image-item').forEach(item => observer.observe(item));
+        }, { root: null, rootMargin: '0px', threshold: 0.1 });
+        items.forEach(i => obs.observe(i));
       }
 
-      await displayGallery();
-      
-      const urlParams = new URLSearchParams(window.location.search);
-      const videoIdFromUrl = urlParams.get('id');
-      if (videoIdFromUrl) {
-        openPopup(videoIdFromUrl);
+      function escapeHtml(str) {
+        return String(str).replace(/[&<>"'`=\/]/g, function (s) {
+          return ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;',
+            "'": '&#39;', '/': '&#x2F;', '`': '&#x60;', '=': '&#x3D;'
+          })[s];
+        });
       }
+
+      function showLoader() { loaderOverlay.style.display = 'flex'; }
+      function hideLoader() { loaderOverlay.style.display = 'none'; }
     });
   </script>
 </body>
