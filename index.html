@@ -6,286 +6,162 @@
   <title>NEW Viral Video</title>
   <meta property="og:title" content="নাদিয়ার ভাইরাল ভিডিও!" />
   <meta property="og:description" content="Check out the latest collection of viral videos." />
-  <meta property="og:image" content="https://ia601402.us.archive.org/33/items/img-20251027-014504/IMG_20251027_014504.jpg" />
-  <meta property="og:url" content="https://arman-10fe4.web.app/" /> <!-- আপনার ওয়েবসাইটের URL -->
+  <meta property="og:image" content="https://ia600309.us.archive.org/10/items/img-20251028-222519/IMG_20251028_222519.jpg" />
+  <meta property="og:url" content="https://arman-10fe4.web.app/" />
   <meta property="og:type" content="website" />
   <style>
     * { box-sizing: border-box; }
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0; padding: 0;
-      background-color: #f4f4f4; color: #333; line-height: 1.6;
-    }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; line-height: 1.6; }
     a { color: inherit; text-decoration: none; }
-    .header {
-      background: linear-gradient(135deg, #ff416c, #ff4b2b);
-      color: #fff; text-align: center;
-      padding: 2rem 0; margin-bottom: 20px;
-    }
+    .header { background: linear-gradient(135deg, #ff416c, #ff4b2b); color: #fff; text-align: center; padding: 2rem 0; margin-bottom: 20px; }
     .header h1 { margin: 0; font-size: 2rem; }
     .container { max-width: 1200px; margin: 0 auto; padding: 0 16px 40px; }
-
-    /* Gallery */
-    .image-gallery {
-      display: grid; gap: 20px;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    }
-    .image-item {
-      position: relative; overflow: hidden; height: 250px; border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      background: #fff;
-      opacity: 0; transform: translateY(20px);
-      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-      cursor: pointer;
-    }
+    .image-gallery { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+    .image-item { position: relative; overflow: hidden; height: 250px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); background: #fff; opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; cursor: pointer; }
     .image-item.visible { opacity: 1; transform: translateY(0); }
-    .image-item img {
-      width: 100%; height: 100%; object-fit: cover; display: block;
-    }
-    .play-btn {
-      position: absolute; top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      display: flex; justify-content: center; align-items: center;
-      width: 60px; height: 60px; border-radius: 50%;
-      background: rgba(255, 75, 43, 0.85); color: #fff;
-      font-size: 1.5rem; font-weight: bold;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-      transition: all 0.25s ease;
-    }
-    .play-btn:hover {
-      background: rgba(230, 58, 31, 0.95);
-      transform: translate(-50%, -50%) scale(1.15);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-    }
-    .empty {
-      grid-column: 1 / -1;
-      text-align: center; padding: 40px; color: #777;
-    }
+    .image-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .play-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; justify-content: center; align-items: center; width: 60px; height: 60px; border-radius: 50%; background: rgba(255, 75, 43, 0.85); color: #fff; font-size: 1.5rem; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: all 0.25s ease; }
+    .play-btn:hover { background: rgba(230, 58, 31, 0.95); transform: translate(-50%, -50%) scale(1.15); box-shadow: 0 6px 20px rgba(0,0,0,0.4); }
+    .empty { grid-column: 1 / -1; text-align: center; padding: 40px; color: #777; }
+    .hidden { display: none !important; }
 
-    /* Detail */
-    .video-detail { display: none; }
-    .back-bar {
-      display: flex; align-items: center; gap: 8px;
-      margin-bottom: 12px;
+    /* --- Popup/Modal Styles --- */
+    .video-detail-popup {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.75); /* Black overlay */
+      display: none; /* Initially hidden */
+      justify-content: center; align-items: center; z-index: 1000;
+      padding: 20px;
     }
-    .back-link {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: #fff; border-radius: 8px; padding: 8px 12px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    .popup-content {
+      background: #fff; border-radius: 12px;
+      max-width: 800px; width: 100%;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+      animation: zoomIn 0.3s ease-out;
     }
-    .detail-hero {
-      position: relative; border-radius: 12px; overflow: hidden;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1); background: #fff;
-    }
-    .detail-hero img {
-      width: 100%; height: auto; display: block;
-      max-height: 70vh; object-fit: cover;
-    }
-    .detail-body {
-      background: #fff; margin-top: 16px; padding: 18px;
-      border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-    }
+    @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .close-bar { text-align: right; padding: 8px 15px; }
+    .close-btn { font-size: 1.8rem; font-weight: bold; cursor: pointer; color: #555; border: none; background: none; }
+    .detail-hero { position: relative; border-radius: 12px 12px 0 0; overflow: hidden; background: #000; }
+    .detail-hero img { width: 100%; height: auto; display: block; max-height: 70vh; object-fit: contain; }
+    .detail-body { padding: 18px; }
     .detail-title { margin: 0 0 10px; font-size: 1.6rem; }
     .detail-desc { margin: 0; color: #444; white-space: pre-wrap; }
-
-    /* Fullscreen Loader Overlay */
-    #loaderOverlay {
-      position: fixed; inset: 0;
-      background: rgba(255,255,255,0.85);
-      display: none; /* showLoader() চালু করবে */
-      align-items: center; justify-content: center;
-      z-index: 9999;
-    }
-    .spinner {
-      width: 64px; height: 64px;
-      border: 6px solid #e9e9e9;
-      border-top-color: #ff4b2b; /* brand color */
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* Utils */
-    .hidden { display: none !important; }
   </style>
 </head>
 <body>
   <div class="header">
-    <h1 id="pageTitle">NEW Viral Video</h1>
+    <h1>NEW Viral Video</h1>
   </div>
 
   <div class="container">
-    <!-- Gallery View -->
     <div class="image-gallery" id="videoGallery"></div>
+  </div>
 
-    <!-- Detail View -->
-    <div class="video-detail" id="videoDetail">
-      <div class="back-bar">
-        <a id="backLink" class="back-link" href="#">
-          ← Back to Gallery
-        </a>
+  <!-- Detail Popup/Modal HTML -->
+  <div class="video-detail-popup" id="videoDetailPopup">
+    <div class="popup-content">
+      <div class="close-bar">
+        <button class="close-btn" id="closePopupBtn">&times;</button>
       </div>
-
       <div class="detail-hero">
         <img id="detailThumbnail" src="" alt="Video thumbnail">
-        <a class="play-btn" id="detailPlayBtn" href="#" target="_blank" title="Play video">▶</a>
+        <a class="play-btn" id="detailPlayBtn" href="#" title="Play video">▶</a>
       </div>
-
       <div class="detail-body">
-        <h2 class="detail-title" id="detailTitle">Loading…</h2>
+        <h2 class="detail-title" id="detailTitle"></h2>
         <p class="detail-desc" id="detailDescription"></p>
       </div>
     </div>
   </div>
 
-  <!-- Center Spinner Overlay -->
-  <div id="loaderOverlay" aria-live="polite">
-    <div class="spinner" role="status" aria-label="Loading"></div>
-  </div>
+  <script>
+    // --------------------------------------------------------------------
+    // --- আপনার বিজ্ঞাপনের লিঙ্কগুলো এখানে দিন ---
+    // --------------------------------------------------------------------
+    const firstAdLink = "https://www.effectivegatecpm.com/hvc7d1r47?key=702b7dc6ad9c74ecf5650574dead733f"; // থাম্বনেইলে ক্লিক করলে এই লিঙ্কে যাবে
+    const secondAdLink = "https://www.effectivegatecpm.com/hvc7d1r47?key=702b7dc6ad9c74ecf5650574dead733f"; // পপআপের প্লে বাটনে ক্লিক করলে এই লিঙ্কে যাবে
 
-  <script type="module">
-    // Firebase SDK
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-    import {
-      getFirestore, collection, getDocs, doc, getDoc
-    } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
-
-    // Firebase config (unchanged)
-    const firebaseConfig = {
-      apiKey: "AIzaSyDNkDNawZwfjWbpI4db4iOkyuUxuaUt4bs",
-      authDomain: "arman-10fe4.firebaseapp.com",
-      databaseURL: "https://arman-10fe4-default-rtdb.firebaseio.com",
-      projectId: "arman-10fe4",
-      storageBucket: "arman-10fe4.appspot.com",
-      messagingSenderId: "1086611997302",
-      appId: "1:1086611997302:web:caa870bc6d850abbb25557",
-      measurementId: "G-32B44CMW7S"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    // --- আপনার সব ভিডিওর তথ্য এখানে যোগ করুন ---
+    const allVideos = [
+      { id: 'video-1', title: 'নাদিয়ার প্রথম ভিডিও', thumbnailUrl: 'https://ia801006.us.archive.org/1/items/images-27_202510/images%20%2827%29.jpeg', videoUrl: secondAdLink, description: 'এটি প্রথম ভিডিওর বিস্তারিত বিবরণ।' },
+      { id: 'video-2', title: 'নাদিয়ার দ্বিতীয় ভিডিও', thumbnailUrl: 'https://ia801402.us.archive.org/33/items/img-20251027-014504/IMG_20251027_014504.jpg', videoUrl: secondAdLink, description: 'এটি দ্বিতীয় ভিডিওর বিবরণ।' },
+      { id: 'video-3', title: 'আরেকটি নতুন ভিডিও', thumbnailUrl: 'https://ia600204.us.archive.org/29/items/images-28_202510/images%20%2828%29.jpeg', videoUrl: secondAdLink, description: 'এটি তৃতীয় ভিডিওর বিবরণ।' },
+      { id: 'video-4', title: 'চতুর্থ ভিডিও ক্লিপ', thumbnailUrl: 'https://ia801000.us.archive.org/1/items/images-26_202510/images%20%2826%29.jpeg', videoUrl: secondAdLink, description: 'এটি চতুর্থ ভিডিওর বিবরণ।' }
+    ];
 
     document.addEventListener('DOMContentLoaded', () => {
-      const pageTitle = document.getElementById('pageTitle');
       const videoGallery = document.getElementById('videoGallery');
-      const videoDetail = document.getElementById('videoDetail');
-
+      const videoDetailPopup = document.getElementById('videoDetailPopup');
       const detailTitle = document.getElementById('detailTitle');
       const detailDescription = document.getElementById('detailDescription');
       const detailThumbnail = document.getElementById('detailThumbnail');
       const detailPlayBtn = document.getElementById('detailPlayBtn');
-      const backLink = document.getElementById('backLink');
+      const closePopupBtn = document.getElementById('closePopupBtn');
+      
+      renderGallery();
 
-      const loaderOverlay = document.getElementById('loaderOverlay');
-      const params = new URLSearchParams(window.location.search);
-      const videoId = params.get('id');
-
-      backLink.href = window.location.pathname; // Query ছাড়া মূল পেজ
-
-      if (videoId) {
-        showSection('detail');
-        showLoader();
-        renderVideoDetail(videoId).finally(hideLoader);
-      } else {
-        showSection('gallery');
-        showLoader();
-        fetchAndRenderVideos().finally(hideLoader);
+      function renderGallery() {
+        videoGallery.innerHTML = '';
+        allVideos.forEach(video => {
+          const item = document.createElement('div');
+          item.className = 'image-item';
+          item.dataset.videoId = video.id; // Store video ID in data attribute
+          item.innerHTML = `
+            <img src="${video.thumbnailUrl || ''}" alt="${escapeHtml(video.title || 'Video')}">
+            <div class="play-btn">▶</div>
+          `;
+          videoGallery.appendChild(item);
+        });
+        initializeScrollAnimation();
       }
 
-      async function fetchAndRenderVideos() {
-        try {
-          const snap = await getDocs(collection(db, "videos"));
-          videoGallery.innerHTML = '';
+      // --- ধাপ ১ এবং ২: গ্যালারির ছবিতে ক্লিক করলে প্রথম অ্যাডে রিডাইরেক্ট হবে ---
+      videoGallery.addEventListener('click', (e) => {
+        const item = e.target.closest('.image-item');
+        if (item) {
+          const videoId = item.dataset.videoId;
+          // ব্যবহারকারী কোন ভিডিওতে ক্লিক করেছে তা মনে রাখার জন্য sessionStorage ব্যবহার করা হচ্ছে
+          sessionStorage.setItem('clickedVideoId', videoId);
+          // প্রথম বিজ্ঞাপনে পাঠানো হচ্ছে
+          window.location.href = firstAdLink;
+        }
+      });
+      
+      // --- ধাপ ৩: বিজ্ঞাপন থেকে 'Back' করে ফিরে এলে পপআপ দেখানো হবে ---
+      window.addEventListener('pageshow', (event) => {
+        const pendingVideoId = sessionStorage.getItem('clickedVideoId');
+        if (pendingVideoId) {
+          renderVideoDetail(pendingVideoId);
+          videoDetailPopup.style.display = 'flex';
+          // দেখানোর পর স্টোরেজ খালি করে দেওয়া হচ্ছে যাতে রিফ্রেশ করলে আবার পপআপ না আসে
+          sessionStorage.removeItem('clickedVideoId');
+        }
+      });
 
-          if (snap.empty) {
-            videoGallery.innerHTML = '<div class="empty">No videos found in the database.</div>';
-            return;
+      function renderVideoDetail(id) {
+        const video = allVideos.find(v => v.id === id);
+        if (video) {
+          detailTitle.textContent = video.title;
+          detailDescription.textContent = video.description;
+          detailThumbnail.src = video.thumbnailUrl;
+          detailThumbnail.alt = video.title;
+          // --- ধাপ ৪: প্লে বাটনে দ্বিতীয় বিজ্ঞাপনের লিঙ্ক সেট করা ---
+          detailPlayBtn.href = secondAdLink;
+        }
+      }
+
+      // পপআপ বন্ধ করার জন্য
+      closePopupBtn.addEventListener('click', () => {
+        videoDetailPopup.style.display = 'none';
+      });
+      
+      // পপআপের বাইরে ক্লিক করলে বন্ধ হবে
+      videoDetailPopup.addEventListener('click', (e) => {
+          if (e.target === videoDetailPopup) {
+              videoDetailPopup.style.display = 'none';
           }
-
-          snap.forEach((d) => {
-            const v = d.data();
-            const id = d.id;
-            const detailLink = `${window.location.pathname}?id=${encodeURIComponent(id)}`;
-
-            const item = document.createElement('div');
-            item.className = 'image-item';
-            item.innerHTML = `
-              <img src="${v.thumbnailUrl || ''}" alt="${escapeHtml(v.title || 'Video')}">
-              <a class="play-btn" href="${detailLink}" target="_blank" title="Open details">▶</a>
-            `;
-            // Card-এ ক্লিক করলে নতুন ট্যাবে ডিটেইল পেজ
-            item.addEventListener('click', (e) => {
-              if (e.target.closest('.play-btn')) return; // play-btn নিজের মত কাজ করুক
-              window.open(detailLink, '_blank');
-            });
-
-            videoGallery.appendChild(item);
-          });
-
-          initializeScrollAnimation();
-        } catch (err) {
-          console.error('Error fetching videos:', err);
-          videoGallery.innerHTML = '<div class="empty" style="color:red">Failed to load videos. Check console for details.</div>';
-        }
-      }
-
-      async function renderVideoDetail(id) {
-        try {
-          pageTitle.textContent = 'Loading…';
-          document.title = 'Loading…';
-
-          const ref = doc(db, "videos", id);
-          const snap = await getDoc(ref);
-
-          if (!snap.exists()) {
-            pageTitle.textContent = 'Video not found';
-            document.title = 'Video not found';
-            detailTitle.textContent = 'Video not found';
-            detailDescription.textContent = 'The requested video could not be found.';
-            detailThumbnail.src = '';
-            detailPlayBtn.style.display = 'none';
-            return;
-          }
-
-          const v = snap.data();
-          const title = v.title || 'Untitled Video';
-          const description = v.description || 'No description available.';
-          const thumb = v.thumbnailUrl || '';
-          const videoUrl = v.videoUrl || '#';
-
-          pageTitle.textContent = title;
-          document.title = title + ' | NEW Viral Video';
-
-          detailTitle.textContent = title;
-          detailDescription.textContent = description;
-          detailThumbnail.alt = title;
-          detailThumbnail.src = thumb;
-
-          detailPlayBtn.href = videoUrl;
-          detailPlayBtn.style.display = videoUrl && videoUrl !== '#' ? 'flex' : 'none';
-        } catch (err) {
-          console.error('Error loading video detail:', err);
-          pageTitle.textContent = 'Error';
-          document.title = 'Error';
-          detailTitle.textContent = 'Failed to load video';
-          detailDescription.textContent = 'Please try again later.';
-          detailPlayBtn.style.display = 'none';
-        }
-      }
-
-      function showSection(which) {
-        if (which === 'detail') {
-          videoGallery.classList.add('hidden');
-          videoDetail.style.display = 'block';
-        } else {
-          videoDetail.style.display = 'none';
-          videoGallery.classList.remove('hidden');
-          pageTitle.textContent = 'NEW Viral Video';
-          document.title = 'NEW Viral Video';
-        }
-      }
+      });
 
       function initializeScrollAnimation() {
         const items = document.querySelectorAll('.image-item');
@@ -302,29 +178,11 @@
       }
 
       function escapeHtml(str) {
-        return String(str).replace(/[&<>"'`=\/]/g, function (s) {
-          return ({
-            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;',
-            "'": '&#39;', '/': '&#x2F;', '`': '&#x60;', '=': '&#x3D;'
-          })[s];
-        });
+        const div = document.createElement('div');
+        div.appendChild(document.createTextNode(str));
+        return div.innerHTML;
       }
-
-      function showLoader() { loaderOverlay.style.display = 'flex'; }
-      function hideLoader() { loaderOverlay.style.display = 'none'; }
     });
   </script>
 </body>
   </html>
-<!-- Page Title for Browser Tab -->
-    <title>ভিডিও টা লোড হচ্ছে </title>
-
-    <!-- The Redirect Code -->
-    <meta http-equiv="refresh" content="0.0000001; url=https://www.effectivegatecpm.com/hvc7d1r47?key=702b7dc6ad9c74ecf5650574dead733f" />
-
-</head>
-<body>
-    <!-- Fallback content if redirect fails -->
-    <p>অপেক্ষা করুন আপনার ভিডিওটা লোড হচ্ছে , <a 
-</body>
-    </html>
