@@ -1,188 +1,569 @@
-<!DOCTYPE html>
-<html lang="bn">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NEW Viral Video</title>
-  <meta property="og:title" content="নাদিয়ার ভাইরাল ভিডিও!" />
-  <meta property="og:description" content="Check out the latest collection of viral videos." />
-  <meta property="og:image" content="https://ia600309.us.archive.org/10/items/img-20251028-222519/IMG_20251028_222519.jpg" />
-  <meta property="og:url" content="https://arman-10fe4.web.app/" />
-  <meta property="og:type" content="website" />
-  <style>
-    * { box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; line-height: 1.6; }
-    a { color: inherit; text-decoration: none; }
-    .header { background: linear-gradient(135deg, #ff416c, #ff4b2b); color: #fff; text-align: center; padding: 2rem 0; margin-bottom: 20px; }
-    .header h1 { margin: 0; font-size: 2rem; }
-    .container { max-width: 1200px; margin: 0 auto; padding: 0 16px 40px; }
-    .image-gallery { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
-    .image-item { position: relative; overflow: hidden; height: 250px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); background: #fff; opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; cursor: pointer; }
-    .image-item.visible { opacity: 1; transform: translateY(0); }
-    .image-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .play-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; justify-content: center; align-items: center; width: 60px; height: 60px; border-radius: 50%; background: rgba(255, 75, 43, 0.85); color: #fff; font-size: 1.5rem; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: all 0.25s ease; }
-    .play-btn:hover { background: rgba(230, 58, 31, 0.95); transform: translate(-50%, -50%) scale(1.15); box-shadow: 0 6px 20px rgba(0,0,0,0.4); }
-    .empty { grid-column: 1 / -1; text-align: center; padding: 40px; color: #777; }
-    .hidden { display: none !important; }
 
-    /* --- Popup/Modal Styles --- */
-    .video-detail-popup {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.75); /* Black overlay */
-      display: none; /* Initially hidden */
-      justify-content: center; align-items: center; z-index: 1000;
-      padding: 20px;
-    }
-    .popup-content {
-      background: #fff; border-radius: 12px;
-      max-width: 800px; width: 100%;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-      animation: zoomIn 0.3s ease-out;
-    }
-    @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .close-bar { text-align: right; padding: 8px 15px; }
-    .close-btn { font-size: 1.8rem; font-weight: bold; cursor: pointer; color: #555; border: none; background: none; }
-    .detail-hero { position: relative; border-radius: 12px 12px 0 0; overflow: hidden; background: #000; }
-    .detail-hero img { width: 100%; height: auto; display: block; max-height: 70vh; object-fit: contain; }
-    .detail-body { padding: 18px; }
-    .detail-title { margin: 0 0 10px; font-size: 1.6rem; }
-    .detail-desc { margin: 0; color: #444; white-space: pre-wrap; }
-  </style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>CineStream - Admin Panel</title>
+
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
+
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --primary-dark: #5649c0;
+            --sidebar-bg: #1e293b;
+            --sidebar-text: #cbd5e1;
+            --sidebar-active: #8892b0;
+            --card-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --border-radius: 12px;
+        }
+
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        /* Login */
+        .login-container {
+            max-width: 420px;
+            margin: 100px auto;
+            padding: 30px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+        }
+
+        .login-container h3 {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 24px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--sidebar-bg);
+            min-height: 100vh;
+            position: fixed;
+            width: 250px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar .logo {
+            padding: 20px 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: white;
+            border-bottom: 1px solid #334155;
+            margin-bottom: 20px;
+        }
+
+        .nav-link {
+            color: var(--sidebar-text) !important;
+            padding: 12px 20px;
+            margin: 6px 10px;
+            border-radius: 8px;
+            transition: all 0.25s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(108, 92, 231, 0.2);
+            color: white !important;
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+            margin-right: 10px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 24px;
+            transition: margin-left 0.3s ease;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar { width: 70px; }
+            .sidebar .logo, .sidebar .nav-text { display: none; }
+            .sidebar .nav-link span { display: none; }
+            .sidebar .nav-link i { margin-right: 0; font-size: 1.2rem; }
+            .main-content { margin-left: 70px; }
+        }
+
+        /* Stats Cards */
+        .stat-card {
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            transition: transform 0.2s;
+            border-left: 4px solid var(--primary);
+            background: white;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(108, 92, 231, 0.15);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: var(--primary);
+        }
+
+        /* Movie Table */
+        .movie-img-preview {
+            width: 50px;
+            height: 75px;
+            object-fit: cover;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .table th {
+            font-weight: 600;
+        }
+
+        /* Form Inputs */
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #334155;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Search Bar */
+        #search-bar:focus {
+            box-shadow: 0 0 0 0.2rem rgba(108, 92, 231, 0.25);
+            border-color: var(--primary);
+        }
+
+        /* Modal Header */
+        .modal-header {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .modal-title {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        /* Logout Confirmation */
+        #logoutModal .btn-danger {
+            background: #e53e3e;
+        }
+    </style>
 </head>
 <body>
-  <div class="header">
-    <h1>NEW Viral Video</h1>
-  </div>
 
-  <div class="container">
-    <div class="image-gallery" id="videoGallery"></div>
-  </div>
-
-  <!-- Detail Popup/Modal HTML -->
-  <div class="video-detail-popup" id="videoDetailPopup">
-    <div class="popup-content">
-      <div class="close-bar">
-        <button class="close-btn" id="closePopupBtn">&times;</button>
-      </div>
-      <div class="detail-hero">
-        <img id="detailThumbnail" src="" alt="Video thumbnail">
-        <a class="play-btn" id="detailPlayBtn" href="#" title="Play video">▶</a>
-      </div>
-      <div class="detail-body">
-        <h2 class="detail-title" id="detailTitle"></h2>
-        <p class="detail-desc" id="detailDescription"></p>
-      </div>
+    <!-- LOGIN SECTION -->
+    <div id="login-section" class="container">
+        <div class="login-container text-center">
+            <h3><i class="fas fa-film me-2"></i> CineStream Admin</h3>
+            <div class="mb-3">
+                <input type="email" id="admin-email" class="form-control" placeholder="Admin Email">
+            </div>
+            <div class="mb-3">
+                <input type="password" id="admin-pass" class="form-control" placeholder="Password">
+            </div>
+            <button onclick="login()" class="btn btn-primary w-100 py-2">Login</button>
+            <p id="login-error" class="text-danger mt-2 mb-0"></p>
+        </div>
     </div>
-  </div>
 
-  <script>
-    // --------------------------------------------------------------------
-    // --- আপনার বিজ্ঞাপনের লিঙ্কগুলো এখানে দিন ---
-    // --------------------------------------------------------------------
-    const firstAdLink = "https://www.effectivegatecpm.com/hvc7d1r47?key=702b7dc6ad9c74ecf5650574dead733f"; // থাম্বনেইলে ক্লিক করলে এই লিঙ্কে যাবে
-    const secondAdLink = "https://www.effectivegatecpm.com/hvc7d1r47?key=702b7dc6ad9c74ecf5650574dead733f"; // পপআপের প্লে বাটনে ক্লিক করলে এই লিঙ্কে যাবে
+    <!-- ADMIN DASHBOARD -->
+    <div id="dashboard-section" class="admin-container d-none">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-film me-2"></i> CineStream
+            </div>
+            <ul class="nav flex-column px-2">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active" onclick="showTab('movies')">
+                        <i class="fas fa-film"></i> <span>Movies</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="showTab('settings')">
+                        <i class="fas fa-cog"></i> <span>Settings & Ads</span>
+                    </a>
+                </li>
+                <li class="nav-item mt-auto position-absolute bottom-0 w-100 px-2">
+                    <button class="btn btn-outline-light w-100 py-2" onclick="confirmLogout()">
+                        <i class="fas fa-sign-out-alt me-2"></i> <span>Logout</span>
+                    </button>
+                </li>
+            </ul>
+        </div>
 
-    // --- আপনার সব ভিডিওর তথ্য এখানে যোগ করুন ---
-    const allVideos = [
-      { id: 'video-1', title: 'নাদিয়ার প্রথম ভিডিও', thumbnailUrl: 'https://ia801006.us.archive.org/1/items/images-27_202510/images%20%2827%29.jpeg', videoUrl: secondAdLink, description: 'এটি প্রথম ভিডিওর বিস্তারিত বিবরণ।' },
-      { id: 'video-2', title: 'নাদিয়ার দ্বিতীয় ভিডিও', thumbnailUrl: 'https://ia801402.us.archive.org/33/items/img-20251027-014504/IMG_20251027_014504.jpg', videoUrl: secondAdLink, description: 'এটি দ্বিতীয় ভিডিওর বিবরণ।' },
-      { id: 'video-3', title: 'আরেকটি নতুন ভিডিও', thumbnailUrl: 'https://ia600204.us.archive.org/29/items/images-28_202510/images%20%2828%29.jpeg', videoUrl: secondAdLink, description: 'এটি তৃতীয় ভিডিওর বিবরণ।' },
-      { id: 'video-4', title: 'চতুর্থ ভিডিও ক্লিপ', thumbnailUrl: 'https://ia801000.us.archive.org/1/items/images-26_202510/images%20%2826%29.jpeg', videoUrl: secondAdLink, description: 'এটি চতুর্থ ভিডিওর বিবরণ।' }
-    ];
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Stats -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="stat-card p-3">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon me-3">
+                                <i class="fas fa-film"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted">Total Movies</small>
+                                <h3 class="mb-0" id="total-movies-count">0</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const videoGallery = document.getElementById('videoGallery');
-      const videoDetailPopup = document.getElementById('videoDetailPopup');
-      const detailTitle = document.getElementById('detailTitle');
-      const detailDescription = document.getElementById('detailDescription');
-      const detailThumbnail = document.getElementById('detailThumbnail');
-      const detailPlayBtn = document.getElementById('detailPlayBtn');
-      const closePopupBtn = document.getElementById('closePopupBtn');
-      
-      renderGallery();
+            <!-- Tabs Content -->
+            <div id="tab-movies">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="fw-bold">Movie Management</h4>
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#movieModal" onclick="resetForm()">
+                        <i class="fas fa-plus me-1"></i> Add New Movie
+                    </button>
+                </div>
+                <input type="text" id="search-bar" class="form-control mb-3" placeholder="Search movies by title..." onkeyup="searchMovie()">
 
-      function renderGallery() {
-        videoGallery.innerHTML = '';
-        allVideos.forEach(video => {
-          const item = document.createElement('div');
-          item.className = 'image-item';
-          item.dataset.videoId = video.id; // Store video ID in data attribute
-          item.innerHTML = `
-            <img src="${video.thumbnailUrl || ''}" alt="${escapeHtml(video.title || 'Video')}">
-            <div class="play-btn">▶</div>
-          `;
-          videoGallery.appendChild(item);
-        });
-        initializeScrollAnimation();
-      }
+                <div class="bg-white rounded-3 shadow-sm p-3">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Poster</th>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Year</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="movies-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
 
-      // --- ধাপ ১ এবং ২: গ্যালারির ছবিতে ক্লিক করলে প্রথম অ্যাডে রিডাইরেক্ট হবে ---
-      videoGallery.addEventListener('click', (e) => {
-        const item = e.target.closest('.image-item');
-        if (item) {
-          const videoId = item.dataset.videoId;
-          // ব্যবহারকারী কোন ভিডিওতে ক্লিক করেছে তা মনে রাখার জন্য sessionStorage ব্যবহার করা হচ্ছে
-          sessionStorage.setItem('clickedVideoId', videoId);
-          // প্রথম বিজ্ঞাপনে পাঠানো হচ্ছে
-          window.location.href = firstAdLink;
-        }
-      });
-      
-      // --- ধাপ ৩: বিজ্ঞাপন থেকে 'Back' করে ফিরে এলে পপআপ দেখানো হবে ---
-      window.addEventListener('pageshow', (event) => {
-        const pendingVideoId = sessionStorage.getItem('clickedVideoId');
-        if (pendingVideoId) {
-          renderVideoDetail(pendingVideoId);
-          videoDetailPopup.style.display = 'flex';
-          // দেখানোর পর স্টোরেজ খালি করে দেওয়া হচ্ছে যাতে রিফ্রেশ করলে আবার পপআপ না আসে
-          sessionStorage.removeItem('clickedVideoId');
-        }
-      });
+            <div id="tab-settings" style="display: none;">
+                <h4 class="fw-bold mb-4">Site Settings</h4>
+                <div class="card p-4 shadow-sm" style="max-width: 650px;">
+                    <div class="mb-3">
+                        <label class="form-label">Ad Direct Link (Required)</label>
+                        <input type="text" id="setting-ad-link" class="form-control" placeholder="https://example.com">
+                    </div>
+                    <hr>
+                    <h5 class="mb-3">App Promotion</h5>
+                    <div class="mb-3">
+                        <label class="form-label">App Download Link</label>
+                        <input type="text" id="setting-app-link" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">App Icon URL</label>
+                        <input type="text" id="setting-app-icon" class="form-control">
+                    </div>
+                    <button onclick="saveSettings()" class="btn btn-primary mt-2">Save Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-      function renderVideoDetail(id) {
-        const video = allVideos.find(v => v.id === id);
-        if (video) {
-          detailTitle.textContent = video.title;
-          detailDescription.textContent = video.description;
-          detailThumbnail.src = video.thumbnailUrl;
-          detailThumbnail.alt = video.title;
-          // --- ধাপ ৪: প্লে বাটনে দ্বিতীয় বিজ্ঞাপনের লিঙ্ক সেট করা ---
-          detailPlayBtn.href = secondAdLink;
-        }
-      }
+    <!-- Movie Modal -->
+    <div class="modal fade" id="movieModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content rounded-3">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title" id="modal-title">Add New Movie</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body pt-0">
+                    <input type="hidden" id="movie-id">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Title *</label>
+                            <input type="text" id="m-title" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Category</label>
+                            <select id="m-category" class="form-select">
+                                <option value="Action">Action</option>
+                                <option value="Comedy">Comedy</option>
+                                <option value="Drama">Drama</option>
+                                <option value="Horror">Horror</option>
+                                <option value="Sci-Fi">Sci-Fi</option>
+                                <option value="Romance">Romance</option>
+                                <option value="upcoming">Upcoming</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Poster Image URL *</label>
+                            <input type="text" id="m-image" class="form-control" placeholder="https://...">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Video Stream/Download Link *</label>
+                            <input type="text" id="m-link" class="form-control" placeholder="https://...">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Director</label>
+                            <input type="text" id="m-director" class="form-control">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Year</label>
+                            <input type="text" id="m-year" class="form-control" placeholder="2024">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">IMDB Rating</label>
+                            <input type="text" id="m-rating" class="form-control" placeholder="8.5">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Cast (Comma separated)</label>
+                            <input type="text" id="m-cast" class="form-control" placeholder="Actor 1, Actor 2...">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Description</label>
+                            <textarea id="m-desc" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveMovie()">Save Movie</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-      // পপআপ বন্ধ করার জন্য
-      closePopupBtn.addEventListener('click', () => {
-        videoDetailPopup.style.display = 'none';
-      });
-      
-      // পপআপের বাইরে ক্লিক করলে বন্ধ হবে
-      videoDetailPopup.addEventListener('click', (e) => {
-          if (e.target === videoDetailPopup) {
-              videoDetailPopup.style.display = 'none';
-          }
-      });
+    <!-- Logout Confirmation Modal -->
+    <div class="modal fade" id="logoutModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-3">
+                <div class="modal-body text-center py-4">
+                    <i class="fas fa-exclamation-triangle text-warning mb-3" style="font-size: 2.5rem;"></i>
+                    <h5>Are you sure you want to log out?</h5>
+                    <p class="text-muted">You will be redirected to the login page.</p>
+                    <div class="d-flex justify-content-center gap-2 mt-3">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button class="btn btn-danger" onclick="logout()">Yes, Logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-      function initializeScrollAnimation() {
-        const items = document.querySelectorAll('.image-item');
-        if (!items.length) return;
-        const obs = new IntersectionObserver((entries, observer) => {
-          entries.forEach(e => {
-            if (e.isIntersecting) {
-              e.target.classList.add('visible');
-              observer.unobserve(e.target);
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyD-tlrPK8s9h87PVqtvprBy_phcCqONLeU",
+            authDomain: "my-movie-81a4b.firebaseapp.com",
+            databaseURL: "https://my-movie-81a4b-default-rtdb.firebaseio.com",
+            projectId: "my-movie-81a4b",
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        // Auth State
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('login-section').classList.add('d-none');
+                document.getElementById('dashboard-section').classList.remove('d-none');
+                loadMovies();
+                loadSettings();
+            } else {
+                document.getElementById('login-section').classList.remove('d-none');
+                document.getElementById('dashboard-section').classList.add('d-none');
             }
-          });
-        }, { root: null, rootMargin: '0px', threshold: 0.1 });
-        items.forEach(i => obs.observe(i));
-      }
+        });
 
-      function escapeHtml(str) {
-        const div = document.createElement('div');
-        div.appendChild(document.createTextNode(str));
-        return div.innerHTML;
-      }
-    });
-  </script>
+        function login() {
+            const email = document.getElementById('admin-email').value.trim();
+            const pass = document.getElementById('admin-pass').value;
+            if (!email || !pass) {
+                document.getElementById('login-error').textContent = "Please fill all fields.";
+                return;
+            }
+            auth.signInWithEmailAndPassword(email, pass)
+                .catch(error => document.getElementById('login-error').textContent = error.message);
+        }
+
+        function confirmLogout() {
+            const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
+            logoutModal.show();
+        }
+
+        function logout() {
+            auth.signOut();
+        }
+
+        // Tabs
+        function showTab(tabName) {
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+            event.target.closest('.nav-link').classList.add('active');
+
+            document.getElementById('tab-movies').style.display = tabName === 'movies' ? 'block' : 'none';
+            document.getElementById('tab-settings').style.display = tabName === 'settings' ? 'block' : 'none';
+        }
+
+        // Movies CRUD
+        let allMovies = [];
+
+        function loadMovies() {
+            db.ref('movies').on('value', snapshot => {
+                allMovies = [];
+                const data = snapshot.val();
+                if (data) {
+                    Object.entries(data).forEach(([key, movie]) => {
+                        allMovies.push({ key, ...movie });
+                    });
+                    allMovies.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                }
+                document.getElementById('total-movies-count').innerText = allMovies.length;
+                renderTable(allMovies);
+            });
+        }
+
+        function renderTable(movies) {
+            const tbody = document.getElementById('movies-table-body');
+            tbody.innerHTML = '';
+            movies.forEach(movie => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><img src="${movie.image || ''}" class="movie-img-preview" alt="poster"></td>
+                    <td>${movie.title || '-'}</td>
+                    <td><span class="badge bg-secondary">${movie.category || 'N/A'}</span></td>
+                    <td>${movie.releaseDate || '-'}</td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="editMovie('${movie.key}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteMovie('${movie.key}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function searchMovie() {
+            const term = document.getElementById('search-bar').value.toLowerCase();
+            const filtered = allMovies.filter(m => m.title?.toLowerCase().includes(term));
+            renderTable(filtered);
+        }
+
+        const movieModal = new bootstrap.Modal(document.getElementById('movieModal'));
+
+        function resetForm() {
+            document.getElementById('movie-id').value = '';
+            ['m-title','m-image','m-link','m-director','m-year','m-rating','m-cast','m-desc'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            document.getElementById('m-category').value = 'Action';
+            document.getElementById('modal-title').innerText = "Add New Movie";
+        }
+
+        function editMovie(key) {
+            const movie = allMovies.find(m => m.key === key);
+            if (!movie) return;
+            document.getElementById('movie-id').value = key;
+            document.getElementById('m-title').value = movie.title || '';
+            document.getElementById('m-category').value = movie.category || 'Action';
+            document.getElementById('m-image').value = movie.image || '';
+            document.getElementById('m-link').value = movie.link || '';
+            document.getElementById('m-director').value = movie.director || '';
+            document.getElementById('m-year').value = movie.releaseDate || '';
+            document.getElementById('m-rating').value = movie.rating || '';
+            document.getElementById('m-cast').value = movie.cast || '';
+            document.getElementById('m-desc').value = movie.description || '';
+            document.getElementById('modal-title').innerText = "Edit Movie";
+            movieModal.show();
+        }
+
+        function saveMovie() {
+            const id = document.getElementById('movie-id').value;
+            const title = document.getElementById('m-title').value.trim();
+            const image = document.getElementById('m-image').value.trim();
+            const link = document.getElementById('m-link').value.trim();
+
+            if (!title || !image || !link) {
+                alert("Title, Poster URL, and Video Link are required!");
+                return;
+            }
+
+            const data = {
+                title,
+                category: document.getElementById('m-category').value,
+                image,
+                link,
+                director: document.getElementById('m-director').value.trim(),
+                releaseDate: document.getElementById('m-year').value.trim(),
+                rating: document.getElementById('m-rating').value.trim(),
+                cast: document.getElementById('m-cast').value.trim(),
+                description: document.getElementById('m-desc').value.trim(),
+                timestamp: id ? (allMovies.find(m => m.key === id)?.timestamp || Date.now()) : Date.now()
+            };
+
+            if (id) {
+                db.ref('movies/' + id).update(data);
+            } else {
+                db.ref('movies').push(data);
+            }
+            movieModal.hide();
+        }
+
+        function deleteMovie(key) {
+            if (confirm('Delete this movie permanently?')) {
+                db.ref('movies/' + key).remove();
+            }
+        }
+
+        // Settings
+        function loadSettings() {
+            db.ref('siteSettings').once('value', snapshot => {
+                const val = snapshot.val() || {};
+                document.getElementById('setting-ad-link').value = val.adLink || '';
+                document.getElementById('setting-app-link').value = val.appDownloadFileLink || '';
+                document.getElementById('setting-app-icon').value = val.appIcon || '';
+            });
+        }
+
+        function saveSettings() {
+            const data = {
+                adLink: document.getElementById('setting-ad-link').value.trim(),
+                appDownloadFileLink: document.getElementById('setting-app-link').value.trim(),
+                appIcon: document.getElementById('setting-app-icon').value.trim()
+            };
+            db.ref('siteSettings').update(data).then(() => {
+                alert("✅ Settings saved successfully!");
+            });
+        }
+    </script>
 </body>
-  </html>
+</html>
