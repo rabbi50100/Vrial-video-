@@ -1,766 +1,569 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Url Video Player</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>CineStream - Admin Panel</title>
+
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
+
     <style>
         :root {
-            --primary-red: #d32f2f;
-            --white: #ffffff;
-            --gray: #f0f0f0;
-            --text-dark: #333333;
-            --text-gray: #777777;
-            --bottom-nav-bg: #111111;
+            --primary: #6c5ce7;
+            --primary-dark: #5649c0;
+            --sidebar-bg: #1e293b;
+            --sidebar-text: #cbd5e1;
+            --sidebar-active: #8892b0;
+            --card-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --border-radius: 12px;
+        }
+
+        * {
+            font-family: 'Poppins', sans-serif;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            background-color: var(--primary-red);
-            display: flex;
-            justify-content: center;
-            height: 100vh;
-            color: var(--text-dark);
-            overflow: hidden; 
+            background-color: #f8fafc;
+            overflow-x: hidden;
         }
 
-        .main-container {
-            width: 100%;
-            max-width: 480px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 0 20px rgba(0,0,0,0.3);
-            background-color: var(--primary-red);
-            position: relative;
+        /* Login */
+        .login-container {
+            max-width: 420px;
+            margin: 100px auto;
+            padding: 30px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
         }
 
-        header {
-            padding: 15px 20px;
+        .login-container h3 {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 24px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--sidebar-bg);
+            min-height: 100vh;
+            position: fixed;
+            width: 250px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar .logo {
+            padding: 20px 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
             color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        header h2 { margin: 0; font-size: 20px; font-weight: 600; }
-        header .fa-ellipsis-vertical { font-size: 20px; }
-
-        .status-bar {
-            background: rgba(255,255,255,0.2);
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            margin: 0 20px 15px 20px;
-            color: white;
-        }
-        .status-dot {
-            height: 8px; width: 8px;
-            background: #4caf50;
-            border-radius: 50%;
-            margin-right: 8px;
-        }
-        .status-bar .hd-quality {
-            margin-left: auto;
-            opacity: 0.7;
+            border-bottom: 1px solid #334155;
+            margin-bottom: 20px;
         }
 
-        .video-container {
-            position: relative;
-            background: #000;
-            height: 250px;
-            margin: 0 20px;
-            border-radius: 15px;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        .nav-link {
+            color: var(--sidebar-text) !important;
+            padding: 12px 20px;
+            margin: 6px 10px;
+            border-radius: 8px;
+            transition: all 0.25s ease;
+            font-weight: 500;
         }
 
-        #placeholderText {
-            color: var(--white);
-            font-size: 14px;
-            text-transform: uppercase;
-            font-weight: bold;
+        .nav-link:hover, .nav-link.active {
+            background: rgba(108, 92, 231, 0.2);
+            color: white !important;
+        }
+
+        .nav-link i {
+            width: 20px;
             text-align: center;
-            position: absolute;
-            width: 80%;
-            z-index: 1;
+            margin-right: 10px;
         }
 
-        .video-loader {
-            position: absolute;
-            z-index: 15;
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 24px;
+            transition: margin-left 0.3s ease;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar { width: 70px; }
+            .sidebar .logo, .sidebar .nav-text { display: none; }
+            .sidebar .nav-link span { display: none; }
+            .sidebar .nav-link i { margin-right: 0; font-size: 1.2rem; }
+            .main-content { margin-left: 70px; }
+        }
+
+        /* Stats Cards */
+        .stat-card {
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            transition: transform 0.2s;
+            border-left: 4px solid var(--primary);
+            background: white;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-icon {
             width: 50px;
             height: 50px;
-            border: 5px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: var(--primary-red);
-            animation: spin 1s ease-in-out infinite;
-            display: none; 
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain; 
-            position: absolute;
-            top: 0; left: 0;
-            display: none; 
-        }
-
-        .player-controls {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            display: none; 
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 10px;
-            box-sizing: border-box;
-            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 50%, rgba(0,0,0,0) 100%);
-            z-index: 10;
-            transition: opacity 0.3s;
-            pointer-events: none; 
-        }
-
-        .controls-top { display: flex; justify-content: flex-end; padding: 10px; gap: 15px; pointer-events: auto; }
-        .controls-top i { color: white; font-size: 24px; opacity: 0.8; cursor: pointer; }
-
-        .controls-center {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            display: flex; align-items: center; gap: 20px; pointer-events: auto;
-        }
-        .circle-control {
-            border: 2px solid white; border-radius: 50%; width: 50px; height: 50px;
-            display: flex; justify-content: center; align-items: center; cursor: pointer; transition: all 0.2s;
-        }
-        .circle-control:hover { background-color: rgba(255,255,255,0.1); }
-        .center-play-pause { width: 65px; height: 65px; background: rgba(0,0,0,0.5); border: 3px solid white; }
-        .circle-control i { color: white; font-size: 24px; }
-        .rewind i, .forward i { font-size: 18px; }
-        .forward, .rewind { background: rgba(0,0,0,0.3); }
-
-        .controls-bottom-bar {
-            position: absolute; bottom: 0; left: 0; width: 100%; padding: 10px; box-sizing: border-box;
-            background: rgba(0,0,0,0.5); display: flex; align-items: center; color: white; font-size: 12px; gap: 10px; pointer-events: auto;
-        }
-        .time-display { display: flex; gap: 5px; }
-        .bottom-icons { margin-left: auto; display: flex; gap: 12px; align-items: center; }
-        .bottom-icons i { color: white; font-size: 20px; opacity: 0.8; cursor: pointer; }
-        
-        .seek-bar-container {
-            flex-grow: 1; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; position: relative; cursor: pointer; padding: 10px 0; background-clip: content-box;
-        }
-        .seek-bar-progress { height: 100%; background: var(--primary-red); border-radius: 2px; width: 0%; position: absolute; top: 10px; }
-        .seek-handle {
-            width: 12px; height: 12px; background: var(--primary-red); border-radius: 50%; position: absolute;
-            top: 12px; transform: translate(-50%, -50%); left: 0%; box-shadow: 0 0 5px rgba(0,0,0,0.5);
-        }
-
-        .settings-menu {
-            position: absolute; bottom: 45px; right: 15px; background: rgba(0, 0, 0, 0.85); border-radius: 10px;
-            display: none; flex-direction: column; min-width: 110px; z-index: 20; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.5); pointer-events: auto;
-        }
-        .setting-item { padding: 12px 15px; color: white; font-size: 13px; font-weight: bold; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid rgba(255, 255, 255, 0.1); text-align: center; }
-        .setting-item:last-child { border-bottom: none; }
-        .setting-item:hover { background: rgba(255, 255, 255, 0.2); }
-
-        /* Modified content card to fit bottom nav */
-        .content-card {
-            background: white; flex: 1; margin-top: 20px;
-            border-radius: 30px 30px 0 0; padding: 20px;
-            padding-bottom: 80px; /* Space for Bottom Nav */
-            overflow-y: auto; display: flex; flex-direction: column; z-index: 5;
-        }
-
-        .nav-section { display: none; }
-        .nav-section.active { display: block; }
-
-        .input-group {
-            border: 2px solid #ddd; border-radius: 20px;
-            padding: 12px 15px; margin-bottom: 15px; display: flex; align-items: center;
-        }
-        .input-group i { margin-right: 15px; color: var(--primary-red); font-size: 22px; width: 25px; text-align: center; }
-        input { border: none; outline: none; width: 100%; font-size: 16px; color: var(--text-dark); }
-        
-        .btn-play {
-            background: var(--primary-red); color: white; width: 100%;
-            padding: 18px; border-radius: 20px; border: none; font-size: 17px;
-            font-weight: bold; cursor: pointer; display: flex; align-items: center;
-            justify-content: center; gap: 12px; margin-top: 10px; text-transform: uppercase;
-        }
-        
-        .btn-google { background: #4285F4; }
-        .btn-logout { background: #333; margin-top: 15px; }
-
-        .history-list { display: flex; flex-direction: column; gap: 10px; }
-        .history-item {
-            background: var(--gray); padding: 15px; border-radius: 20px;
-            display: flex; align-items: center; gap: 15px; cursor: pointer;
-        }
-        .item-play-icon { background: rgba(211, 47, 47, 0.1); color: var(--primary-red); padding: 12px; border-radius: 12px; font-size: 16px; }
-        .item-info { flex: 1; overflow: hidden; }
-        .item-info h4, .item-info p { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .item-info h4 { font-size: 16px; font-weight: 600; }
-        .item-info p { margin-top: 5px; font-size: 12px; color: var(--text-gray); }
-
-        /* --- New Bottom Navigation Bar CSS --- */
-        .bottom-nav {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: var(--bottom-nav-bg);
+            background: rgba(108, 92, 231, 0.15);
+            border-radius: 12px;
             display: flex;
-            justify-content: space-around;
-            padding: 12px 0;
-            z-index: 50;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.5);
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
             align-items: center;
-            color: #777;
-            font-size: 12px;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: var(--primary);
+        }
+
+        /* Movie Table */
+        .movie-img-preview {
+            width: 50px;
+            height: 75px;
+            object-fit: cover;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .table th {
             font-weight: 600;
-            cursor: pointer;
-            gap: 5px;
-            transition: 0.3s;
         }
 
-        .nav-item i {
-            font-size: 22px;
+        /* Form Inputs */
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #334155;
         }
 
-        .nav-item.active {
-            color: white;
-        }
-        
-        .nav-item.active i {
-            color: var(--primary-red);
+        .btn-primary {
+            background: var(--primary);
+            border: none;
         }
 
-        /* Profile Section */
-        .profile-container {
-            text-align: center;
-            padding: 20px;
-        }
-        .profile-container img {
-            width: 90px; height: 90px; border-radius: 50%;
-            border: 3px solid var(--primary-red); margin-bottom: 10px;
-        }
-        .profile-container h3 { margin: 0; font-size: 20px; color: var(--text-dark); }
-        .profile-container p { margin: 5px 0 20px 0; color: var(--text-gray); font-size: 14px; }
-
-        .placeholder-box {
-            background: var(--gray); padding: 30px; text-align: center;
-            border-radius: 20px; color: var(--text-gray); font-weight: bold; margin-top: 20px;
+        .btn-primary:hover {
+            background: var(--primary-dark);
         }
 
-        @media screen and (max-width: 480px) {
-            .main-container { height: 100vh; max-height: 100vh; border-radius: 0; }
+        /* Search Bar */
+        #search-bar:focus {
+            box-shadow: 0 0 0 0.2rem rgba(108, 92, 231, 0.25);
+            border-color: var(--primary);
+        }
+
+        /* Modal Header */
+        .modal-header {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .modal-title {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        /* Logout Confirmation */
+        #logoutModal .btn-danger {
+            background: #e53e3e;
         }
     </style>
 </head>
 <body>
 
-<div class="main-container">
-    <header>
-        <h2>Url Video Player</h2>
-        <i class="fa-solid fa-ellipsis-vertical"></i>
-    </header>
-
-    <div class="status-bar">
-        <span class="status-dot"></span> <span id="statusText">Ready to Play</span> 
-        <span class="hd-quality">HD Quality</span>
-    </div>
-
-    <div class="video-container" id="videoContainer">
-        <span id="placeholderText">ADD OR SELECT VIDEO TO PLAY</span>
-        <div class="video-loader" id="videoLoader"></div>
-        <video id="videoElement" playsinline></video>
-        
-        <div class="player-controls" id="playerControls">
-            <div class="controls-top">
-                <i class="fa-solid fa-chromecast" id="castBtn" title="Cast"></i>
-                <i class="fa-solid fa-code-merge" title="Merge"></i>
+    <!-- LOGIN SECTION -->
+    <div id="login-section" class="container">
+        <div class="login-container text-center">
+            <h3><i class="fas fa-film me-2"></i> CineStream Admin</h3>
+            <div class="mb-3">
+                <input type="email" id="admin-email" class="form-control" placeholder="Admin Email">
             </div>
-            <div class="controls-center">
-                <div class="circle-control rewind" id="rewindBtn"><i class="fa-solid fa-rotate-left"></i></div>
-                <div class="circle-control center-play-pause" id="centerPlayPause"><i class="fa-solid fa-play"></i></div>
-                <div class="circle-control forward" id="forwardBtn"><i class="fa-solid fa-rotate-right"></i></div>
+            <div class="mb-3">
+                <input type="password" id="admin-pass" class="form-control" placeholder="Password">
             </div>
-            <div class="settings-menu" id="settingsMenu">
-                <div class="setting-item" id="speedOption">Speed: 1x</div>
-                <div class="setting-item" id="downloadOption">Download</div>
-            </div>
-            <div class="controls-bottom-bar">
-                <div class="time-display">
-                    <span id="currentTime">00:00</span>
-                    <span id="duration">0:00:00</span>
-                </div>
-                <div class="seek-bar-container" id="seekBarContainer">
-                    <div class="seek-bar-progress" id="seekBarProgress"></div>
-                    <div class="seek-handle" id="seekHandle"></div>
-                </div>
-                <div class="bottom-icons">
-                    <i class="fa-solid fa-backward-step" id="restartBtn" title="Restart"></i>
-                    <i class="fa-solid fa-gear" id="settingsBtn" title="Settings"></i>
-                    <i class="fa-regular fa-clone" id="pipBtn" title="Picture in Picture"></i>
-                    <i class="fa-solid fa-expand" id="fullscreenBtn" title="Fullscreen"></i>
-                </div>
-            </div>
+            <button onclick="login()" class="btn btn-primary w-100 py-2">Login</button>
+            <p id="login-error" class="text-danger mt-2 mb-0"></p>
         </div>
     </div>
 
-    <div class="content-card">
-        
-        <!-- 1. HOME SECTION -->
-        <div id="home-section" class="nav-section active">
-            <div class="input-group">
-                <i class="fa-solid fa-t"></i>
-                <input type="text" id="videoTitle" placeholder="Video Title">
+    <!-- ADMIN DASHBOARD -->
+    <div id="dashboard-section" class="admin-container d-none">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-film me-2"></i> CineStream
             </div>
-            <div class="input-group">
-                <i class="fa-solid fa-link"></i>
-                <input type="text" id="videoUrl" placeholder="Video URL or TG Code">
-            </div>
-            <div class="input-group">
-                <i class="fa-brands fa-internet-explorer"></i>
-                <input type="text" id="userAgent" placeholder="User Agent (Optional)">
-            </div>
-            <button class="btn-play" onclick="saveAndPlay()">
-                <i class="fa-solid fa-play"></i> SAVE AND PLAY
-            </button>
+            <ul class="nav flex-column px-2">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active" onclick="showTab('movies')">
+                        <i class="fas fa-film"></i> <span>Movies</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="showTab('settings')">
+                        <i class="fas fa-cog"></i> <span>Settings & Ads</span>
+                    </a>
+                </li>
+                <li class="nav-item mt-auto position-absolute bottom-0 w-100 px-2">
+                    <button class="btn btn-outline-light w-100 py-2" onclick="confirmLogout()">
+                        <i class="fas fa-sign-out-alt me-2"></i> <span>Logout</span>
+                    </button>
+                </li>
+            </ul>
         </div>
 
-        <!-- 2. MOVIES SECTION -->
-        <div id="movies-section" class="nav-section">
-            <h3 style="margin-top:0;">All Movies</h3>
-            <div class="placeholder-box">
-                <i class="fa-solid fa-film" style="font-size: 30px; margin-bottom:10px; color:var(--primary-red);"></i><br>
-                Movie Posts & Codes will appear here.
-            </div>
-        </div>
-
-        <!-- 3. HISTORY SECTION -->
-        <div id="history-section" class="nav-section">
-            <h3 style="margin-top:0;">Your History</h3>
-            <div class="history-list" id="historyList"></div>
-        </div>
-
-        <!-- 4. FAVORITES SECTION -->
-        <div id="favorites-section" class="nav-section">
-            <h3 style="margin-top:0;">Favorites</h3>
-            <div class="placeholder-box">
-                <i class="fa-solid fa-heart-crack" style="font-size: 30px; margin-bottom:10px; color:#aaa;"></i><br>
-                No favorite videos yet.
-            </div>
-        </div>
-
-        <!-- 5. ME SECTION (LOGIN/PROFILE) -->
-        <div id="me-section" class="nav-section">
-            <!-- Show when Logged Out -->
-            <div id="loginArea" style="text-align:center; padding-top:20px;">
-                <h3 style="margin-bottom: 5px;">Welcome!</h3>
-                <p style="color:var(--text-gray); font-size:14px; margin-bottom:20px;">Please login to sync your data</p>
-                <button class="btn-play btn-google" onclick="signInWithGoogle()">
-                    <i class="fa-brands fa-google"></i> Login with Google
-                </button>
-            </div>
-            
-            <!-- Show when Logged In -->
-            <div id="profileArea" class="profile-container" style="display:none;">
-                <img id="profilePic" src="" alt="Profile Picture">
-                <h3 id="profileName">User Name</h3>
-                <p id="profileEmail">user@gmail.com</p>
-                <button class="btn-play btn-logout" onclick="signOut()">
-                    <i class="fa-solid fa-right-from-bracket"></i> Logout
-                </button>
-            </div>
-        </div>
-        
-    </div>
-
-    <!-- 5 Bottom Navigation Options -->
-    <div class="bottom-nav">
-        <div class="nav-item active" onclick="switchNav('home', this)">
-            <i class="fa-solid fa-house"></i>
-            <span>Home</span>
-        </div>
-        <div class="nav-item" onclick="switchNav('movies', this)">
-            <i class="fa-solid fa-film"></i>
-            <span>Movies</span>
-        </div>
-        <div class="nav-item" onclick="switchNav('history', this)">
-            <i class="fa-solid fa-clock-rotate-left"></i>
-            <span>History</span>
-        </div>
-        <div class="nav-item" onclick="switchNav('favorites', this)">
-            <i class="fa-solid fa-heart"></i>
-            <span>Favorites</span>
-        </div>
-        <div class="nav-item" onclick="switchNav('me', this)">
-            <i class="fa-solid fa-user"></i>
-            <span>Me</span>
-        </div>
-    </div>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyDxENg9lQdYCpcQ_ujZvh_dazfE9Qdogb8",
-        authDomain: "telegram-brought.firebaseapp.com",
-        databaseURL: "https://telegram-brought-default-rtdb.firebaseio.com",
-        projectId: "telegram-brought",
-    };
-
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-
-    // --- Device ID System for Private History ---
-    function getUniqueDeviceId() {
-        let deviceId = localStorage.getItem('my_device_id');
-        if (!deviceId) {
-            // Generate a random ID for this specific mobile device
-            deviceId = 'device_' + Math.random().toString(36).substr(2, 9) + Date.now();
-            localStorage.setItem('my_device_id', deviceId);
-        }
-        return deviceId;
-    }
-
-    // Now history is saved per device, so everyone's history is separate!
-    const userDeviceId = getUniqueDeviceId();
-    const dbRef = firebase.database().ref('user_history/' + userDeviceId); 
-    
-    // --- Google Login Logic ---
-    const auth = firebase.auth();
-    const provider = new firebase.auth.GoogleAuthProvider();
-
-    function signInWithGoogle() {
-        auth.signInWithPopup(provider).catch((error) => {
-            alert("লগইন ব্যর্থ হয়েছে: " + error.message);
-        });
-    }
-
-    function signOut() {
-        auth.signOut().then(() => {
-            alert("আপনি সফলভাবে লগআউট করেছেন!");
-        }).catch((error) => {
-            console.error("Logout Failed: ", error);
-        });
-    }
-
-    // Update 'Me' Section based on Login Status
-    auth.onAuthStateChanged((user) => {
-        const loginArea = document.getElementById('loginArea');
-        const profileArea = document.getElementById('profileArea');
-        
-        if (user) {
-            loginArea.style.display = 'none';
-            profileArea.style.display = 'block';
-            document.getElementById('profilePic').src = user.photoURL;
-            document.getElementById('profileName').innerText = user.displayName;
-            document.getElementById('profileEmail').innerText = user.email;
-        } else {
-            loginArea.style.display = 'block';
-            profileArea.style.display = 'none';
-        }
-    });
-
-    // --- Bottom Navigation Switch Logic ---
-    function switchNav(sectionId, clickedElement) {
-        // Hide all sections
-        document.querySelectorAll('.nav-section').forEach(sec => sec.classList.remove('active'));
-        // Remove active color from all icons
-        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-
-        // Show targeted section
-        document.getElementById(sectionId + '-section').classList.add('active');
-        // Add active color to clicked icon
-        clickedElement.classList.add('active');
-
-        // Load history only if history tab is opened
-        if (sectionId === 'history') {
-            loadHistoryFromFirebase();
-        }
-    }
-
-    // --- Video Player Core Logic (Unchanged) ---
-    const video = document.getElementById('videoElement');
-    const videoContainer = document.getElementById('videoContainer');
-    const playerControls = document.getElementById('playerControls');
-    const playPauseBtn = document.getElementById('centerPlayPause');
-    const playPauseIcon = playPauseBtn.querySelector('i');
-    const currentTimeText = document.getElementById('currentTime');
-    const durationText = document.getElementById('duration');
-    const seekBarProgress = document.getElementById('seekBarProgress');
-    const seekBarContainer = document.getElementById('seekBarContainer');
-    const seekHandle = document.getElementById('seekHandle');
-    const statusText = document.getElementById('statusText');
-    const videoLoader = document.getElementById('videoLoader');
-
-    function saveAndPlay() {
-        let inputUrl = document.getElementById('videoUrl').value.trim(); 
-        let titleInput = document.getElementById('videoTitle').value.trim();
-
-        if(!inputUrl) return alert("দয়া করে ভিডিও ইউআরএল অথবা টেলিগ্রাম কোড দিন!");
-
-        videoLoader.style.display = 'block';
-        document.getElementById('placeholderText').style.display = 'none';
-
-        if (inputUrl.startsWith("TG-")) {
-            statusText.innerText = "Checking Code...";
-            firebase.database().ref('secure_links/' + inputUrl).once('value').then((snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    let finalTitle = titleInput ? titleInput : data.title; 
-                    document.getElementById('videoTitle').value = finalTitle; 
-                    dbRef.push({ title: finalTitle, url: data.real_url, timestamp: new Date().toLocaleString() });
-                    startPlayer(data.real_url);
-                } else {
-                    alert("ভুল কোড! আপনার দেওয়া লিংকটি সঠিক নয় অথবা এক্সপায়ার হয়ে গেছে।");
-                    statusText.innerText = "Ready to Play";
-                    videoLoader.style.display = 'none'; 
-                }
-            }).catch(error => {
-                alert("সার্ভার সমস্যা হচ্ছে, একটু পর আবার চেষ্টা করুন।");
-                videoLoader.style.display = 'none'; 
-            });
-        } else {
-            if(!titleInput) titleInput = "Unknown Video";
-            dbRef.push({ title: titleInput, url: inputUrl, timestamp: new Date().toLocaleString() });
-            startPlayer(inputUrl);
-        }
-    }
-
-    function startPlayer(url) {
-        document.getElementById('placeholderText').style.display = 'none';
-        video.style.display = 'block';
-        video.src = url;
-        video.play();
-        playPauseIcon.className = 'fa-solid fa-pause';
-        showControls();
-        statusText.innerText = "Loading Video...";
-    }
-
-    video.addEventListener('playing', () => {
-        videoLoader.style.display = 'none';
-        statusText.innerText = "Playing";
-    });
-
-    video.addEventListener('waiting', () => {
-        videoLoader.style.display = 'block';
-        statusText.innerText = "Buffering...";
-    });
-
-    function loadHistoryFromFirebase() {
-        const listDiv = document.getElementById('historyList');
-        dbRef.on('value', (snapshot) => {
-            listDiv.innerHTML = ""; 
-            if(!snapshot.exists()){
-                listDiv.innerHTML = "<p style='text-align:center; color:gray;'>No history found.</p>";
-                return;
-            }
-            snapshot.forEach((childSnapshot) => {
-                const data = childSnapshot.val();
-                listDiv.innerHTML += `
-                    <div class="history-item" onclick="startPlayer('${data.url}')">
-                        <div class="item-play-icon"><i class="fa-solid fa-play"></i></div>
-                        <div class="item-info">
-                            <h4>${data.title}</h4>
-                            <p>${data.url}</p>
-                            <p><small>${data.timestamp}</small></p>
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Stats -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="stat-card p-3">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon me-3">
+                                <i class="fas fa-film"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted">Total Movies</small>
+                                <h3 class="mb-0" id="total-movies-count">0</h3>
+                            </div>
                         </div>
                     </div>
-                `;
-            });
+                </div>
+            </div>
+
+            <!-- Tabs Content -->
+            <div id="tab-movies">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="fw-bold">Movie Management</h4>
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#movieModal" onclick="resetForm()">
+                        <i class="fas fa-plus me-1"></i> Add New Movie
+                    </button>
+                </div>
+                <input type="text" id="search-bar" class="form-control mb-3" placeholder="Search movies by title..." onkeyup="searchMovie()">
+
+                <div class="bg-white rounded-3 shadow-sm p-3">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Poster</th>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Year</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="movies-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="tab-settings" style="display: none;">
+                <h4 class="fw-bold mb-4">Site Settings</h4>
+                <div class="card p-4 shadow-sm" style="max-width: 650px;">
+                    <div class="mb-3">
+                        <label class="form-label">Ad Direct Link (Required)</label>
+                        <input type="text" id="setting-ad-link" class="form-control" placeholder="https://example.com">
+                    </div>
+                    <hr>
+                    <h5 class="mb-3">App Promotion</h5>
+                    <div class="mb-3">
+                        <label class="form-label">App Download Link</label>
+                        <input type="text" id="setting-app-link" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">App Icon URL</label>
+                        <input type="text" id="setting-app-icon" class="form-control">
+                    </div>
+                    <button onclick="saveSettings()" class="btn btn-primary mt-2">Save Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Movie Modal -->
+    <div class="modal fade" id="movieModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content rounded-3">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title" id="modal-title">Add New Movie</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body pt-0">
+                    <input type="hidden" id="movie-id">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Title *</label>
+                            <input type="text" id="m-title" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Category</label>
+                            <select id="m-category" class="form-select">
+                                <option value="Action">Action</option>
+                                <option value="Comedy">Comedy</option>
+                                <option value="Drama">Drama</option>
+                                <option value="Horror">Horror</option>
+                                <option value="Sci-Fi">Sci-Fi</option>
+                                <option value="Romance">Romance</option>
+                                <option value="upcoming">Upcoming</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Poster Image URL *</label>
+                            <input type="text" id="m-image" class="form-control" placeholder="https://...">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Video Stream/Download Link *</label>
+                            <input type="text" id="m-link" class="form-control" placeholder="https://...">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Director</label>
+                            <input type="text" id="m-director" class="form-control">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Year</label>
+                            <input type="text" id="m-year" class="form-control" placeholder="2024">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">IMDB Rating</label>
+                            <input type="text" id="m-rating" class="form-control" placeholder="8.5">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Cast (Comma separated)</label>
+                            <input type="text" id="m-cast" class="form-control" placeholder="Actor 1, Actor 2...">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Description</label>
+                            <textarea id="m-desc" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveMovie()">Save Movie</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="modal fade" id="logoutModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-3">
+                <div class="modal-body text-center py-4">
+                    <i class="fas fa-exclamation-triangle text-warning mb-3" style="font-size: 2.5rem;"></i>
+                    <h5>Are you sure you want to log out?</h5>
+                    <p class="text-muted">You will be redirected to the login page.</p>
+                    <div class="d-flex justify-content-center gap-2 mt-3">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button class="btn btn-danger" onclick="logout()">Yes, Logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyD-tlrPK8s9h87PVqtvprBy_phcCqONLeU",
+            authDomain: "my-movie-81a4b.firebaseapp.com",
+            databaseURL: "https://my-movie-81a4b-default-rtdb.firebaseio.com",
+            projectId: "my-movie-81a4b",
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        // Auth State
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('login-section').classList.add('d-none');
+                document.getElementById('dashboard-section').classList.remove('d-none');
+                loadMovies();
+                loadSettings();
+            } else {
+                document.getElementById('login-section').classList.remove('d-none');
+                document.getElementById('dashboard-section').classList.add('d-none');
+            }
         });
-    }
 
-    function togglePlay(e) {
-        if(e) e.stopPropagation();
-        if (video.paused) {
-            video.play();
-            playPauseIcon.className = 'fa-solid fa-pause';
-            statusText.innerText = "Playing";
-        } else {
-            video.pause();
-            playPauseIcon.className = 'fa-solid fa-play';
-            statusText.innerText = "Paused";
+        function login() {
+            const email = document.getElementById('admin-email').value.trim();
+            const pass = document.getElementById('admin-pass').value;
+            if (!email || !pass) {
+                document.getElementById('login-error').textContent = "Please fill all fields.";
+                return;
+            }
+            auth.signInWithEmailAndPassword(email, pass)
+                .catch(error => document.getElementById('login-error').textContent = error.message);
         }
-    }
 
-    playPauseBtn.onclick = togglePlay;
-    document.getElementById('rewindBtn').onclick = (e) => { e.stopPropagation(); video.currentTime -= 10; };
-    document.getElementById('forwardBtn').onclick = (e) => { e.stopPropagation(); video.currentTime += 10; };
-
-    video.addEventListener('loadedmetadata', () => {
-        durationText.textContent = formatTime(video.duration);
-    });
-
-    let isDragging = false; 
-
-    video.addEventListener('timeupdate', () => {
-        if (!isDragging) { 
-            currentTimeText.textContent = formatTime(video.currentTime);
-            const percentage = (video.currentTime / video.duration) * 100;
-            seekBarProgress.style.width = percentage + '%';
-            seekHandle.style.left = percentage + '%';
+        function confirmLogout() {
+            const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
+            logoutModal.show();
         }
-    });
 
-    function formatTime(seconds) {
-        if(isNaN(seconds)) return "00:00";
-        let h = Math.floor(seconds / 3600);
-        let m = Math.floor((seconds % 3600) / 60);
-        let s = Math.floor(seconds % 60);
-        m = m < 10 ? '0' + m : m;
-        s = s < 10 ? '0' + s : s;
-        return h > 0 ? h + ':' + m + ':' + s : m + ':' + s;
-    }
-
-    let dragPercentage = 0;
-
-    function getPercentage(e) {
-        const rect = seekBarContainer.getBoundingClientRect();
-        let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-        let posPercentage = (clientX - rect.left) / rect.width;
-        return Math.max(0, Math.min(1, posPercentage)); 
-    }
-
-    function updateSeekBarUI(percentage) {
-        seekBarProgress.style.width = (percentage * 100) + '%';
-        seekHandle.style.left = (percentage * 100) + '%';
-        currentTimeText.textContent = formatTime(percentage * video.duration);
-    }
-
-    function startDragging(e) {
-        e.stopPropagation(); 
-        isDragging = true; 
-        dragPercentage = getPercentage(e);
-        updateSeekBarUI(dragPercentage);
-    }
-
-    function duringDragging(e) {
-        if(isDragging) {
-            if(e.type.includes('touch')) e.preventDefault(); 
-            dragPercentage = getPercentage(e);
-            updateSeekBarUI(dragPercentage);
+        function logout() {
+            auth.signOut();
         }
-    }
 
-    function stopDragging() {
-        if(isDragging) {
-            isDragging = false;
-            if(video.duration) {
-                video.currentTime = dragPercentage * video.duration; 
+        // Tabs
+        function showTab(tabName) {
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+            event.target.closest('.nav-link').classList.add('active');
+
+            document.getElementById('tab-movies').style.display = tabName === 'movies' ? 'block' : 'none';
+            document.getElementById('tab-settings').style.display = tabName === 'settings' ? 'block' : 'none';
+        }
+
+        // Movies CRUD
+        let allMovies = [];
+
+        function loadMovies() {
+            db.ref('movies').on('value', snapshot => {
+                allMovies = [];
+                const data = snapshot.val();
+                if (data) {
+                    Object.entries(data).forEach(([key, movie]) => {
+                        allMovies.push({ key, ...movie });
+                    });
+                    allMovies.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                }
+                document.getElementById('total-movies-count').innerText = allMovies.length;
+                renderTable(allMovies);
+            });
+        }
+
+        function renderTable(movies) {
+            const tbody = document.getElementById('movies-table-body');
+            tbody.innerHTML = '';
+            movies.forEach(movie => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><img src="${movie.image || ''}" class="movie-img-preview" alt="poster"></td>
+                    <td>${movie.title || '-'}</td>
+                    <td><span class="badge bg-secondary">${movie.category || 'N/A'}</span></td>
+                    <td>${movie.releaseDate || '-'}</td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="editMovie('${movie.key}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteMovie('${movie.key}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function searchMovie() {
+            const term = document.getElementById('search-bar').value.toLowerCase();
+            const filtered = allMovies.filter(m => m.title?.toLowerCase().includes(term));
+            renderTable(filtered);
+        }
+
+        const movieModal = new bootstrap.Modal(document.getElementById('movieModal'));
+
+        function resetForm() {
+            document.getElementById('movie-id').value = '';
+            ['m-title','m-image','m-link','m-director','m-year','m-rating','m-cast','m-desc'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            document.getElementById('m-category').value = 'Action';
+            document.getElementById('modal-title').innerText = "Add New Movie";
+        }
+
+        function editMovie(key) {
+            const movie = allMovies.find(m => m.key === key);
+            if (!movie) return;
+            document.getElementById('movie-id').value = key;
+            document.getElementById('m-title').value = movie.title || '';
+            document.getElementById('m-category').value = movie.category || 'Action';
+            document.getElementById('m-image').value = movie.image || '';
+            document.getElementById('m-link').value = movie.link || '';
+            document.getElementById('m-director').value = movie.director || '';
+            document.getElementById('m-year').value = movie.releaseDate || '';
+            document.getElementById('m-rating').value = movie.rating || '';
+            document.getElementById('m-cast').value = movie.cast || '';
+            document.getElementById('m-desc').value = movie.description || '';
+            document.getElementById('modal-title').innerText = "Edit Movie";
+            movieModal.show();
+        }
+
+        function saveMovie() {
+            const id = document.getElementById('movie-id').value;
+            const title = document.getElementById('m-title').value.trim();
+            const image = document.getElementById('m-image').value.trim();
+            const link = document.getElementById('m-link').value.trim();
+
+            if (!title || !image || !link) {
+                alert("Title, Poster URL, and Video Link are required!");
+                return;
+            }
+
+            const data = {
+                title,
+                category: document.getElementById('m-category').value,
+                image,
+                link,
+                director: document.getElementById('m-director').value.trim(),
+                releaseDate: document.getElementById('m-year').value.trim(),
+                rating: document.getElementById('m-rating').value.trim(),
+                cast: document.getElementById('m-cast').value.trim(),
+                description: document.getElementById('m-desc').value.trim(),
+                timestamp: id ? (allMovies.find(m => m.key === id)?.timestamp || Date.now()) : Date.now()
+            };
+
+            if (id) {
+                db.ref('movies/' + id).update(data);
+            } else {
+                db.ref('movies').push(data);
+            }
+            movieModal.hide();
+        }
+
+        function deleteMovie(key) {
+            if (confirm('Delete this movie permanently?')) {
+                db.ref('movies/' + key).remove();
             }
         }
-    }
 
-    seekBarContainer.addEventListener('mousedown', startDragging);
-    seekBarContainer.addEventListener('touchstart', startDragging, {passive: false});
-    document.addEventListener('mousemove', duringDragging);
-    document.addEventListener('touchmove', duringDragging, {passive: false});
-    document.addEventListener('mouseup', stopDragging);
-    document.addEventListener('touchend', stopDragging);
-
-    document.getElementById('restartBtn').onclick = (e) => {
-        e.stopPropagation();
-        video.currentTime = 0;
-        video.play();
-        playPauseIcon.className = 'fa-solid fa-pause';
-    };
-
-    const settingsMenu = document.getElementById('settingsMenu');
-    const speedOption = document.getElementById('speedOption');
-    const downloadOption = document.getElementById('downloadOption');
-    let speeds = [1, 1.5, 2];
-    let speedIndex = 0;
-
-    document.getElementById('settingsBtn').onclick = (e) => {
-        e.stopPropagation();
-        settingsMenu.style.display = settingsMenu.style.display === 'flex' ? 'none' : 'flex';
-    };
-
-    speedOption.onclick = (e) => {
-        e.stopPropagation();
-        speedIndex = (speedIndex + 1) % speeds.length;
-        video.playbackRate = speeds[speedIndex];
-        speedOption.innerText = `Speed: ${speeds[speedIndex]}x`;
-        statusText.innerText = `Speed: ${speeds[speedIndex]}x`;
-    };
-
-    downloadOption.onclick = (e) => {
-        e.stopPropagation();
-        settingsMenu.style.display = 'none';
-        if(video.src) {
-            alert("ভিডিওটি ডাউনলোড করতে চাইলে, ভিডিওর ওপর লং প্রেস (Long Press) করে 'Download video' অপশনটি সিলেক্ট করুন।");
+        // Settings
+        function loadSettings() {
+            db.ref('siteSettings').once('value', snapshot => {
+                const val = snapshot.val() || {};
+                document.getElementById('setting-ad-link').value = val.adLink || '';
+                document.getElementById('setting-app-link').value = val.appDownloadFileLink || '';
+                document.getElementById('setting-app-icon').value = val.appIcon || '';
+            });
         }
-    };
 
-    document.addEventListener('click', () => { settingsMenu.style.display = 'none'; });
-
-    document.getElementById('pipBtn').onclick = async (e) => {
-        e.stopPropagation();
-        try {
-            if (document.pictureInPictureElement) { await document.exitPictureInPicture(); } 
-            else { await video.requestPictureInPicture(); }
-        } catch (error) { console.log("PiP not supported"); }
-    };
-
-    document.getElementById('fullscreenBtn').onclick = (e) => {
-        e.stopPropagation();
-        if (!document.fullscreenElement) {
-            videoContainer.requestFullscreen().catch(err => console.log(err));
-        } else {
-            document.exitFullscreen();
+        function saveSettings() {
+            const data = {
+                adLink: document.getElementById('setting-ad-link').value.trim(),
+                appDownloadFileLink: document.getElementById('setting-app-link').value.trim(),
+                appIcon: document.getElementById('setting-app-icon').value.trim()
+            };
+            db.ref('siteSettings').update(data).then(() => {
+                alert("✅ Settings saved successfully!");
+            });
         }
-    };
-
-    let controlsTimeout;
-    function showControls() {
-        playerControls.style.display = 'flex';
-        clearTimeout(controlsTimeout);
-        if (!video.paused) {
-            controlsTimeout = setTimeout(() => {
-                if(!isDragging) {
-                    playerControls.style.display = 'none';
-                    settingsMenu.style.display = 'none';
-                }
-            }, 3000);
-        }
-    }
-
-    videoContainer.addEventListener('mousemove', showControls);
-    videoContainer.addEventListener('touchstart', showControls, {passive: true});
-    
-    videoContainer.addEventListener('click', (e) => {
-        if(e.target.closest('.controls-center') || e.target.closest('.controls-bottom-bar') || e.target.closest('.controls-top') || e.target.closest('.settings-menu')) return;
-        
-        if (playerControls.style.display === 'none' || playerControls.style.display === '') {
-            showControls();
-        } else {
-            playerControls.style.display = 'none';
-            settingsMenu.style.display = 'none';
-        }
-    });
-</script>
-
+    </script>
 </body>
-            </html>
+</html>
