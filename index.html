@@ -5,204 +5,89 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Url Video Player</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
     <style>
         :root {
             --primary-red: #d32f2f;
-            --primary-red-dark: #b71c1c;
-            --primary-red-light: #ef5350;
             --white: #ffffff;
-            --gray: #f5f5f7;
-            --text-dark: #1d1d1f;
-            --text-gray: #6e6e73;
-            --bottom-nav-bg: #0a0a0a;
-            --card-bg: rgba(255, 255, 255, 0.95);
-            --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.1);
-            --shadow-strong: 0 12px 40px rgba(0, 0, 0, 0.2);
-            --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-smooth: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
+            --gray: #f0f0f0;
+            --text-dark: #333333;
+            --text-gray: #777777;
+            --bottom-nav-bg: #111111;
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 50%, #8e0000 100%);
+            background-color: var(--primary-red);
             display: flex;
             justify-content: center;
             height: 100vh;
-            height: 100dvh;
+            height: 100dvh; 
             color: var(--text-dark);
-            overflow: hidden;
-        }
-
-        /* Splash Screen */
-        .splash-screen {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 0.6s ease-out, visibility 0.6s ease-out;
-        }
-        .splash-screen.hidden {
-            opacity: 0;
-            visibility: hidden;
-        }
-        .splash-logo {
-            width: 100px;
-            height: 100px;
-            background: white;
-            border-radius: 24px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 48px;
-            color: var(--primary-red);
-            animation: pulse 1.5s ease-in-out infinite;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        .splash-text {
-            color: white;
-            font-size: 24px;
-            font-weight: 700;
-            margin-top: 20px;
-            animation: fadeInUp 0.8s ease-out;
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .splash-loader {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255,255,255,0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-top: 30px;
+            overflow: hidden; 
         }
 
         .main-container {
             width: 100%;
             max-width: 480px;
-            height: 100%;
+            height: 100%; 
             display: flex;
             flex-direction: column;
-            box-shadow: var(--shadow-strong);
-            background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            background-color: var(--primary-red);
             position: relative;
-            animation: slideUp 0.6s ease-out;
-        }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         header {
-            padding: 16px 20px;
+            padding: 15px 20px;
             color: white;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.05);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        header h2 { 
-            margin: 0; 
-            font-size: 22px; 
-            font-weight: 700; 
-            letter-spacing: -0.5px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
+        header h2 { margin: 0; font-size: 20px; font-weight: 600; }
         
         .header-right {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 15px;
         }
         .header-lang-select {
-            background: rgba(255,255,255,0.15);
+            background: transparent;
             color: white;
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 8px;
-            padding: 6px 10px;
+            border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 5px;
+            padding: 3px 5px;
             outline: none;
             font-size: 13px;
             cursor: pointer;
-            transition: var(--transition-fast);
-            backdrop-filter: blur(10px);
-        }
-        .header-lang-select:hover {
-            background: rgba(255,255,255,0.25);
         }
         .header-lang-select option {
             color: black;
-            background: white;
         }
         
-        header .fa-ellipsis-vertical { 
-            font-size: 20px; 
-            cursor: pointer; 
-            opacity: 0.9;
-            transition: var(--transition-fast);
-            padding: 8px;
-            border-radius: 50%;
-        }
-        header .fa-ellipsis-vertical:hover {
-            background: rgba(255,255,255,0.15);
-            opacity: 1;
-        }
+        header .fa-ellipsis-vertical { font-size: 20px; cursor: pointer; }
 
         .status-bar {
-            background: rgba(255,255,255,0.12);
-            backdrop-filter: blur(10px);
-            padding: 10px 16px;
-            border-radius: 12px;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
             font-size: 13px;
             display: flex;
             align-items: center;
-            margin: 12px 20px 15px 20px;
+            margin: 0 20px 15px 20px;
             color: white;
-            border: 1px solid rgba(255,255,255,0.1);
-            transition: var(--transition-smooth);
         }
         .status-dot {
-            height: 8px; 
-            width: 8px;
+            height: 8px; width: 8px;
             background: #4caf50;
             border-radius: 50%;
-            margin-right: 10px;
-            box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
-            animation: blink 2s infinite;
-        }
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            margin-right: 8px;
         }
         .status-bar .hd-quality {
             margin-left: auto;
-            opacity: 0.8;
-            font-weight: 600;
-            background: rgba(255,255,255,0.2);
-            padding: 2px 8px;
-            border-radius: 6px;
-            font-size: 11px;
+            opacity: 0.7;
+            font-weight: bold;
         }
 
         .video-container {
@@ -210,30 +95,22 @@
             background: #000;
             height: 250px;
             margin: 0 20px;
-            border-radius: 16px;
+            border-radius: 15px;
             overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            box-shadow: var(--shadow-strong);
-            border: 2px solid rgba(255,255,255,0.1);
         }
 
         #placeholderText {
             color: var(--white);
-            font-size: 15px;
+            font-size: 14px;
             text-transform: uppercase;
-            font-weight: 600;
+            font-weight: bold;
             text-align: center;
             position: absolute;
             width: 80%;
             z-index: 1;
-            letter-spacing: 1px;
-            animation: fadeIn 0.5s ease-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
         }
 
         .video-loader {
@@ -241,11 +118,11 @@
             z-index: 15;
             width: 50px;
             height: 50px;
-            border: 4px solid rgba(255, 255, 255, 0.2);
+            border: 5px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
             border-top-color: var(--primary-red);
-            animation: spin 0.8s linear infinite;
-            display: none;
+            animation: spin 1s ease-in-out infinite;
+            display: none; 
         }
         @keyframes spin {
             to { transform: rotate(360deg); }
@@ -254,399 +131,133 @@
         video {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: cover; 
             position: absolute;
             top: 0; left: 0;
-            display: none;
-            transition: object-fit 0.3s ease;
+            display: none; 
         }
 
         .player-controls {
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            display: none;
+            display: none; 
             flex-direction: column;
             justify-content: space-between;
             padding: 10px;
             box-sizing: border-box;
-            background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 40%, rgba(0,0,0,0) 70%, rgba(0,0,0,0.4) 100%);
+            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 50%, rgba(0,0,0,0) 100%);
             z-index: 10;
-            opacity: 0;
-            transition: opacity var(--transition-fast);
-            pointer-events: none;
-        }
-        .player-controls.active {
-            opacity: 1;
+            transition: opacity 0.3s;
+            pointer-events: none; 
         }
 
-        .controls-top { 
-            display: flex; 
-            justify-content: flex-end; 
-            padding: 10px; 
-            gap: 15px; 
-            pointer-events: auto; 
-        }
-        .controls-top i { 
-            color: white; 
-            font-size: 22px; 
-            opacity: 0.85; 
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 50%;
-            transition: var(--transition-fast);
-        }
-        .controls-top i:hover { 
-            opacity: 1;
-            background: rgba(255,255,255,0.15);
-        }
+        .controls-top { display: flex; justify-content: flex-end; padding: 10px; gap: 15px; pointer-events: auto; }
+        .controls-top i { color: white; font-size: 24px; opacity: 0.8; cursor: pointer; }
 
         .controls-center {
-            position: absolute; 
-            top: 50%; left: 50%;
+            position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            display: flex; 
-            align-items: center; 
-            gap: 24px; 
-            pointer-events: auto;
+            display: flex; align-items: center; gap: 20px; pointer-events: auto;
         }
         .circle-control {
-            border: 2px solid rgba(255,255,255,0.8); 
-            border-radius: 50%; 
-            width: 50px; 
-            height: 50px;
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            cursor: pointer; 
-            transition: var(--transition-fast);
-            backdrop-filter: blur(10px);
+            border: 2px solid white; border-radius: 50%; width: 50px; height: 50px;
+            display: flex; justify-content: center; align-items: center; cursor: pointer; transition: all 0.2s;
         }
-        .circle-control:hover { 
-            background-color: rgba(255,255,255,0.15);
-            transform: scale(1.1);
-        }
-        .center-play-pause { 
-            width: 70px; 
-            height: 70px; 
-            background: rgba(211, 47, 47, 0.6); 
-            border: 3px solid white;
-            box-shadow: 0 4px 20px rgba(211, 47, 47, 0.5);
-        }
-        .circle-control i { color: white; font-size: 22px; }
+        .circle-control:hover { background-color: rgba(255,255,255,0.1); }
+        .center-play-pause { width: 65px; height: 65px; background: rgba(0,0,0,0.5); border: 3px solid white; }
+        .circle-control i { color: white; font-size: 24px; }
         .rewind i, .forward i { font-size: 18px; }
-        .forward, .rewind { 
-            background: rgba(0,0,0,0.4);
-            backdrop-filter: blur(10px);
-        }
+        .forward, .rewind { background: rgba(0,0,0,0.3); }
 
         .controls-bottom-bar {
-            position: absolute; 
-            bottom: 0; 
-            left: 0; 
-            width: 100%; 
-            padding: 12px 15px; 
-            box-sizing: border-box;
-            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%);
-            display: flex; 
-            align-items: center; 
-            color: white; 
-            font-size: 12px; 
-            gap: 10px; 
-            pointer-events: auto;
+            position: absolute; bottom: 0; left: 0; width: 100%; padding: 10px; box-sizing: border-box;
+            background: rgba(0,0,0,0.5); display: flex; align-items: center; color: white; font-size: 12px; gap: 10px; pointer-events: auto;
         }
-        .time-display { 
-            display: flex; 
-            gap: 6px; 
-            font-weight: 500;
-            font-variant-numeric: tabular-nums;
-        }
-        .bottom-icons { 
-            margin-left: auto; 
-            display: flex; 
-            gap: 14px; 
-            align-items: center; 
-        }
-        .bottom-icons i { 
-            color: white; 
-            font-size: 20px; 
-            opacity: 0.85; 
-            cursor: pointer;
-            padding: 6px;
-            border-radius: 8px;
-            transition: var(--transition-fast);
-        }
-        .bottom-icons i:hover {
-            opacity: 1;
-            background: rgba(255,255,255,0.15);
-        }
+        .time-display { display: flex; gap: 5px; }
+        .bottom-icons { margin-left: auto; display: flex; gap: 12px; align-items: center; }
+        .bottom-icons i { color: white; font-size: 20px; opacity: 0.8; cursor: pointer; }
         
         .seek-bar-container {
-            flex-grow: 1; 
-            height: 6px; 
-            background: rgba(255,255,255,0.25); 
-            border-radius: 3px; 
-            position: relative; 
-            cursor: pointer;
-            transition: height var(--transition-fast);
+            flex-grow: 1; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; position: relative; cursor: pointer; padding: 10px 0; background-clip: content-box;
         }
-        .seek-bar-container:hover {
-            height: 8px;
-        }
-        .seek-bar-progress { 
-            height: 100%; 
-            background: var(--primary-red); 
-            border-radius: 3px; 
-            width: 0%; 
-            position: absolute; 
-            top: 0;
-            left: 0;
-            transition: width 0.1s linear;
-        }
+        .seek-bar-progress { height: 100%; background: var(--primary-red); border-radius: 2px; width: 0%; position: absolute; top: 10px; }
         .seek-handle {
-            width: 14px; 
-            height: 14px; 
-            background: white; 
-            border-radius: 50%; 
-            position: absolute;
-            top: 50%; 
-            transform: translate(-50%, -50%); 
-            left: 0%; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-            transition: transform var(--transition-fast);
-        }
-        .seek-bar-container:hover .seek-handle {
-            transform: translate(-50%, -50%) scale(1.3);
+            width: 12px; height: 12px; background: var(--primary-red); border-radius: 50%; position: absolute;
+            top: 12px; transform: translate(-50%, -50%); left: 0%; box-shadow: 0 0 5px rgba(0,0,0,0.5);
         }
 
         .settings-menu {
-            position: absolute; 
-            bottom: 55px; 
-            right: 15px; 
-            background: rgba(30, 30, 30, 0.95); 
-            backdrop-filter: blur(20px);
-            border-radius: 12px;
-            display: none; 
-            flex-direction: column; 
-            min-width: 140px; 
-            z-index: 20; 
-            overflow: hidden; 
-            box-shadow: var(--shadow-strong);
-            border: 1px solid rgba(255,255,255,0.1);
-            animation: slideUpMenu 0.2s ease-out;
+            position: absolute; bottom: 45px; right: 15px; background: rgba(0, 0, 0, 0.85); border-radius: 10px;
+            display: none; flex-direction: column; min-width: 130px; z-index: 20; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.5); pointer-events: auto;
         }
-        @keyframes slideUpMenu {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .setting-item { 
-            padding: 13px 16px; 
-            color: white; 
-            font-size: 13px; 
-            font-weight: 500; 
-            cursor: pointer; 
-            transition: background var(--transition-fast); 
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08); 
-            text-align: center;
-        }
+        .setting-item { padding: 12px 15px; color: white; font-size: 13px; font-weight: bold; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid rgba(255, 255, 255, 0.1); text-align: center; }
         .setting-item:last-child { border-bottom: none; }
-        .setting-item:hover { background: rgba(255, 255, 255, 0.1); }
-        .setting-item:active { background: rgba(255, 255, 255, 0.05); }
+        .setting-item:hover { background: rgba(255, 255, 255, 0.2); }
 
         .content-card {
-            background: var(--card-bg); 
-            flex: 1; 
-            margin-top: 20px;
-            border-radius: 28px 28px 0 0; 
-            padding: 24px 20px;
-            padding-bottom: 90px;
-            overflow-y: auto; 
-            display: flex; 
-            flex-direction: column; 
-            z-index: 5;
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
-            transition: var(--transition-smooth);
-            -webkit-overflow-scrolling: touch;
-        }
-        .content-card::-webkit-scrollbar {
-            width: 6px;
-        }
-        .content-card::-webkit-scrollbar-thumb {
-            background: rgba(0,0,0,0.2);
-            border-radius: 3px;
+            background: white; flex: 1; margin-top: 20px;
+            border-radius: 30px 30px 0 0; padding: 20px;
+            padding-bottom: 80px; 
+            overflow-y: auto; display: flex; flex-direction: column; z-index: 5;
         }
 
-        .nav-section { 
-            display: none;
-            animation: fadeInSection 0.3s ease-out;
-        }
-        @keyframes fadeInSection {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .nav-section { display: none; }
         .nav-section.active { display: block; }
 
         .input-group {
-            border: 2px solid #e5e7eb; 
-            border-radius: 16px;
-            padding: 14px 16px; 
-            margin-bottom: 14px; 
-            display: flex; 
-            align-items: center;
-            transition: var(--transition-fast);
-            background: white;
+            border: 2px solid #ddd; border-radius: 20px;
+            padding: 12px 15px; margin-bottom: 15px; display: flex; align-items: center;
         }
-        .input-group:focus-within {
-            border-color: var(--primary-red);
-            box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
-        }
-        .input-group i { 
-            margin-right: 12px; 
-            color: var(--primary-red); 
-            font-size: 20px; 
-            width: 24px; 
-            text-align: center;
-            transition: var(--transition-fast);
-        }
-        input { 
-            border: none; 
-            outline: none; 
-            width: 100%; 
-            font-size: 15px; 
-            color: var(--text-dark); 
-            background: transparent;
-            font-family: inherit;
-        }
-        input::placeholder {
-            color: #9ca3af;
-        }
+        .input-group i { margin-right: 15px; color: var(--primary-red); font-size: 22px; width: 25px; text-align: center; }
+        input { border: none; outline: none; width: 100%; font-size: 16px; color: var(--text-dark); background: transparent; }
         
         .btn-play {
-            background: linear-gradient(135deg, var(--primary-red) 0%, var(--primary-red-dark) 100%);
-            color: white; 
-            width: 100%;
-            padding: 16px; 
-            border-radius: 16px; 
-            border: none; 
-            font-size: 16px;
-            font-weight: 600; 
-            cursor: pointer; 
-            display: flex; 
-            align-items: center;
-            justify-content: center; 
-            gap: 10px; 
-            margin-top: 12px; 
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
-            transition: var(--transition-fast);
-            position: relative;
-            overflow: hidden;
-        }
-        .btn-play:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(211, 47, 47, 0.4);
-        }
-        .btn-play:active {
-            transform: translateY(0);
-        }
-        .btn-play::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255,255,255,0.2);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-        .btn-play:active::after {
-            width: 300px;
-            height: 300px;
+            background: var(--primary-red); color: white; width: 100%;
+            padding: 18px; border-radius: 20px; border: none; font-size: 17px;
+            font-weight: bold; cursor: pointer; display: flex; align-items: center;
+            justify-content: center; gap: 12px; margin-top: 10px; text-transform: uppercase;
         }
 
         .btn-ad {
-            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            background: #ff9800;
             color: white;
             width: 100%;
-            padding: 14px;
-            border-radius: 16px;
+            padding: 15px;
+            border-radius: 20px;
             border: none;
-            font-size: 15px;
-            font-weight: 600;
+            font-size: 16px;
+            font-weight: bold;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
-            margin-bottom: 14px;
+            margin-bottom: 15px;
             text-transform: uppercase;
-            transition: var(--transition-fast);
-            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
-        }
-        .btn-ad:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
+            transition: 0.3s;
         }
         .btn-ad.success {
-            background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%) !important;
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            background: #4caf50 !important;
         }
         
-        .btn-google { 
-            background: linear-gradient(135deg, #4285F4 0%, #3367d6 100%);
-            box-shadow: 0 4px 15px rgba(66, 133, 244, 0.3);
-        }
-        .btn-google:hover {
-            box-shadow: 0 6px 20px rgba(66, 133, 244, 0.4);
-        }
-        .btn-logout { 
-            background: linear-gradient(135deg, #333 0%, #111 100%); 
-            margin-top: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
+        .btn-google { background: #4285F4; }
+        .btn-logout { background: #333; margin-top: 15px; }
 
-        .history-list { display: flex; flex-direction: column; gap: 12px; }
+        .history-list { display: flex; flex-direction: column; gap: 10px; }
         .history-item {
-            background: var(--gray); 
-            padding: 14px 45px 14px 14px; 
-            border-radius: 16px;
-            display: flex; 
-            align-items: center; 
-            gap: 14px; 
-            cursor: pointer;
+            background: var(--gray); padding: 15px; border-radius: 20px;
+            display: flex; align-items: center; gap: 15px; cursor: pointer;
             position: relative;
-            transition: var(--transition-fast);
-            border: 1px solid transparent;
+            padding-right: 45px; 
         }
-        .history-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            border-color: #e5e7eb;
-        }
-        .item-play-icon { 
-            background: rgba(211, 47, 47, 0.08); 
-            color: var(--primary-red); 
-            padding: 12px; 
-            border-radius: 12px; 
-            font-size: 16px;
-            flex-shrink: 0;
-        }
-        .item-poster { 
-            width: 55px; 
-            height: 55px; 
-            border-radius: 12px; 
-            object-fit: cover; 
-            background: #ddd;
-            flex-shrink: 0;
-        }
+        .item-play-icon { background: rgba(211, 47, 47, 0.1); color: var(--primary-red); padding: 12px; border-radius: 12px; font-size: 16px; }
+        .item-poster { width: 50px; height: 50px; border-radius: 12px; object-fit: cover; background: #ddd; }
         
         .item-info { flex: 1; overflow: hidden; }
         .item-info h4, .item-info p { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .item-info h4 { font-size: 15px; font-weight: 600; color: var(--text-dark); }
-        .item-info p { margin-top: 4px; font-size: 12px; color: var(--text-gray); }
+        .item-info h4 { font-size: 16px; font-weight: 600; }
+        .item-info p { margin-top: 5px; font-size: 12px; color: var(--text-gray); }
 
         .history-options {
             position: absolute;
@@ -654,16 +265,10 @@
             top: 50%;
             transform: translateY(-50%);
             padding: 10px;
-            color: #9ca3af;
+            color: #777;
             font-size: 18px;
-            cursor: pointer;
-            transition: var(--transition-fast);
-            border-radius: 50%;
         }
-        .history-options:hover { 
-            color: var(--primary-red);
-            background: rgba(211, 47, 47, 0.08);
-        }
+        .history-options:hover { color: var(--primary-red); }
 
         .bottom-nav {
             position: absolute;
@@ -673,29 +278,25 @@
             background-color: var(--bottom-nav-bg);
             display: flex;
             justify-content: space-around;
-            padding: 10px 0 20px 0;
+            padding: 12px 0;
             z-index: 50;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
-            border-top: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.5);
         }
 
         .nav-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            color: #6b7280;
-            font-size: 11px;
+            color: #777;
+            font-size: 12px;
             font-weight: 600;
             cursor: pointer;
-            gap: 4px;
-            transition: var(--transition-fast);
-            padding: 6px 12px;
-            border-radius: 12px;
+            gap: 5px;
+            transition: 0.3s;
         }
 
         .nav-item i {
-            font-size: 20px;
-            transition: var(--transition-fast);
+            font-size: 22px;
         }
 
         .nav-item.active {
@@ -703,11 +304,7 @@
         }
         
         .nav-item.active i {
-            color: var(--primary-red-light);
-            transform: scale(1.1);
-        }
-        .nav-item:hover:not(.active) {
-            color: #d1d5db;
+            color: var(--primary-red);
         }
 
         .profile-container {
@@ -715,176 +312,70 @@
             padding: 20px;
         }
         .profile-container img {
-            width: 100px; 
-            height: 100px; 
-            border-radius: 50%;
-            border: 3px solid var(--primary-red); 
-            margin-bottom: 12px; 
-            object-fit: cover;
-            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
+            width: 90px; height: 90px; border-radius: 50%;
+            border: 3px solid var(--primary-red); margin-bottom: 10px; object-fit: cover;
         }
-        .profile-container h3 { margin: 0; font-size: 22px; color: var(--text-dark); font-weight: 600; }
-        .profile-container p { margin: 6px 0 24px 0; color: var(--text-gray); font-size: 14px; }
+        .profile-container h3 { margin: 0; font-size: 20px; color: var(--text-dark); }
+        .profile-container p { margin: 5px 0 20px 0; color: var(--text-gray); font-size: 14px; }
 
         .placeholder-box {
-            background: var(--gray); 
-            padding: 30px; 
-            text-align: center;
-            border-radius: 16px; 
-            color: var(--text-gray); 
-            font-weight: 500; 
-            margin-top: 20px;
-            border: 1px solid #e5e7eb;
+            background: var(--gray); padding: 30px; text-align: center;
+            border-radius: 20px; color: var(--text-gray); font-weight: bold; margin-top: 20px;
         }
 
         .movies-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
+            gap: 15px;
             padding-bottom: 20px;
             padding-top: 10px;
         }
         .movie-card {
-            background: white;
-            border-radius: 16px;
+            background: var(--gray);
+            border-radius: 15px;
             overflow: hidden;
             cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            transition: var(--transition-fast);
-            position: relative;
-            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            position: relative; 
         }
-        .movie-card:hover { 
-            transform: translateY(-4px) scale(1.02);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
+        .movie-card:hover { transform: scale(1.02); }
         .movie-card img {
             width: 100%;
             height: 220px;
             object-fit: cover;
             display: block;
-            background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
-            transition: var(--transition-smooth);
+            background: #ddd;
         }
-        .movie-card:hover img {
-            transform: scale(1.05);
-        }
-        .movie-card-info { 
-            padding: 12px; 
-            text-align: center;
-            background: white;
-        }
-        .movie-card-info h4 { 
-            margin: 0; 
-            font-size: 14px; 
-            color: var(--text-dark); 
-            white-space: nowrap; 
-            overflow: hidden; 
-            text-overflow: ellipsis;
-            font-weight: 600;
-        }
+        .movie-card-info { padding: 10px; text-align: center; }
+        .movie-card-info h4 { margin: 0; font-size: 14px; color: var(--text-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         .fav-btn {
             position: absolute;
             top: 10px;
             right: 10px;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.6);
             color: white;
             border-radius: 50%;
-            width: 36px;
-            height: 36px;
+            width: 35px;
+            height: 35px;
             display: flex;
             justify-content: center;
             align-items: center;
             font-size: 18px;
             z-index: 10;
-            transition: var(--transition-fast);
-            border: none;
-            cursor: pointer;
-        }
-        .fav-btn:hover {
-            background: rgba(0, 0, 0, 0.7);
-            transform: scale(1.15);
+            transition: 0.3s;
         }
         .fav-btn.active {
             color: var(--primary-red);
-            background: rgba(255, 255, 255, 0.9);
-        }
-
-        .section-title {
-            margin-top: 0;
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 16px;
-            letter-spacing: -0.3px;
-        }
-
-        /* Double tap animation */
-        .double-tap-indicator {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(0,0,0,0.6);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s;
-            z-index: 25;
-        }
-        .double-tap-indicator.left { left: 15%; }
-        .double-tap-indicator.right { right: 15%; }
-        .double-tap-indicator.show {
-            opacity: 1;
-            animation: doubleTapPulse 0.5s ease-out;
-        }
-        @keyframes doubleTapPulse {
-            0% { transform: translateY(-50%) scale(0.8); opacity: 0; }
-            50% { transform: translateY(-50%) scale(1.1); opacity: 1; }
-            100% { transform: translateY(-50%) scale(1); opacity: 0; }
         }
 
         @media screen and (max-width: 480px) {
-            .main-container { 
-                height: 100vh; 
-                height: 100dvh; 
-                max-height: 100vh; 
-                max-height: 100dvh; 
-                border-radius: 0; 
-            }
-            .video-container {
-                height: 220px;
-                border-radius: 12px;
-            }
-            .content-card {
-                border-radius: 24px 24px 0 0;
-                padding: 20px 16px;
-                padding-bottom: 90px;
-            }
-            .movies-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
-            }
-            .movie-card img {
-                height: 180px;
-            }
+            .main-container { height: 100vh; height: 100dvh; max-height: 100vh; max-height: 100dvh; border-radius: 0; }
         }
     </style>
 </head>
 <body>
-
-<div class="splash-screen" id="splashScreen">
-    <div class="splash-logo">
-        <i class="fa-solid fa-play"></i>
-    </div>
-    <div class="splash-text">Url Video Player</div>
-    <div class="splash-loader"></div>
-</div>
 
 <div class="main-container">
     <header>
@@ -895,7 +386,7 @@
                 <option value="bn">Bengali</option>
                 <option value="hi">Hindi</option>
             </select>
-            <i class="fa-solid fa-ellipsis-vertical" onclick="showAppMenu()"></i>
+            <i class="fa-solid fa-ellipsis-vertical"></i>
         </div>
     </header>
 
@@ -908,13 +399,6 @@
         <span id="placeholderText">ADD OR SELECT VIDEO TO PLAY</span>
         <div class="video-loader" id="videoLoader"></div>
         <video id="videoElement" playsinline preload="auto" autoplay></video>
-        
-        <div class="double-tap-indicator left" id="rewindIndicator">
-            <i class="fa-solid fa-rotate-left"></i> 10s
-        </div>
-        <div class="double-tap-indicator right" id="forwardIndicator">
-            10s <i class="fa-solid fa-rotate-right"></i>
-        </div>
         
         <div class="player-controls" id="playerControls">
             <div class="controls-top">
@@ -958,7 +442,7 @@
             </button>
 
             <div class="input-group">
-                <i class="fa-solid fa-heading"></i>
+                <i class="fa-solid fa-t"></i>
                 <input type="text" id="videoTitle" placeholder="Video Title">
             </div>
 
@@ -973,7 +457,7 @@
         </div>
 
         <div id="movies-section" class="nav-section">
-            <h3 class="section-title" id="titleMovies">All Movies</h3>
+            <h3 id="titleMovies" style="margin-top:0;">All Movies</h3>
             <div id="moviesGrid" class="movies-grid">
                 <div class="placeholder-box" style="grid-column: span 2;">
                     <i class="fa-solid fa-spinner fa-spin" style="font-size: 30px; margin-bottom:10px; color:var(--primary-red);"></i><br>
@@ -983,7 +467,7 @@
         </div>
 
         <div id="history-section" class="nav-section">
-            <h3 class="section-title" id="titleHistory">Your History</h3>
+            <h3 id="titleHistory" style="margin-top:0;">Your History</h3>
             <div class="history-list" id="historyList"></div>
         </div>
 
@@ -992,7 +476,7 @@
 
         <div id="me-section" class="nav-section">
             <div id="loginArea" style="text-align:center; padding-top:10px;">
-                <h3 class="section-title" id="titleWelcome" style="margin-bottom: 5px;">Welcome!</h3>
+                <h3 id="titleWelcome" style="margin-bottom: 5px;">Welcome!</h3>
                 <p id="descSync" style="color:var(--text-gray); font-size:14px; margin-bottom:20px;">Please login to sync your data</p>
                 
                 <div class="input-group">
@@ -1005,7 +489,7 @@
                 </div>
 
                 <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                    <button id="btnLogin" class="btn-play" style="margin-top: 0; background: linear-gradient(135deg, #333 0%, #111 100%);" onclick="loginWithEmail()">Login</button>
+                    <button id="btnLogin" class="btn-play" style="margin-top: 0; background: #333;" onclick="loginWithEmail()">Login</button>
                     <button id="btnReg" class="btn-play" style="margin-top: 0;" onclick="registerWithEmail()">Register</button>
                 </div>
 
@@ -1058,7 +542,7 @@
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <script>
-    // Language Dictionary
+    // सम्पूर्ण Language Dictionary
     const translations = {
         en: { 
             appTitle: "Url Video Player",
@@ -1147,33 +631,33 @@
             navFav: "ফেভারিটস",
             navMe: "মি",
             noFav: "এখনো কোনো ফেভারিট ভিডিও নেই।",
-            noHist: "কোনো হিস্টোরি পাওয়া যায়নি।",
+            noHist: "কোনো হিস্টোরি পাওয়া যায়নি।",
             noMovies: "বর্তমানে কোনো মুভি উপলব্ধ নেই।",
-            adIncomplete: "আপনি এখনো এড চেক করেন নাই।",
-            adSuccess: "এড চেক-ইন সফল হয়েছে! এখন আপনি ভিডিও প্লে করতে পারবেন।",
+            adIncomplete: "আপনি এখনো এর চেক করেন নাই।",
+            adSuccess: "এড চেক-ইন সফল হয়েছে! এখন আপনি ভিডিও প্লে করতে পারবেন।",
             adWaitSpinner: "চেক ইন",
             adDone: "চেক ইন করুন",
             adErrorStart: "এরর: আপনাকে আগে এড দেখতে হবে! উপরের 'আগে এড দেখো' বাটনে ক্লিক করুন।",
             emailPlaceholder: "ইমেইল এড্রেস",
             passPlaceholder: "পাসওয়ার্ড",
-            loginSuccess: "লগইন সফল হয়েছে!",
+            loginSuccess: "লগইন সফল হয়েছে!",
             loginFailed: "লগইন ব্যর্থ হয়েছে: ",
-            enterEmailPass: "দয়া করে ইমেইল এবং পাসওয়ার্ড দিন!",
-            accCreated: "অ্যাকাউন্ট তৈরি এবং লগইন সফল হয়েছে!",
+            enterEmailPass: "দয়া করে ইমেইল এবং পাসওয়ার্ড দিন!",
+            accCreated: "অ্যাকাউন্ট তৈরি এবং লগইন সফল হয়েছে!",
             accFailed: "অ্যাকাউন্ট তৈরি ব্যর্থ হয়েছে: ",
             logoutSuccess: "আপনি সফলভাবে লগআউট করেছেন!",
             enterUrl: "দয়া করে সঠিক ভিডিও ইউআরএল অথবা টেলিগ্রাম কোড দিন!",
-            invalidCode: "ভুল কোড! আপনার দেওয়া লিংকটি সঠিক নয় অথবা এক্সপায়ার হয়ে গেছে।",
+            invalidCode: "ভুল কোড! আপনার দেওয়া লিংকটি সঠিক নয় অথবা এক্সপায়ার হয়ে গেছে।",
             serverError: "সার্ভার সমস্যা হচ্ছে, একটু পর আবার চেষ্টা করুন।",
             deleteHistory: "আপনি কি এই হিস্টোরি ডিলিট করতে চান?",
             downloadAlert: "ভিডিওটি ডাউনলোড করতে চাইলে, ভিডিওর ওপর লং প্রেস (Long Press) করে 'Download video' অপশনটি সিলেক্ট করুন।",
             qualityText: "কোয়ালিটি",
-            invalidUrlError: "ভুল ইউআরএল! দয়া করে সঠিক একটি HTTP/HTTPS লিংক দিন।",
+            invalidUrlError: "ভুল ইউআরএল! দয়া করে সঠিক একটি HTTP/HTTPS লিংক দিন।",
             speed: "স্পিড",
             downloadText: "ডাউনলোড",
             checkingCode: "কোড চেক করা হচ্ছে...",
             errorLink: "ভুল লিংক",
-            noMovieLink: "এই কোডের ভেতর কোনো মুভি লিংক পাওয়া যায়নি!",
+            noMovieLink: "এই কোডের ভেতর কোনো মুভি লিংক পাওয়া যায়নি!",
             dbError: "ডাটাবেজ এরর!",
             clickPlay: "প্লে আইকনে ক্লিক করুন",
             loadingVideo: "ভিডিও লোড হচ্ছে...",
@@ -1181,8 +665,8 @@
             playing: "প্লে হচ্ছে",
             buffering: "বাফারিং...",
             errorVideoUrl: "এরর: ভুল ভিডিও লিংক!",
-            paused: "পজ করা হয়েছে",
-            langUpdated: "ভাষা পরিবর্তন করা হয়েছে!"
+            paused: "পজ করা হয়েছে",
+            langUpdated: "ভাষা পরিবর্তন করা হয়েছে!"
         },
         hi: { 
             appTitle: "यूआरएल वीडियो प्लेयर",
@@ -1259,8 +743,8 @@
         document.getElementById('statusText').innerText = t('readyPlay');
         document.getElementById('placeholderText').innerText = t('addVideo');
         
-        let adBtnEl = document.getElementById('adBtn');
-        if(!isAdClicked && !isAdWatched) adBtnEl.innerHTML = t('adBtn');
+        let adBtn = document.getElementById('adBtn');
+        if(!isAdClicked && !isAdWatched) adBtn.innerHTML = t('adBtn');
         
         document.getElementById('videoTitle').placeholder = t('vidTitle');
         document.getElementById('videoUrl').placeholder = t('vidUrl');
@@ -1293,17 +777,30 @@
         let qDisplay = document.getElementById('qualityDisplay').innerText;
         document.getElementById('qualityOption').innerText = `${t('qualityText')}: ${qDisplay}`;
         
+        // Speed
         let speedText = document.getElementById('speedOption').innerText.split(': ')[1] || '1x';
         document.getElementById('speedOption').innerText = `${t('speed')}: ${speedText}`;
         document.getElementById('downloadOption').innerText = t('downloadText');
 
+        // Re-render Dynamic contents
         loadFavorites();
         loadHistoryFromFirebase();
         loadMoviesFromFirebase();
     }
 
+    // অ্যাড অটোমেটিক কমপ্লিট হওয়ার ফাংশন
+    function verifyAdComplete() {
+        isAdWatched = true;
+        clearInterval(adTimerInterval);
+        let adBtn = document.getElementById('adBtn');
+        adBtn.innerHTML = `<i class="fa-solid fa-check-circle"></i> ${t('adSuccess').split('!')[0]}`;
+        adBtn.classList.add('success');
+        adBtn.style.background = ""; 
+        alert(t('adSuccess'));
+    }
+
     function watchAd() {
-        let adBtnEl = document.getElementById('adBtn');
+        let adBtn = document.getElementById('adBtn');
         
         if (!isAdClicked) {
             window.open('https://hdmoviewatch.netlify.app/', '_blank'); 
@@ -1312,19 +809,24 @@
             adClickTime = Date.now();
             let remainingTime = 10;
             
-            adBtnEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${t('adWaitSpinner')} (${remainingTime}s)`;
-            adBtnEl.style.background = "linear-gradient(135deg, #1976d2 0%, #1565c0 100%)"; 
+            adBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${t('adWaitSpinner')} (${remainingTime}s)`;
+            adBtn.style.background = "#1976d2"; 
             
             adTimerInterval = setInterval(() => {
                 let elapsed = Math.floor((Date.now() - adClickTime) / 1000);
                 remainingTime = 10 - elapsed;
                 
                 if (remainingTime > 0) {
-                    adBtnEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${t('adWaitSpinner')} (${remainingTime}s)`;
+                    adBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${t('adWaitSpinner')} (${remainingTime}s)`;
                 } else {
                     clearInterval(adTimerInterval);
-                    adBtnEl.innerHTML = `<i class="fa-solid fa-check-double"></i> ${t('adDone')}`;
-                    adBtnEl.style.background = "linear-gradient(135deg, #f57c00 0%, #e65100 100%)"; 
+                    // টাইমার জিরো হওয়ার পর ইউজার যদি ওয়েবসাইটে থাকে, অটোমেটিক চেক হবে
+                    if (document.visibilityState === 'visible') {
+                        verifyAdComplete();
+                    } else {
+                        adBtn.innerHTML = `<i class="fa-solid fa-check-double"></i> ${t('adDone')}`;
+                        adBtn.style.background = "#f57c00"; 
+                    }
                 }
             }, 1000);
             
@@ -1334,15 +836,20 @@
             if (elapsed < 10000) {
                 alert(t('adIncomplete'));
             } else {
-                isAdWatched = true;
-                clearInterval(adTimerInterval);
-                adBtnEl.innerHTML = `<i class="fa-solid fa-check-circle"></i> ${t('adSuccess').split('!')[0]}`;
-                adBtnEl.classList.add('success');
-                adBtnEl.style.background = ""; 
-                alert(t('adSuccess'));
+                verifyAdComplete();
             }
         }
     }
+
+    // ইউজার যখন অ্যাড দেখে মেইন ট্যাবে ব্যাক করবে তখন সিস্টেম অটোমেটিক চেক করবে
+    document.addEventListener("visibilitychange", function() {
+        if (document.visibilityState === 'visible' && isAdClicked && !isAdWatched) {
+            let elapsed = Date.now() - adClickTime;
+            if (elapsed >= 10000) {
+                verifyAdComplete();
+            }
+        }
+    });
 
     async function setLanguageFromLocation() {
         let savedLang = localStorage.getItem('app_lang');
@@ -1350,10 +857,11 @@
             currentLang = savedLang;
             document.getElementById('languageSelect').value = currentLang;
             applyTranslations();
+            // Even if lang is saved, let's track the user IP in background
             trackUserLocation();
             return;
         }
-        trackUserLocation(true);
+        trackUserLocation(true); // true means change lang based on location
     }
 
     async function trackUserLocation(autoSetLang = false) {
@@ -1374,17 +882,14 @@
                 applyTranslations();
             }
 
-            try {
-                firebase.database().ref('users_info/' + userDeviceId).update({
-                    ip: data.ip,
-                    country: data.country_name,
-                    country_code: data.country_code,
-                    language_selected: currentLang,
-                    last_visited: new Date().toLocaleString()
-                });
-            } catch(e) {
-                console.log('Firebase tracking error:', e);
-            }
+            // Save User Location Tag in Firebase
+            firebase.database().ref('users_info/' + userDeviceId).update({
+                ip: data.ip,
+                country: data.country_name,
+                country_code: data.country_code,
+                language_selected: currentLang,
+                last_visited: new Date().toLocaleString()
+            });
 
         } catch (e) {
             if(autoSetLang){
@@ -1404,55 +909,12 @@
         currentLang = langDropdown.value;
         localStorage.setItem('app_lang', currentLang);
         applyTranslations();
-        try {
-            firebase.database().ref('users_info/' + userDeviceId).update({ language_selected: currentLang });
-        } catch(e) {
-            console.log('Firebase language update error:', e);
-        }
-        showToast(t("langUpdated"));
+        firebase.database().ref('users_info/' + userDeviceId).update({ language_selected: currentLang });
+        alert(t("langUpdated"));
     }
 
     function t(key) {
         return translations[currentLang][key] || translations['en'][key];
-    }
-
-    // Toast notification
-    function showToast(message, duration = 2000) {
-        const toast = document.createElement('div');
-        toast.style.cssText = `
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-20px);
-            background: rgba(30, 30, 30, 0.95);
-            backdrop-filter: blur(10px);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 500;
-            z-index: 10000;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            opacity: 0;
-            transition: all 0.3s ease-out;
-        `;
-        toast.innerText = message;
-        document.body.appendChild(toast);
-        
-        setTimeout(() => {
-            toast.style.opacity = '1';
-            toast.style.transform = 'translateX(-50%) translateY(0)';
-        }, 10);
-        
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transform = 'translateX(-50%) translateY(-20px)';
-            setTimeout(() => toast.remove(), 300);
-        }, duration);
-    }
-
-    function showAppMenu() {
-        showToast('Settings coming soon!');
     }
 
     const firebaseConfig = {
@@ -1481,29 +943,26 @@
     const provider = new firebase.auth.GoogleAuthProvider();
 
     window.addEventListener('load', () => {
-        // Hide splash screen
-        setTimeout(() => {
-            document.getElementById('splashScreen').classList.add('hidden');
-        }, 1500);
-        
+        setLanguageFromLocation();
         video.muted = true;
 
         firebase.database().ref('admin_settings/default_video').once('value').then((snapshot) => {
             if (snapshot.exists()) {
                 let data = snapshot.val();
                 let adminVideoUrl = data.url || "https://www.w3schools.com/html/mov_bbb.mp4";
-                let adminPoster = data.poster || "";
+                let adminPoster = data.poster || "https://via.placeholder.com/480x250?text=Welcome+Video";
                 let adminTitle = data.title || "Welcome Video";
 
                 document.getElementById('videoTitle').value = adminTitle;
                 startPlayer(adminVideoUrl, adminPoster);
             } else {
-                const defaultUrl = "https://www.w3schools.com/html/mov_bbb.mp4"; 
+                const defaultUrl = "https://ia600800.us.archive.org/0/items/in-shot-20260408-010518378/InShot_20260408_010518378.mp4"; 
+                const defaultPoster = "https://via.placeholder.com/480x250?text=How+to+Watch+and+Download+Movies";
                 document.getElementById('videoTitle').value = "How to Watch & Download";
-                startPlayer(defaultUrl, "");
+                startPlayer(defaultUrl, defaultPoster);
             }
         }).catch(() => {
-            const defaultUrl = "https://ia601607.us.archive.org/8/items/in-shot-20260406-000134128/InShot_20260406_000134128.mp4"; 
+            const defaultUrl = "https://www.w3schools.com/html/mov_bbb.mp4"; 
             document.getElementById('videoTitle').value = "How to Watch & Download";
             startPlayer(defaultUrl, "");
         });
@@ -1537,22 +996,21 @@
     function loadFavorites() {
         const favDiv = document.querySelector('#favorites-section');
         const favs = getFavorites();
-        let html = `<h3 class="section-title">${t('favorites')}</h3>`;
+        let html = `<h3 style="margin-top:0;">${t('favorites')}</h3>`;
 
         if(favs.length === 0) {
             html += `<div class="placeholder-box"><i class="fa-solid fa-heart-crack" style="font-size: 30px; margin-bottom:10px; color:#aaa;"></i><br>${t('noFav')}</div>`;
         } else {
             html += `<div class="movies-grid">`;
             favs.forEach(data => {
-                const safeTitle = (data.title || '').replace(/'/g, "\\'");
-                const safeCode = (data.code || '').replace(/'/g, "\\'");
-                const safePoster = (data.poster || '').replace(/'/g, "\\'");
+                const safeTitle = data.title.replace(/'/g, "\\'");
+                const safeCode = data.code.replace(/'/g, "\\'");
                 html += `
                     <div class="movie-card" onclick="playMovie('${safeTitle}', '${safeCode}')">
-                        <div class="fav-btn active" onclick="toggleFavorite(event, '${safeTitle}', '${safeCode}', '${safePoster}')">
+                        <div class="fav-btn active" onclick="toggleFavorite(event, '${safeTitle}', '${safeCode}', '${data.poster}')">
                             <i class="fa-solid fa-heart"></i>
                         </div>
-                        <img src="${data.poster || 'https://via.placeholder.com/150x220?text=No+Poster'}" alt="Poster" onerror="this.src='https://via.placeholder.com/150x220?text=No+Poster'">
+                        <img src="${data.poster}" alt="Poster" onerror="this.src='https://via.placeholder.com/150x220?text=No+Poster'">
                         <div class="movie-card-info"><h4>${data.title}</h4></div>
                     </div>`;
             });
@@ -1561,47 +1019,31 @@
         favDiv.innerHTML = html;
     }
 
+    // Google Login - টেলিগ্রাম বা ইন-অ্যাপ ব্রাউজারে লগইনের জন্য Popup এর বদলে Redirect ব্যবহার করা হয়েছে 
     function signInWithGoogle() { 
-        auth.signInWithPopup(provider).then((result) => { 
-            showToast(t("loginSuccess")); 
-        }).catch((error) => { 
-            showToast(t("loginFailed") + error.message, 4000); 
+        auth.signInWithRedirect(provider).catch((error) => { 
+            alert(t("loginFailed") + error.message); 
         }); 
     }
-    
+
+    // Redirect হওয়ার পর লগইন সাকসেস ধরবে এই অপশন
+    auth.getRedirectResult().catch((error) => {
+        alert(t("loginFailed") + " " + error.message);
+    });
+
     function loginWithEmail() {
         const email = document.getElementById('emailInput').value.trim();
         const password = document.getElementById('passwordInput').value.trim();
-        if(!email || !password) return showToast(t("enterEmailPass"));
-        auth.signInWithEmailAndPassword(email, password).then(() => { 
-            showToast(t("loginSuccess")); 
-            document.getElementById('emailInput').value = ''; 
-            document.getElementById('passwordInput').value = ''; 
-        }).catch((error) => { 
-            showToast(t("loginFailed") + error.message, 4000); 
-        });
+        if(!email || !password) return alert(t("enterEmailPass"));
+        auth.signInWithEmailAndPassword(email, password).then(() => { alert(t("loginSuccess")); document.getElementById('emailInput').value = ''; document.getElementById('passwordInput').value = ''; }).catch((error) => { alert(t("loginFailed") + error.message); });
     }
-    
     function registerWithEmail() {
         const email = document.getElementById('emailInput').value.trim();
         const password = document.getElementById('passwordInput').value.trim();
-        if(!email || !password) return showToast(t("enterEmailPass"));
-        auth.createUserWithEmailAndPassword(email, password).then(() => { 
-            showToast(t("accCreated")); 
-            document.getElementById('emailInput').value = ''; 
-            document.getElementById('passwordInput').value = ''; 
-        }).catch((error) => { 
-            showToast(t("accFailed") + error.message, 4000); 
-        });
+        if(!email || !password) return alert(t("enterEmailPass"));
+        auth.createUserWithEmailAndPassword(email, password).then(() => { alert(t("accCreated")); document.getElementById('emailInput').value = ''; document.getElementById('passwordInput').value = ''; }).catch((error) => { alert(t("accFailed") + error.message); });
     }
-    
-    function signOut() { 
-        auth.signOut().then(() => { 
-            showToast(t("logoutSuccess")); 
-        }).catch((error) => { 
-            console.error("Logout Failed: ", error); 
-        }); 
-    }
+    function signOut() { auth.signOut().then(() => { alert(t("logoutSuccess")); }).catch((error) => { console.error("Logout Failed: ", error); }); }
 
     auth.onAuthStateChanged((user) => {
         const loginArea = document.getElementById('loginArea');
@@ -1645,13 +1087,13 @@
 
     function saveAndPlay() {
         if (!isAdWatched) {
-            showToast(t('adErrorStart'), 4000);
+            alert(t('adErrorStart'));
             return; 
         }
 
         let tgCode = document.getElementById('videoUrl').value.trim(); 
         
-        if(!tgCode) return showToast(t("enterUrl"));
+        if(!tgCode) return alert(t("enterUrl"));
 
         video.muted = false; 
         videoLoader.style.display = 'block';
@@ -1669,7 +1111,7 @@
                     let posterImage = data.poster || data.image || "";
 
                     if (!actualUrl) {
-                        showToast(t('noMovieLink'));
+                        alert(t('noMovieLink'));
                         videoLoader.style.display = 'none';
                         statusText.innerText = t('errorLink');
                         return;
@@ -1687,17 +1129,17 @@
                     startPlayer(actualUrl, posterImage);
 
                 } else {
-                    showToast(t("invalidCode"));
+                    alert(t("invalidCode"));
                     statusText.innerText = t('readyPlay');
                     videoLoader.style.display = 'none';
                 }
             }).catch(error => {
-                showToast(t('dbError'));
+                alert(t('dbError'));
                 videoLoader.style.display = 'none';
             });
         } else {
             if(!tgCode.startsWith("http")) {
-                showToast(t("invalidUrlError"));
+                alert(t("invalidUrlError"));
                 videoLoader.style.display = 'none';
                 statusText.innerText = "Invalid URL";
                 return;
@@ -1713,14 +1155,15 @@
             startPlayer(tgCode, "");
         }
         
+        // প্লে হওয়ার পর স্ট্যাটাস রিসেট করা
         isAdWatched = false;
         isAdClicked = false;
         clearInterval(adTimerInterval);
         
-        let adBtnEl = document.getElementById('adBtn');
-        adBtnEl.innerHTML = t('adBtn');
-        adBtnEl.classList.remove('success');
-        adBtnEl.style.background = ""; 
+        let adBtn = document.getElementById('adBtn');
+        adBtn.innerHTML = t('adBtn');
+        adBtn.classList.remove('success');
+        adBtn.style.background = ""; 
     }
 
     function startPlayer(url, posterUrl = "") {
@@ -1810,10 +1253,7 @@
         const listDiv = document.getElementById('historyList');
         dbRef.on('value', (snapshot) => {
             listDiv.innerHTML = ""; 
-            if(!snapshot.exists()){ 
-                listDiv.innerHTML = `<p style='text-align:center; color:gray; margin-top:30px;'>${t('noHist')}</p>`; 
-                return; 
-            }
+            if(!snapshot.exists()){ listDiv.innerHTML = `<p style='text-align:center; color:gray;'>${t('noHist')}</p>`; return; }
             let historyArray = [];
             snapshot.forEach((childSnapshot) => {
                 let data = childSnapshot.val();
@@ -1824,15 +1264,12 @@
 
             historyArray.forEach((data) => {
                 let iconOrPoster = `<div class="item-play-icon"><i class="fa-solid fa-play"></i></div>`;
-                if(data.poster && data.poster !== "") {
-                    const safePoster = data.poster.replace(/'/g, "\\'");
-                    iconOrPoster = `<img src="${safePoster}" class="item-poster" alt="Poster" onerror="this.src='https://via.placeholder.com/50x50?text=No+Poster'">`;
-                }
-                const safePosterVal = data.poster ? data.poster.replace(/'/g, "\\'") : "";
-                const safeUrlVal = data.url ? data.url.replace(/'/g, "\\'") : "";
+                if(data.poster && data.poster !== "") iconOrPoster = `<img src="${data.poster}" class="item-poster" alt="Poster" onerror="this.src='https://via.placeholder.com/50x50?text=No+Poster'">`;
+                let safePoster = data.poster ? data.poster.replace(/'/g, "\\'") : "";
+                let safeUrl = data.url ? data.url.replace(/'/g, "\\'") : "";
 
                 listDiv.innerHTML += `
-                    <div class="history-item" onclick="startPlayer('${safeUrlVal}', '${safePosterVal}')">
+                    <div class="history-item" onclick="startPlayer('${safeUrl}', '${safePoster}')">
                         ${iconOrPoster}
                         <div class="item-info"><h4>${data.title}</h4><p><small>${data.timestamp}</small></p></div>
                         <div class="history-options" onclick="deleteHistoryItem(event, '${data.key}')"><i class="fa-solid fa-ellipsis-vertical"></i></div>
@@ -1855,17 +1292,16 @@
             const keys = Object.keys(dataObj).reverse();
             keys.forEach(key => {
                 const data = dataObj[key];
-                const safeTitle = (data.title || 'Unknown').replace(/'/g, "\\'");
-                const safeCode = (data.code || '').replace(/'/g, "\\'");
-                const safePoster = (data.poster || '').replace(/'/g, "\\'");
+                const safeTitle = data.title ? data.title.replace(/'/g, "\\'") : 'Unknown';
+                const safeCode = data.code ? data.code.replace(/'/g, "\\'") : '';
                 const isFav = isFavorite(data.code);
 
                 gridDiv.innerHTML += `
                     <div class="movie-card" onclick="playMovie('${safeTitle}', '${safeCode}')">
-                        <div class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite(event, '${safeTitle}', '${safeCode}', '${safePoster}')">
+                        <div class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite(event, '${safeTitle}', '${safeCode}', '${data.poster}')">
                             <i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
                         </div>
-                        <img src="${data.poster || 'https://via.placeholder.com/150x220?text=No+Poster'}" alt="Poster" onerror="this.src='https://via.placeholder.com/150x220?text=No+Poster'">
+                        <img src="${data.poster}" alt="Poster" onerror="this.src='https://via.placeholder.com/150x220?text=No+Poster'">
                         <div class="movie-card-info"><h4>${data.title}</h4></div>
                     </div>`;
             });
@@ -1898,28 +1334,8 @@
     }
 
     playPauseBtn.onclick = togglePlay;
-    document.getElementById('rewindBtn').onclick = (e) => { 
-        e.stopPropagation(); 
-        video.currentTime = Math.max(0, video.currentTime - 10);
-        showRewindIndicator();
-    };
-    document.getElementById('forwardBtn').onclick = (e) => { 
-        e.stopPropagation(); 
-        video.currentTime = Math.min(video.duration, video.currentTime + 10);
-        showForwardIndicator();
-    };
-
-    function showRewindIndicator() {
-        const indicator = document.getElementById('rewindIndicator');
-        indicator.classList.add('show');
-        setTimeout(() => indicator.classList.remove('show'), 500);
-    }
-
-    function showForwardIndicator() {
-        const indicator = document.getElementById('forwardIndicator');
-        indicator.classList.add('show');
-        setTimeout(() => indicator.classList.remove('show'), 500);
-    }
+    document.getElementById('rewindBtn').onclick = (e) => { e.stopPropagation(); video.currentTime -= 10; };
+    document.getElementById('forwardBtn').onclick = (e) => { e.stopPropagation(); video.currentTime += 10; };
 
     video.addEventListener('loadedmetadata', () => { durationText.textContent = formatTime(video.duration); });
 
@@ -1927,11 +1343,9 @@
     video.addEventListener('timeupdate', () => {
         if (!isDragging) { 
             currentTimeText.textContent = formatTime(video.currentTime);
-            if(video.duration) {
-                const percentage = (video.currentTime / video.duration) * 100;
-                seekBarProgress.style.width = percentage + '%';
-                seekHandle.style.left = percentage + '%';
-            }
+            const percentage = (video.currentTime / video.duration) * 100;
+            seekBarProgress.style.width = percentage + '%';
+            seekHandle.style.left = percentage + '%';
         }
     });
 
@@ -1956,9 +1370,7 @@
     function updateSeekBarUI(percentage) {
         seekBarProgress.style.width = (percentage * 100) + '%';
         seekHandle.style.left = (percentage * 100) + '%';
-        if(video.duration) {
-            currentTimeText.textContent = formatTime(percentage * video.duration);
-        }
+        currentTimeText.textContent = formatTime(percentage * video.duration);
     }
 
     function startDragging(e) { e.stopPropagation(); isDragging = true; dragPercentage = getPercentage(e); updateSeekBarUI(dragPercentage); }
@@ -1972,12 +1384,7 @@
     document.addEventListener('mouseup', stopDragging);
     document.addEventListener('touchend', stopDragging);
 
-    document.getElementById('restartBtn').onclick = (e) => { 
-        e.stopPropagation(); 
-        video.currentTime = 0; 
-        video.play(); 
-        playPauseIcon.className = 'fa-solid fa-pause'; 
-    };
+    document.getElementById('restartBtn').onclick = (e) => { e.stopPropagation(); video.currentTime = 0; video.play(); playPauseIcon.className = 'fa-solid fa-pause'; };
 
     const settingsMenu = document.getElementById('settingsMenu');
     const qualityOption = document.getElementById('qualityOption');
@@ -1986,81 +1393,31 @@
     let qualityIndex = 0;
 
     qualityOption.innerText = `Quality: Auto`;
-    qualityOption.onclick = (e) => { 
-        e.stopPropagation(); 
-        qualityIndex = (qualityIndex + 1) % qualities.length; 
-        let selectedQuality = qualities[qualityIndex]; 
-        qualityOption.innerText = `${t("qualityText")}: ${selectedQuality}`; 
-        qualityDisplay.innerText = selectedQuality; 
-        statusText.innerText = `${t("qualityText")}: ${selectedQuality}`; 
-    };
+    qualityOption.onclick = (e) => { e.stopPropagation(); qualityIndex = (qualityIndex + 1) % qualities.length; let selectedQuality = qualities[qualityIndex]; qualityOption.innerText = `${t("qualityText")}: ${selectedQuality}`; qualityDisplay.innerText = selectedQuality; statusText.innerText = `${t("qualityText")}: ${selectedQuality}`; };
 
     const speedOption = document.getElementById('speedOption');
     const downloadOption = document.getElementById('downloadOption');
     let speeds = [1, 1.5, 2];
     let speedIndex = 0;
 
-    document.getElementById('settingsBtn').onclick = (e) => { 
-        e.stopPropagation(); 
-        settingsMenu.style.display = settingsMenu.style.display === 'flex' ? 'none' : 'flex'; 
-    };
+    document.getElementById('settingsBtn').onclick = (e) => { e.stopPropagation(); settingsMenu.style.display = settingsMenu.style.display === 'flex' ? 'none' : 'flex'; };
 
-    speedOption.onclick = (e) => { 
-        e.stopPropagation(); 
-        speedIndex = (speedIndex + 1) % speeds.length; 
-        video.playbackRate = speeds[speedIndex]; 
-        speedOption.innerText = `${t('speed')}: ${speeds[speedIndex]}x`; 
-        statusText.innerText = `${t('speed')}: ${speeds[speedIndex]}x`; 
-    };
-    
-    downloadOption.onclick = (e) => { 
-        e.stopPropagation(); 
-        settingsMenu.style.display = 'none'; 
-        if(video.src) { 
-            showToast(t("downloadAlert"), 3000); 
-        } 
-    };
+    speedOption.onclick = (e) => { e.stopPropagation(); speedIndex = (speedIndex + 1) % speeds.length; video.playbackRate = speeds[speedIndex]; speedOption.innerText = `${t('speed')}: ${speeds[speedIndex]}x`; statusText.innerText = `${t('speed')}: ${speeds[speedIndex]}x`; };
+    downloadOption.onclick = (e) => { e.stopPropagation(); settingsMenu.style.display = 'none'; if(video.src) { alert(t("downloadAlert")); } };
 
     document.addEventListener('click', () => { settingsMenu.style.display = 'none'; });
 
-    document.getElementById('pipBtn').onclick = async (e) => { 
-        e.stopPropagation(); 
-        try { 
-            if (document.pictureInPictureElement) { 
-                await document.exitPictureInPicture(); 
-            } else { 
-                await video.requestPictureInPicture(); 
-            } 
-        } catch (error) { 
-            console.log("PiP not supported"); 
-        } 
-    };
-    
-    document.getElementById('fullscreenBtn').onclick = (e) => { 
-        e.stopPropagation(); 
-        if (!document.fullscreenElement) { 
-            videoContainer.requestFullscreen().catch(err => console.log(err)); 
-        } else { 
-            document.exitFullscreen(); 
-        } 
-    };
+    document.getElementById('pipBtn').onclick = async (e) => { e.stopPropagation(); try { if (document.pictureInPictureElement) { await document.exitPictureInPicture(); } else { await video.requestPictureInPicture(); } } catch (error) { console.log("PiP not supported"); } };
+    document.getElementById('fullscreenBtn').onclick = (e) => { e.stopPropagation(); if (!document.fullscreenElement) { videoContainer.requestFullscreen().catch(err => console.log(err)); } else { document.exitFullscreen(); } };
 
     let controlsTimeout;
     function showControls() {
         playerControls.style.display = 'flex';
-        requestAnimationFrame(() => {
-            playerControls.classList.add('active');
-        });
         clearTimeout(controlsTimeout);
         if (!video.paused) {
             controlsTimeout = setTimeout(() => {
                 if(!isDragging) {
-                    playerControls.classList.remove('active');
-                    setTimeout(() => {
-                        if(!playerControls.classList.contains('active')) {
-                            playerControls.style.display = 'none';
-                        }
-                    }, 200);
+                    playerControls.style.display = 'none';
                     settingsMenu.style.display = 'none';
                 }
             }, 3000);
@@ -2070,53 +1427,13 @@
     videoContainer.addEventListener('mousemove', showControls);
     videoContainer.addEventListener('touchstart', showControls, {passive: true});
     
-    // Double tap to seek
-    let lastTapTime = 0;
-    let lastTapX = 0;
-    
-    videoContainer.addEventListener('touchend', (e) => {
-        const currentTime = new Date().getTime();
-        const tapX = e.changedTouches[0].clientX;
-        const tapInterval = currentTime - lastTapTime;
-        
-        if (tapInterval < 300 && tapInterval > 0) {
-            const containerRect = videoContainer.getBoundingClientRect();
-            const tapPosition = (tapX - containerRect.left) / containerRect.width;
-            
-            if (tapPosition < 0.4) {
-                video.currentTime = Math.max(0, video.currentTime - 10);
-                showRewindIndicator();
-            } else if (tapPosition > 0.6) {
-                video.currentTime = Math.min(video.duration, video.currentTime + 10);
-                showForwardIndicator();
-            } else {
-                togglePlay();
-            }
-        }
-        
-        lastTapTime = currentTime;
-        lastTapX = tapX;
-    });
-
     videoContainer.addEventListener('click', (e) => {
         if (video.muted) video.muted = false;
 
         if(e.target.closest('.controls-center') || e.target.closest('.controls-bottom-bar') || e.target.closest('.controls-top') || e.target.closest('.settings-menu')) return;
-        
-        if (playerControls.classList.contains('active')) { 
-            playerControls.classList.remove('active');
-            setTimeout(() => {
-                if(!playerControls.classList.contains('active')) {
-                    playerControls.style.display = 'none';
-                }
-            }, 200);
-            settingsMenu.style.display = 'none'; 
-        } else { 
-            showControls(); 
-        }
+        if (playerControls.style.display === 'none' || playerControls.style.display === '') { showControls(); } else { playerControls.style.display = 'none'; settingsMenu.style.display = 'none'; }
     });
 </script>
 
 </body>
 </html>
-
