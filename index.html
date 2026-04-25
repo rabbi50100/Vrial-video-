@@ -1,1439 +1,188 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Url Video Player</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ফেসবুক ভিডিও ডাউনলোডার</title>
     <style>
         :root {
-            --primary-red: #d32f2f;
-            --white: #ffffff;
-            --gray: #f0f0f0;
-            --text-dark: #333333;
-            --text-gray: #777777;
-            --bottom-nav-bg: #111111;
+            --primary-color: #1877F2;
+            --secondary-color: #42B72A;
+            --light-gray: #f0f2f5;
+            --dark-gray: #65676b;
+            --text-color: #1c1e21;
+            --white-color: #ffffff;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            background-color: var(--primary-red);
-            display: flex;
-            justify-content: center;
-            height: 100vh;
-            height: 100dvh; 
-            color: var(--text-dark);
-            overflow: hidden; 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--light-gray);
+            color: var(--text-color);
+            line-height: 1.6;
         }
 
-        .main-container {
-            width: 100%;
-            max-width: 480px;
-            height: 100%; 
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 0 20px rgba(0,0,0,0.3);
-            background-color: var(--primary-red);
-            position: relative;
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: var(--white-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
         }
 
-        header {
-            padding: 15px 20px;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        header { text-align: center; margin-bottom: 2rem; }
+        header h1 { color: var(--primary-color); font-size: 2.2rem; margin-bottom: 0.5rem; }
+        header p { color: var(--dark-gray); }
+
+        .downloader-form { display: flex; gap: 10px; margin-bottom: 2rem; }
+        #video-url {
+            flex-grow: 1; padding: 15px; font-size: 1rem;
+            border: 1px solid #ddd; border-radius: var(--border-radius);
         }
-        header h2 { margin: 0; font-size: 20px; font-weight: 600; }
-        
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+
+        #download-btn {
+            padding: 15px 25px; font-weight: bold; color: white;
+            background-color: var(--primary-color); border: none;
+            border-radius: var(--border-radius); cursor: pointer;
         }
-        .header-lang-select {
-            background: transparent;
-            color: white;
-            border: 1px solid rgba(255,255,255,0.5);
-            border-radius: 5px;
-            padding: 3px 5px;
-            outline: none;
-            font-size: 13px;
-            cursor: pointer;
+
+        #loading { display: none; text-align: center; margin: 2rem 0; }
+        .spinner {
+            border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color);
+            border-radius: 50%; width: 40px; height: 40px;
+            animation: spin 1s linear infinite; margin: 0 auto 10px;
         }
-        .header-lang-select option {
-            color: black;
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        #result {
+            display: none; margin-top: 2rem; padding: 1.5rem;
+            border: 1px solid #ddd; border-radius: var(--border-radius);
+            background-color: #fafafa; text-align: center;
         }
         
-        header .fa-ellipsis-vertical { font-size: 20px; cursor: pointer; }
-
-        .status-bar {
-            background: rgba(255,255,255,0.2);
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            margin: 0 20px 15px 20px;
-            color: white;
+        .video-info { margin-bottom: 1.5rem; }
+        .video-thumbnail {
+            width: 100%; max-width: 300px; border-radius: var(--border-radius);
+            margin-bottom: 10px; border: 1px solid #ddd;
         }
-        .status-dot {
-            height: 8px; width: 8px;
-            background: #4caf50;
-            border-radius: 50%;
-            margin-right: 8px;
-        }
-        .status-bar .hd-quality {
-            margin-left: auto;
-            opacity: 0.7;
-            font-weight: bold;
-        }
-
-        .video-container {
-            position: relative;
-            background: #000;
-            height: 250px;
-            margin: 0 20px;
-            border-radius: 15px;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        #placeholderText {
-            color: var(--white);
-            font-size: 14px;
-            text-transform: uppercase;
-            font-weight: bold;
-            text-align: center;
-            position: absolute;
-            width: 80%;
-            z-index: 1;
-        }
-
-        .video-loader {
-            position: absolute;
-            z-index: 15;
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: var(--primary-red);
-            animation: spin 1s ease-in-out infinite;
-            display: none; 
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; 
-            position: absolute;
-            top: 0; left: 0;
-            display: none; 
-        }
-
-        .player-controls {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            display: none; 
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 10px;
-            box-sizing: border-box;
-            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 50%, rgba(0,0,0,0) 100%);
-            z-index: 10;
-            transition: opacity 0.3s;
-            pointer-events: none; 
-        }
-
-        .controls-top { display: flex; justify-content: flex-end; padding: 10px; gap: 15px; pointer-events: auto; }
-        .controls-top i { color: white; font-size: 24px; opacity: 0.8; cursor: pointer; }
-
-        .controls-center {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            display: flex; align-items: center; gap: 20px; pointer-events: auto;
-        }
-        .circle-control {
-            border: 2px solid white; border-radius: 50%; width: 50px; height: 50px;
-            display: flex; justify-content: center; align-items: center; cursor: pointer; transition: all 0.2s;
-        }
-        .circle-control:hover { background-color: rgba(255,255,255,0.1); }
-        .center-play-pause { width: 65px; height: 65px; background: rgba(0,0,0,0.5); border: 3px solid white; }
-        .circle-control i { color: white; font-size: 24px; }
-        .rewind i, .forward i { font-size: 18px; }
-        .forward, .rewind { background: rgba(0,0,0,0.3); }
-
-        .controls-bottom-bar {
-            position: absolute; bottom: 0; left: 0; width: 100%; padding: 10px; box-sizing: border-box;
-            background: rgba(0,0,0,0.5); display: flex; align-items: center; color: white; font-size: 12px; gap: 10px; pointer-events: auto;
-        }
-        .time-display { display: flex; gap: 5px; }
-        .bottom-icons { margin-left: auto; display: flex; gap: 12px; align-items: center; }
-        .bottom-icons i { color: white; font-size: 20px; opacity: 0.8; cursor: pointer; }
         
-        .seek-bar-container {
-            flex-grow: 1; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; position: relative; cursor: pointer; padding: 10px 0; background-clip: content-box;
-        }
-        .seek-bar-progress { height: 100%; background: var(--primary-red); border-radius: 2px; width: 0%; position: absolute; top: 10px; }
-        .seek-handle {
-            width: 12px; height: 12px; background: var(--primary-red); border-radius: 50%; position: absolute;
-            top: 12px; transform: translate(-50%, -50%); left: 0%; box-shadow: 0 0 5px rgba(0,0,0,0.5);
-        }
-
-        .settings-menu {
-            position: absolute; bottom: 45px; right: 15px; background: rgba(0, 0, 0, 0.85); border-radius: 10px;
-            display: none; flex-direction: column; min-width: 130px; z-index: 20; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.5); pointer-events: auto;
-        }
-        .setting-item { padding: 12px 15px; color: white; font-size: 13px; font-weight: bold; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid rgba(255, 255, 255, 0.1); text-align: center; }
-        .setting-item:last-child { border-bottom: none; }
-        .setting-item:hover { background: rgba(255, 255, 255, 0.2); }
-
-        .content-card {
-            background: white; flex: 1; margin-top: 20px;
-            border-radius: 30px 30px 0 0; padding: 20px;
-            padding-bottom: 80px; 
-            overflow-y: auto; display: flex; flex-direction: column; z-index: 5;
-        }
-
-        .nav-section { display: none; }
-        .nav-section.active { display: block; }
-
-        .input-group {
-            border: 2px solid #ddd; border-radius: 20px;
-            padding: 12px 15px; margin-bottom: 15px; display: flex; align-items: center;
-        }
-        .input-group i { margin-right: 15px; color: var(--primary-red); font-size: 22px; width: 25px; text-align: center; }
-        input { border: none; outline: none; width: 100%; font-size: 16px; color: var(--text-dark); background: transparent; }
-        
-        .btn-play {
-            background: var(--primary-red); color: white; width: 100%;
-            padding: 18px; border-radius: 20px; border: none; font-size: 17px;
-            font-weight: bold; cursor: pointer; display: flex; align-items: center;
-            justify-content: center; gap: 12px; margin-top: 10px; text-transform: uppercase;
-        }
-
-        .btn-ad {
-            background: #ff9800;
-            color: white;
-            width: 100%;
-            padding: 15px;
-            border-radius: 20px;
-            border: none;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 15px;
-            text-transform: uppercase;
+        .download-links a {
+            display: inline-block; text-decoration: none; color: white;
+            background-color: var(--secondary-color); padding: 12px 25px;
+            border-radius: var(--border-radius); font-weight: bold;
             transition: 0.3s;
         }
-        .btn-ad.success {
-            background: #4caf50 !important;
-        }
-        
-        .btn-google { background: #4285F4; }
-        .btn-logout { background: #333; margin-top: 15px; }
+        .download-links a:hover { transform: translateY(-2px); background-color: #36a420; }
 
-        .history-list { display: flex; flex-direction: column; gap: 10px; }
-        .history-item {
-            background: var(--gray); padding: 15px; border-radius: 20px;
-            display: flex; align-items: center; gap: 15px; cursor: pointer;
-            position: relative;
-            padding-right: 45px; 
-        }
-        .item-play-icon { background: rgba(211, 47, 47, 0.1); color: var(--primary-red); padding: 12px; border-radius: 12px; font-size: 16px; }
-        .item-poster { width: 50px; height: 50px; border-radius: 12px; object-fit: cover; background: #ddd; }
-        
-        .item-info { flex: 1; overflow: hidden; }
-        .item-info h4, .item-info p { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .item-info h4 { font-size: 16px; font-weight: 600; }
-        .item-info p { margin-top: 5px; font-size: 12px; color: var(--text-gray); }
+        .instructions { margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1.5rem; }
+        .instructions h2 { font-size: 1.2rem; margin-bottom: 1rem; color: var(--primary-color); }
+        .instructions ol { padding-left: 20px; color: var(--dark-gray); }
+        .instructions li { margin-bottom: 8px; }
 
-        .history-options {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            padding: 10px;
-            color: #777;
-            font-size: 18px;
-        }
-        .history-options:hover { color: var(--primary-red); }
+        footer { text-align: center; margin-top: 2rem; padding: 1rem; font-size: 0.8rem; color: var(--dark-gray); }
 
-        .bottom-nav {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: var(--bottom-nav-bg);
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 0;
-            z-index: 50;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.5);
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #777;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            gap: 5px;
-            transition: 0.3s;
-        }
-
-        .nav-item i {
-            font-size: 22px;
-        }
-
-        .nav-item.active {
-            color: white;
-        }
-        
-        .nav-item.active i {
-            color: var(--primary-red);
-        }
-
-        .profile-container {
-            text-align: center;
-            padding: 20px;
-        }
-        .profile-container img {
-            width: 90px; height: 90px; border-radius: 50%;
-            border: 3px solid var(--primary-red); margin-bottom: 10px; object-fit: cover;
-        }
-        .profile-container h3 { margin: 0; font-size: 20px; color: var(--text-dark); }
-        .profile-container p { margin: 5px 0 20px 0; color: var(--text-gray); font-size: 14px; }
-
-        .placeholder-box {
-            background: var(--gray); padding: 30px; text-align: center;
-            border-radius: 20px; color: var(--text-gray); font-weight: bold; margin-top: 20px;
-        }
-
-        .movies-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            padding-bottom: 20px;
-            padding-top: 10px;
-        }
-        .movie-card {
-            background: var(--gray);
-            border-radius: 15px;
-            overflow: hidden;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-            position: relative; 
-        }
-        .movie-card:hover { transform: scale(1.02); }
-        .movie-card img {
-            width: 100%;
-            height: 220px;
-            object-fit: cover;
-            display: block;
-            background: #ddd;
-        }
-        .movie-card-info { padding: 10px; text-align: center; }
-        .movie-card-info h4 { margin: 0; font-size: 14px; color: var(--text-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-        .fav-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
-            border-radius: 50%;
-            width: 35px;
-            height: 35px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 18px;
-            z-index: 10;
-            transition: 0.3s;
-        }
-        .fav-btn.active {
-            color: var(--primary-red);
-        }
-
-        @media screen and (max-width: 480px) {
-            .main-container { height: 100vh; height: 100dvh; max-height: 100vh; max-height: 100dvh; border-radius: 0; }
+        @media (max-width: 600px) {
+            .downloader-form { flex-direction: column; }
+            .container { margin: 10px; padding: 1.2rem; }
         }
     </style>
 </head>
 <body>
 
-<div class="main-container">
-    <header>
-        <h2 id="appTitleText">Url Video Player</h2>
-        <div class="header-right">
-            <select id="languageSelect" class="header-lang-select" onchange="changeLanguage()">
-                <option value="en">English</option>
-                <option value="bn">Bengali</option>
-                <option value="hi">Hindi</option>
-            </select>
-            <i class="fa-solid fa-ellipsis-vertical"></i>
-        </div>
-    </header>
+    <div class="container">
+        <header>
+            <h1>FB Video Downloader</h1>
+            <p>আপনার পছন্দের ফেসবুক ভিডিওটি সহজেই ডাউনলোড করুন।</p>
+        </header>
 
-    <div class="status-bar">
-        <span class="status-dot"></span> <span id="statusText">Ready to Play</span> 
-        <span class="hd-quality" id="qualityDisplay">Auto</span>
+        <main>
+            <form class="downloader-form" id="download-form">
+                <input type="url" id="video-url" placeholder="ভিডিওর লিংক এখানে পেস্ট করুন..." required>
+                <button type="submit" id="download-btn">ডাউনলোড</button>
+            </form>
+
+            <div id="loading">
+                <div class="spinner"></div>
+                <p>প্রসেসিং হচ্ছে, দয়া করে অপেক্ষা করুন...</p>
+            </div>
+
+            <div id="result">
+                <div class="video-info">
+                    <img id="video-thumbnail" src="" alt="Thumbnail" class="video-thumbnail">
+                    <h3 id="video-title">ভিডিওর টাইটেল</h3>
+                </div>
+                <div class="download-links">
+                    <!-- এই বাটনটি ভিডিও ডাউনলোড শুরু করবে -->
+                    <a href="#" id="final-download-link" target="_blank">ভিডিওটি ডাউনলোড করুন</a>
+                </div>
+            </div>
+        </main>
+
+        <section class="instructions">
+            <h2>কিভাবে ব্যবহার করবেন?</h2>
+            <ol>
+                <li>ফেসবুক থেকে ভিডিওর লিংক কপি করুন।</li>
+                <li>লিংকটি উপরের বক্সে পেস্ট করে 'ডাউনলোড' বাটনে ক্লিক করুন।</li>
+                <li>ভিডিওর প্রিভিউ আসলে 'ডাউনলোড করুন' বাটনে ক্লিক করে সেভ করুন।</li>
+            </ol>
+        </section>
     </div>
 
-    <div class="video-container" id="videoContainer">
-        <span id="placeholderText">ADD OR SELECT VIDEO TO PLAY</span>
-        <div class="video-loader" id="videoLoader"></div>
-        <video id="videoElement" playsinline preload="auto" autoplay></video>
-        
-        <div class="player-controls" id="playerControls">
-            <div class="controls-top">
-                <i class="fa-solid fa-chromecast" id="castBtn" title="Cast"></i>
-                <i class="fa-solid fa-code-merge" title="Merge"></i>
-            </div>
-            <div class="controls-center">
-                <div class="circle-control rewind" id="rewindBtn"><i class="fa-solid fa-rotate-left"></i></div>
-                <div class="circle-control center-play-pause" id="centerPlayPause"><i class="fa-solid fa-play"></i></div>
-                <div class="circle-control forward" id="forwardBtn"><i class="fa-solid fa-rotate-right"></i></div>
-            </div>
-            <div class="settings-menu" id="settingsMenu">
-                <div class="setting-item" id="qualityOption">Quality: Auto</div>
-                <div class="setting-item" id="speedOption">Speed: 1x</div>
-                <div class="setting-item" id="downloadOption">Download</div>
-            </div>
-            <div class="controls-bottom-bar">
-                <div class="time-display">
-                    <span id="currentTime">00:00</span>
-                    <span id="duration">0:00:00</span>
-                </div>
-                <div class="seek-bar-container" id="seekBarContainer">
-                    <div class="seek-bar-progress" id="seekBarProgress"></div>
-                    <div class="seek-handle" id="seekHandle"></div>
-                </div>
-                <div class="bottom-icons">
-                    <i class="fa-solid fa-backward-step" id="restartBtn" title="Restart"></i>
-                    <i class="fa-solid fa-gear" id="settingsBtn" title="Settings"></i>
-                    <i class="fa-regular fa-clone" id="pipBtn" title="Picture in Picture"></i>
-                    <i class="fa-solid fa-expand" id="fullscreenBtn" title="Fullscreen"></i>
-                </div>
-            </div>
-        </div>
-    </div>
+    <footer>
+        <p>© 2024 FB Downloader - ব্যক্তিগত ব্যবহারের জন্য।</p>
+    </footer>
 
-    <div class="content-card">
-        
-        <div id="home-section" class="nav-section active">
-            <button id="adBtn" class="btn-ad" onclick="watchAd()">
-                <i class="fa-solid fa-rectangle-ad"></i> Watch Ad First
-            </button>
+    <script>
+        const downloadForm = document.getElementById('download-form');
+        const videoUrlInput = document.getElementById('video-url');
+        const loadingDiv = document.getElementById('loading');
+        const resultDiv = document.getElementById('result');
+        const finalDownloadLink = document.getElementById('final-download-link');
 
-            <div class="input-group">
-                <i class="fa-solid fa-t"></i>
-                <input type="text" id="videoTitle" placeholder="Video Title">
-            </div>
+        downloadForm.addEventListener('submit', async function(event) {
+            event.preventDefault(); // পেজ রিলোড বন্ধ করা
 
-            <div class="input-group">
-                <i class="fa-solid fa-link"></i>
-                <input type="text" id="videoUrl" placeholder="Video URL or TG Code">
-            </div>
+            const videoUrl = videoUrlInput.value.trim();
+            if (!videoUrl) return;
 
-            <button id="savePlayBtn" class="btn-play" onclick="saveAndPlay()">
-                <i class="fa-solid fa-play"></i> SAVE AND PLAY
-            </button>
-        </div>
+            // ডিজাইন পরিবর্তন করা
+            resultDiv.style.display = 'none';
+            loadingDiv.style.display = 'block';
 
-        <div id="movies-section" class="nav-section">
-            <h3 id="titleMovies" style="margin-top:0;">All Movies</h3>
-            <div id="moviesGrid" class="movies-grid">
-                <div class="placeholder-box" style="grid-column: span 2;">
-                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 30px; margin-bottom:10px; color:var(--primary-red);"></i><br>
-                    <span id="txtLoading">Loading Movies...</span>
-                </div>
-            </div>
-        </div>
+            // আপনার টার্মাক্স এপিআই এর সঠিক লিংক (Localhost API)
+            // এটি ব্রাউজার থেকে আপনার টার্মাক্স সার্ভারে রিকোয়েস্ট পাঠাবে
+            const apiEndpoint = `http://localhost:3000/fetch?url=${encodeURIComponent(videoUrl)}`;
 
-        <div id="history-section" class="nav-section">
-            <h3 id="titleHistory" style="margin-top:0;">Your History</h3>
-            <div class="history-list" id="historyList"></div>
-        </div>
-
-        <div id="favorites-section" class="nav-section">
-        </div>
-
-        <div id="me-section" class="nav-section">
-            <div id="loginArea" style="text-align:center; padding-top:10px;">
-                <h3 id="titleWelcome" style="margin-bottom: 5px;">Welcome!</h3>
-                <p id="descSync" style="color:var(--text-gray); font-size:14px; margin-bottom:20px;">Please login to sync your data</p>
+            try {
+                const response = await fetch(apiEndpoint);
                 
-                <div class="input-group">
-                    <i class="fa-solid fa-envelope"></i>
-                    <input type="email" id="emailInput" placeholder="Email Address">
-                </div>
-                <div class="input-group">
-                    <i class="fa-solid fa-lock"></i>
-                    <input type="password" id="passwordInput" placeholder="Password">
-                </div>
+                if (!response.ok) throw new Error('সার্ভারে সমস্যা হয়েছে।');
 
-                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                    <button id="btnLogin" class="btn-play" style="margin-top: 0; background: #333;" onclick="loginWithEmail()">Login</button>
-                    <button id="btnReg" class="btn-play" style="margin-top: 0;" onclick="registerWithEmail()">Register</button>
-                </div>
+                const data = await response.json();
 
-                <div id="textOr" style="margin: 15px 0; color: #aaa; font-size: 14px; font-weight: bold;">OR</div>
-
-                <button id="btnGoogle" class="btn-play btn-google" style="margin-top: 0;" onclick="signInWithGoogle()">
-                    <i class="fa-brands fa-google"></i> Login with Google
-                </button>
-            </div>
-            
-            <div id="profileArea" class="profile-container" style="display:none;">
-                <img id="profilePic" src="" alt="Profile Picture">
-                <h3 id="profileName">User Name</h3>
-                <p id="profileEmail">user@gmail.com</p>
-                <button id="btnLogout" class="btn-play btn-logout" onclick="signOut()">
-                    <i class="fa-solid fa-right-from-bracket"></i> Logout
-                </button>
-            </div>
-        </div>
-        
-    </div>
-
-    <div class="bottom-nav">
-        <div class="nav-item active" onclick="switchNav('home', this)">
-            <i class="fa-solid fa-house"></i>
-            <span id="navHomeText">Home</span>
-        </div>
-        <div class="nav-item" onclick="switchNav('movies', this)">
-            <i class="fa-solid fa-film"></i>
-            <span id="navMoviesText">Movies</span>
-        </div>
-        <div class="nav-item" onclick="switchNav('history', this)">
-            <i class="fa-solid fa-clock-rotate-left"></i>
-            <span id="navHistText">History</span>
-        </div>
-        <div class="nav-item" onclick="switchNav('favorites', this)">
-            <i class="fa-solid fa-heart"></i>
-            <span id="navFavText">Favorites</span>
-        </div>
-        <div class="nav-item" onclick="switchNav('me', this)">
-            <i class="fa-solid fa-user"></i>
-            <span id="navMeText">Me</span>
-        </div>
-    </div>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-
-<script>
-    // सम्पूर्ण Language Dictionary
-    const translations = {
-        en: { 
-            appTitle: "Url Video Player",
-            readyPlay: "Ready to Play",
-            addVideo: "ADD OR SELECT VIDEO TO PLAY",
-            adBtn: "<i class='fa-solid fa-rectangle-ad'></i> Watch Ad First",
-            vidTitle: "Video Title",
-            vidUrl: "Video URL or TG Code",
-            savePlay: "<i class='fa-solid fa-play'></i> SAVE AND PLAY",
-            allMovies: "All Movies",
-            loadingMovies: "Loading Movies...",
-            yourHistory: "Your History",
-            favorites: "Favorites",
-            welcome: "Welcome!",
-            syncText: "Please login to sync your data",
-            loginBtn: "Login",
-            regBtn: "Register",
-            or: "OR",
-            googleBtn: "<i class='fa-brands fa-google'></i> Login with Google",
-            logoutBtn: "<i class='fa-solid fa-right-from-bracket'></i> Logout",
-            navHome: "Home",
-            navMovies: "Movies",
-            navHist: "History",
-            navFav: "Favorites",
-            navMe: "Me",
-            noFav: "No favorite videos yet.",
-            noHist: "No history found.",
-            noMovies: "No movies available right now.",
-            adIncomplete: "You haven't checked the ad yet.",
-            adSuccess: "Ad check-in successful! You can now play videos.",
-            adWaitSpinner: "Check In",
-            adDone: "Click Check In",
-            adErrorStart: "Error: You must watch an ad first! Click the 'Watch Ad First' button above.",
-            emailPlaceholder: "Email Address",
-            passPlaceholder: "Password",
-            loginSuccess: "Login successful!",
-            loginFailed: "Login failed: ",
-            enterEmailPass: "Please enter email and password!",
-            accCreated: "Account created and login successful!",
-            accFailed: "Account creation failed: ",
-            logoutSuccess: "You have successfully logged out!",
-            enterUrl: "Please enter a valid Video URL or TG Code!",
-            invalidCode: "Invalid code! The link you provided is incorrect or expired.",
-            serverError: "Server error, please try again later.",
-            deleteHistory: "Do you want to delete this history?",
-            downloadAlert: "To download the video, long press on the video and select 'Download video'.",
-            qualityText: "Quality",
-            invalidUrlError: "Invalid URL! Please enter a valid HTTP/HTTPS link.",
-            speed: "Speed",
-            downloadText: "Download",
-            checkingCode: "Checking Code...",
-            errorLink: "Error Link",
-            noMovieLink: "No movie link found in this code!",
-            dbError: "Database Error!",
-            clickPlay: "Click Play Icon",
-            loadingVideo: "Loading Video...",
-            timeoutBroken: "Timeout: Invalid or Broken URL!",
-            playing: "Playing",
-            buffering: "Buffering...",
-            errorVideoUrl: "Error: Invalid Video URL!",
-            paused: "Paused",
-            langUpdated: "Language updated!"
-        },
-        bn: { 
-            appTitle: "ইউআরএল ভিডিও প্লেয়ার",
-            readyPlay: "প্লে করার জন্য প্রস্তুত",
-            addVideo: "ভিডিও যোগ করুন বা নির্বাচন করুন",
-            adBtn: "<i class='fa-solid fa-rectangle-ad'></i> আগে এড দেখো",
-            vidTitle: "ভিডিও টাইটেল",
-            vidUrl: "ভিডিও ইউআরএল বা টিজি কোড",
-            savePlay: "<i class='fa-solid fa-play'></i> সেভ এন্ড প্লে",
-            allMovies: "সকল মুভি",
-            loadingMovies: "মুভি লোড হচ্ছে...",
-            yourHistory: "আপনার হিস্টোরি",
-            favorites: "ফেভারিটস",
-            welcome: "স্বাগতম!",
-            syncText: "আপনার ডেটা সিঙ্ক করতে লগইন করুন",
-            loginBtn: "লগইন",
-            regBtn: "রেজিস্টার",
-            or: "অথবা",
-            googleBtn: "<i class='fa-brands fa-google'></i> গুগল দিয়ে লগইন করুন",
-            logoutBtn: "<i class='fa-solid fa-right-from-bracket'></i> লগআউট",
-            navHome: "হোম",
-            navMovies: "মুভি",
-            navHist: "হিস্টোরি",
-            navFav: "ফেভারিটস",
-            navMe: "মি",
-            noFav: "এখনো কোনো ফেভারিট ভিডিও নেই।",
-            noHist: "কোনো হিস্টোরি পাওয়া যায়নি।",
-            noMovies: "বর্তমানে কোনো মুভি উপলব্ধ নেই।",
-            adIncomplete: "আপনি এখনো এর চেক করেন নাই।",
-            adSuccess: "এড চেক-ইন সফল হয়েছে! এখন আপনি ভিডিও প্লে করতে পারবেন।",
-            adWaitSpinner: "চেক ইন",
-            adDone: "চেক ইন করুন",
-            adErrorStart: "এরর: আপনাকে আগে এড দেখতে হবে! উপরের 'আগে এড দেখো' বাটনে ক্লিক করুন।",
-            emailPlaceholder: "ইমেইল এড্রেস",
-            passPlaceholder: "পাসওয়ার্ড",
-            loginSuccess: "লগইন সফল হয়েছে!",
-            loginFailed: "লগইন ব্যর্থ হয়েছে: ",
-            enterEmailPass: "দয়া করে ইমেইল এবং পাসওয়ার্ড দিন!",
-            accCreated: "অ্যাকাউন্ট তৈরি এবং লগইন সফল হয়েছে!",
-            accFailed: "অ্যাকাউন্ট তৈরি ব্যর্থ হয়েছে: ",
-            logoutSuccess: "আপনি সফলভাবে লগআউট করেছেন!",
-            enterUrl: "দয়া করে সঠিক ভিডিও ইউআরএল অথবা টেলিগ্রাম কোড দিন!",
-            invalidCode: "ভুল কোড! আপনার দেওয়া লিংকটি সঠিক নয় অথবা এক্সপায়ার হয়ে গেছে।",
-            serverError: "সার্ভার সমস্যা হচ্ছে, একটু পর আবার চেষ্টা করুন।",
-            deleteHistory: "আপনি কি এই হিস্টোরি ডিলিট করতে চান?",
-            downloadAlert: "ভিডিওটি ডাউনলোড করতে চাইলে, ভিডিওর ওপর লং প্রেস (Long Press) করে 'Download video' অপশনটি সিলেক্ট করুন।",
-            qualityText: "কোয়ালিটি",
-            invalidUrlError: "ভুল ইউআরএল! দয়া করে সঠিক একটি HTTP/HTTPS লিংক দিন।",
-            speed: "স্পিড",
-            downloadText: "ডাউনলোড",
-            checkingCode: "কোড চেক করা হচ্ছে...",
-            errorLink: "ভুল লিংক",
-            noMovieLink: "এই কোডের ভেতর কোনো মুভি লিংক পাওয়া যায়নি!",
-            dbError: "ডাটাবেজ এরর!",
-            clickPlay: "প্লে আইকনে ক্লিক করুন",
-            loadingVideo: "ভিডিও লোড হচ্ছে...",
-            timeoutBroken: "টাইমআউট: ভুল বা ভাঙা লিংক!",
-            playing: "প্লে হচ্ছে",
-            buffering: "বাফারিং...",
-            errorVideoUrl: "এরর: ভুল ভিডিও লিংক!",
-            paused: "পজ করা হয়েছে",
-            langUpdated: "ভাষা পরিবর্তন করা হয়েছে!"
-        },
-        hi: { 
-            appTitle: "यूआरएल वीडियो प्लेयर",
-            readyPlay: "प्ले करने के लिए तैयार",
-            addVideo: "वीडियो जोड़ें या चुनें",
-            adBtn: "<i class='fa-solid fa-rectangle-ad'></i> पहले विज्ञापन देखें",
-            vidTitle: "वीडियो का शीर्षक",
-            vidUrl: "वीडियो URL या TG कोड",
-            savePlay: "<i class='fa-solid fa-play'></i> सेव और प्ले",
-            allMovies: "सभी फिल्में",
-            loadingMovies: "फिल्में लोड हो रही हैं...",
-            yourHistory: "आपका इतिहास",
-            favorites: "पसंदीदा",
-            welcome: "स्वागत हे!",
-            syncText: "डेटा सिंक करने के लिए लॉगिन करें",
-            loginBtn: "लॉग इन",
-            regBtn: "रजिस्टर",
-            or: "या",
-            googleBtn: "<i class='fa-brands fa-google'></i> Google से लॉगिन करें",
-            logoutBtn: "<i class='fa-solid fa-right-from-bracket'></i> लॉग आउट",
-            navHome: "होम",
-            navMovies: "फिल्में",
-            navHist: "इतिहास",
-            navFav: "पसंदीदा",
-            navMe: "मी",
-            noFav: "अभी तक कोई पसंदीदा वीडियो नहीं।",
-            noHist: "कोई इतिहास नहीं मिला।",
-            noMovies: "अभी कोई फिल्में उपलब्ध नहीं हैं।",
-            adIncomplete: "आपने अभी तक विज्ञापन की जांच नहीं की है।",
-            adSuccess: "विज्ञापन चेक-इन सफल! अब आप वीडियो चला सकते हैं।",
-            adWaitSpinner: "चेक इन",
-            adDone: "चेक इन करें",
-            adErrorStart: "त्रुटि: आपको पहले एक विज्ञापन देखना होगा! ऊपर 'पहले विज्ञापन देखें' बटन पर क्लिक करें।",
-            emailPlaceholder: "ईमेल पता",
-            passPlaceholder: "पासवर्ड",
-            loginSuccess: "लॉगिन सफल रहा!",
-            loginFailed: "लॉगिन विफल: ",
-            enterEmailPass: "कृपया ईमेल और पासवर्ड दर्ज करें!",
-            accCreated: "खाता बन गया और लॉगिन सफल रहा!",
-            accFailed: "खाता निर्माण विफल: ",
-            logoutSuccess: "आपने सफलतापूर्वक लॉग आउट कर लिया है!",
-            enterUrl: "कृपया मान्य वीडियो URL या TG कोड दर्ज करें!",
-            invalidCode: "अमान्य कोड! आपके द्वारा दिया गया लिंक गलत है या समाप्त हो गया है।",
-            serverError: "सर्वर त्रुटि, कृपया कुछ देर बाद प्रयास करें।",
-            deleteHistory: "क्या आप इस इतिहास को हटाना चाहते हैं?",
-            downloadAlert: "वीडियो डाउनलोड करने के लिए, वीडियो पर लॉन्ग प्रेस करें और 'Download video' चुनें।",
-            qualityText: "गुणवत्ता",
-            invalidUrlError: "अमान्य URL! कृपया एक मान्य HTTP/HTTPS लिंक दर्ज करें।",
-            speed: "गति",
-            downloadText: "डाउनलोड",
-            checkingCode: "कोड चेक किया जा रहा है...",
-            errorLink: "त्रुटि लिंक",
-            noMovieLink: "इस कोड में कोई मूवी लिंक नहीं मिला!",
-            dbError: "डेटाबेस त्रुटि!",
-            clickPlay: "प्ले आइकन पर क्लिक करें",
-            loadingVideo: "वीडियो लोड हो रहा है...",
-            timeoutBroken: "टाइमआउट: अमान्य या टूटा हुआ URL!",
-            playing: "प्ले हो रहा है",
-            buffering: "बफरिंग...",
-            errorVideoUrl: "त्रुटि: अमान्य वीडियो URL!",
-            paused: "रोका गया",
-            langUpdated: "भाषा अपडेट की गई!"
-        }
-    };
-
-    let currentLang = 'en'; 
-    let isAdWatched = false; 
-    let isAdClicked = false;
-    let adClickTime = 0;
-    let adTimerInterval;
-
-    function applyTranslations() {
-        document.getElementById('appTitleText').innerText = t('appTitle');
-        document.getElementById('statusText').innerText = t('readyPlay');
-        document.getElementById('placeholderText').innerText = t('addVideo');
-        
-        let adBtn = document.getElementById('adBtn');
-        if(!isAdClicked && !isAdWatched) adBtn.innerHTML = t('adBtn');
-        
-        document.getElementById('videoTitle').placeholder = t('vidTitle');
-        document.getElementById('videoUrl').placeholder = t('vidUrl');
-        document.getElementById('savePlayBtn').innerHTML = t('savePlay');
-
-        document.getElementById('titleMovies').innerText = t('allMovies');
-        if(document.getElementById('txtLoading')) document.getElementById('txtLoading').innerText = t('loadingMovies');
-        document.getElementById('titleHistory').innerText = t('yourHistory');
-        
-        let favSecTitle = document.querySelector('#favorites-section h3');
-        if(favSecTitle) favSecTitle.innerText = t('favorites');
-        
-        document.getElementById('titleWelcome').innerText = t('welcome');
-        document.getElementById('descSync').innerText = t('syncText');
-        document.getElementById('emailInput').placeholder = t('emailPlaceholder');
-        document.getElementById('passwordInput').placeholder = t('passPlaceholder');
-
-        document.getElementById('btnLogin').innerText = t('loginBtn');
-        document.getElementById('btnReg').innerText = t('regBtn');
-        document.getElementById('textOr').innerText = t('or');
-        document.getElementById('btnGoogle').innerHTML = t('googleBtn');
-        document.getElementById('btnLogout').innerHTML = t('logoutBtn');
-
-        document.getElementById('navHomeText').innerText = t('navHome');
-        document.getElementById('navMoviesText').innerText = t('navMovies');
-        document.getElementById('navHistText').innerText = t('navHist');
-        document.getElementById('navFavText').innerText = t('navFav');
-        document.getElementById('navMeText').innerText = t('navMe');
-
-        let qDisplay = document.getElementById('qualityDisplay').innerText;
-        document.getElementById('qualityOption').innerText = `${t('qualityText')}: ${qDisplay}`;
-        
-        // Speed
-        let speedText = document.getElementById('speedOption').innerText.split(': ')[1] || '1x';
-        document.getElementById('speedOption').innerText = `${t('speed')}: ${speedText}`;
-        document.getElementById('downloadOption').innerText = t('downloadText');
-
-        // Re-render Dynamic contents
-        loadFavorites();
-        loadHistoryFromFirebase();
-        loadMoviesFromFirebase();
-    }
-
-    // অ্যাড অটোমেটিক কমপ্লিট হওয়ার ফাংশন
-    function verifyAdComplete() {
-        isAdWatched = true;
-        clearInterval(adTimerInterval);
-        let adBtn = document.getElementById('adBtn');
-        adBtn.innerHTML = `<i class="fa-solid fa-check-circle"></i> ${t('adSuccess').split('!')[0]}`;
-        adBtn.classList.add('success');
-        adBtn.style.background = ""; 
-        alert(t('adSuccess'));
-    }
-
-    function watchAd() {
-        let adBtn = document.getElementById('adBtn');
-        
-        if (!isAdClicked) {
-            window.open('https://hdmoviewatch.netlify.app/', '_blank'); 
-            
-            isAdClicked = true;
-            adClickTime = Date.now();
-            let remainingTime = 10;
-            
-            adBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${t('adWaitSpinner')} (${remainingTime}s)`;
-            adBtn.style.background = "#1976d2"; 
-            
-            adTimerInterval = setInterval(() => {
-                let elapsed = Math.floor((Date.now() - adClickTime) / 1000);
-                remainingTime = 10 - elapsed;
-                
-                if (remainingTime > 0) {
-                    adBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${t('adWaitSpinner')} (${remainingTime}s)`;
-                } else {
-                    clearInterval(adTimerInterval);
-                    // টাইমার জিরো হওয়ার পর ইউজার যদি ওয়েবসাইটে থাকে, অটোমেটিক চেক হবে
-                    if (document.visibilityState === 'visible') {
-                        verifyAdComplete();
-                    } else {
-                        adBtn.innerHTML = `<i class="fa-solid fa-check-double"></i> ${t('adDone')}`;
-                        adBtn.style.background = "#f57c00"; 
-                    }
-                }
-            }, 1000);
-            
-        } else {
-            let elapsed = Date.now() - adClickTime;
-            
-            if (elapsed < 10000) {
-                alert(t('adIncomplete'));
-            } else {
-                verifyAdComplete();
-            }
-        }
-    }
-
-    // ইউজার যখন অ্যাড দেখে মেইন ট্যাবে ব্যাক করবে তখন সিস্টেম অটোমেটিক চেক করবে
-    document.addEventListener("visibilitychange", function() {
-        if (document.visibilityState === 'visible' && isAdClicked && !isAdWatched) {
-            let elapsed = Date.now() - adClickTime;
-            if (elapsed >= 10000) {
-                verifyAdComplete();
-            }
-        }
-    });
-
-    async function setLanguageFromLocation() {
-        let savedLang = localStorage.getItem('app_lang');
-        if (savedLang && translations[savedLang]) {
-            currentLang = savedLang;
-            document.getElementById('languageSelect').value = currentLang;
-            applyTranslations();
-            // Even if lang is saved, let's track the user IP in background
-            trackUserLocation();
-            return;
-        }
-        trackUserLocation(true); // true means change lang based on location
-    }
-
-    async function trackUserLocation(autoSetLang = false) {
-        try {
-            let response = await fetch('https://ipapi.co/json/');
-            let data = await response.json();
-            
-            if(autoSetLang){
-                if (data.country_code === 'BD') {
-                    currentLang = 'bn';
-                } else if (data.country_code === 'IN') {
-                    currentLang = 'hi';
-                } else {
-                    currentLang = 'en';
-                }
-                localStorage.setItem('app_lang', currentLang);
-                document.getElementById('languageSelect').value = currentLang;
-                applyTranslations();
-            }
-
-            // Save User Location Tag in Firebase
-            firebase.database().ref('users_info/' + userDeviceId).update({
-                ip: data.ip,
-                country: data.country_name,
-                country_code: data.country_code,
-                language_selected: currentLang,
-                last_visited: new Date().toLocaleString()
-            });
-
-        } catch (e) {
-            if(autoSetLang){
-                const browserLang = navigator.language || navigator.userLanguage;
-                if (browserLang.toLowerCase().includes('bn')) currentLang = 'bn'; 
-                else if (browserLang.toLowerCase().includes('hi')) currentLang = 'hi'; 
-                else currentLang = 'en';
-                localStorage.setItem('app_lang', currentLang);
-                document.getElementById('languageSelect').value = currentLang;
-                applyTranslations();
-            }
-        }
-    }
-
-    function changeLanguage() {
-        let langDropdown = document.getElementById('languageSelect');
-        currentLang = langDropdown.value;
-        localStorage.setItem('app_lang', currentLang);
-        applyTranslations();
-        firebase.database().ref('users_info/' + userDeviceId).update({ language_selected: currentLang });
-        alert(t("langUpdated"));
-    }
-
-    function t(key) {
-        return translations[currentLang][key] || translations['en'][key];
-    }
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyDxENg9lQdYCpcQ_ujZvh_dazfE9Qdogb8",
-        authDomain: "telegram-brought.firebaseapp.com",
-        databaseURL: "https://telegram-brought-default-rtdb.firebaseio.com",
-        projectId: "telegram-brought",
-    };
-
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-
-    function getUniqueDeviceId() {
-        let deviceId = localStorage.getItem('my_device_id');
-        if (!deviceId) {
-            deviceId = 'device_' + Math.random().toString(36).substr(2, 9) + Date.now();
-            localStorage.setItem('my_device_id', deviceId);
-        }
-        return deviceId;
-    }
-
-    const userDeviceId = getUniqueDeviceId();
-    const dbRef = firebase.database().ref('user_history/' + userDeviceId); 
-    const auth = firebase.auth();
-    const provider = new firebase.auth.GoogleAuthProvider();
-
-    window.addEventListener('load', () => {
-        setLanguageFromLocation();
-        video.muted = true;
-
-        firebase.database().ref('admin_settings/default_video').once('value').then((snapshot) => {
-            if (snapshot.exists()) {
-                let data = snapshot.val();
-                let adminVideoUrl = data.url || "https://www.w3schools.com/html/mov_bbb.mp4";
-                let adminPoster = data.poster || "https://via.placeholder.com/480x250?text=Welcome+Video";
-                let adminTitle = data.title || "Welcome Video";
-
-                document.getElementById('videoTitle').value = adminTitle;
-                startPlayer(adminVideoUrl, adminPoster);
-            } else {
-                const defaultUrl = "https://ia600800.us.archive.org/0/items/in-shot-20260408-010518378/InShot_20260408_010518378.mp4"; 
-                const defaultPoster = "https://via.placeholder.com/480x250?text=How+to+Watch+and+Download+Movies";
-                document.getElementById('videoTitle').value = "How to Watch & Download";
-                startPlayer(defaultUrl, defaultPoster);
-            }
-        }).catch(() => {
-            const defaultUrl = "https://www.w3schools.com/html/mov_bbb.mp4"; 
-            document.getElementById('videoTitle').value = "How to Watch & Download";
-            startPlayer(defaultUrl, "");
-        });
-    });
-
-    function getFavorites() { return JSON.parse(localStorage.getItem('my_favorites') || '[]'); }
-    function saveFavorites(favs) { localStorage.setItem('my_favorites', JSON.stringify(favs)); }
-    function isFavorite(code) { return getFavorites().some(f => f.code === code); }
-
-    function toggleFavorite(event, title, code, poster) {
-        event.stopPropagation(); 
-        let favs = getFavorites();
-        const index = favs.findIndex(f => f.code === code);
-        const iconEl = event.currentTarget.querySelector('i');
-
-        if(index > -1) {
-            favs.splice(index, 1); 
-            iconEl.classList.remove('fa-solid');
-            iconEl.classList.add('fa-regular');
-            event.currentTarget.classList.remove('active');
-        } else {
-            favs.push({ title, code, poster }); 
-            iconEl.classList.remove('fa-regular');
-            iconEl.classList.add('fa-solid');
-            event.currentTarget.classList.add('active');
-        }
-        saveFavorites(favs);
-        loadFavorites(); 
-    }
-
-    function loadFavorites() {
-        const favDiv = document.querySelector('#favorites-section');
-        const favs = getFavorites();
-        let html = `<h3 style="margin-top:0;">${t('favorites')}</h3>`;
-
-        if(favs.length === 0) {
-            html += `<div class="placeholder-box"><i class="fa-solid fa-heart-crack" style="font-size: 30px; margin-bottom:10px; color:#aaa;"></i><br>${t('noFav')}</div>`;
-        } else {
-            html += `<div class="movies-grid">`;
-            favs.forEach(data => {
-                const safeTitle = data.title.replace(/'/g, "\\'");
-                const safeCode = data.code.replace(/'/g, "\\'");
-                html += `
-                    <div class="movie-card" onclick="playMovie('${safeTitle}', '${safeCode}')">
-                        <div class="fav-btn active" onclick="toggleFavorite(event, '${safeTitle}', '${safeCode}', '${data.poster}')">
-                            <i class="fa-solid fa-heart"></i>
-                        </div>
-                        <img src="${data.poster}" alt="Poster" onerror="this.src='https://via.placeholder.com/150x220?text=No+Poster'">
-                        <div class="movie-card-info"><h4>${data.title}</h4></div>
-                    </div>`;
-            });
-            html += `</div>`;
-        }
-        favDiv.innerHTML = html;
-    }
-
-    // Google Login - টেলিগ্রাম বা ইন-অ্যাপ ব্রাউজারে লগইনের জন্য Popup এর বদলে Redirect ব্যবহার করা হয়েছে 
-    function signInWithGoogle() { 
-        auth.signInWithRedirect(provider).catch((error) => { 
-            alert(t("loginFailed") + error.message); 
-        }); 
-    }
-
-    // Redirect হওয়ার পর লগইন সাকসেস ধরবে এই অপশন
-    auth.getRedirectResult().catch((error) => {
-        alert(t("loginFailed") + " " + error.message);
-    });
-
-    function loginWithEmail() {
-        const email = document.getElementById('emailInput').value.trim();
-        const password = document.getElementById('passwordInput').value.trim();
-        if(!email || !password) return alert(t("enterEmailPass"));
-        auth.signInWithEmailAndPassword(email, password).then(() => { alert(t("loginSuccess")); document.getElementById('emailInput').value = ''; document.getElementById('passwordInput').value = ''; }).catch((error) => { alert(t("loginFailed") + error.message); });
-    }
-    function registerWithEmail() {
-        const email = document.getElementById('emailInput').value.trim();
-        const password = document.getElementById('passwordInput').value.trim();
-        if(!email || !password) return alert(t("enterEmailPass"));
-        auth.createUserWithEmailAndPassword(email, password).then(() => { alert(t("accCreated")); document.getElementById('emailInput').value = ''; document.getElementById('passwordInput').value = ''; }).catch((error) => { alert(t("accFailed") + error.message); });
-    }
-    function signOut() { auth.signOut().then(() => { alert(t("logoutSuccess")); }).catch((error) => { console.error("Logout Failed: ", error); }); }
-
-    auth.onAuthStateChanged((user) => {
-        const loginArea = document.getElementById('loginArea');
-        const profileArea = document.getElementById('profileArea');
-        if (user) {
-            loginArea.style.display = 'none';
-            profileArea.style.display = 'block';
-            document.getElementById('profilePic').src = user.photoURL ? user.photoURL : 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
-            document.getElementById('profileName').innerText = user.displayName ? user.displayName : 'My Account';
-            document.getElementById('profileEmail').innerText = user.email;
-        } else {
-            loginArea.style.display = 'block';
-            profileArea.style.display = 'none';
-        }
-    });
-
-    function switchNav(sectionId, clickedElement) {
-        document.querySelectorAll('.nav-section').forEach(sec => sec.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-        document.getElementById(sectionId + '-section').classList.add('active');
-        clickedElement.classList.add('active');
-        if (sectionId === 'history') loadHistoryFromFirebase();
-        if (sectionId === 'movies') loadMoviesFromFirebase();
-        if (sectionId === 'favorites') loadFavorites();
-    }
-
-    const video = document.getElementById('videoElement');
-    const videoContainer = document.getElementById('videoContainer');
-    const playerControls = document.getElementById('playerControls');
-    const playPauseBtn = document.getElementById('centerPlayPause');
-    const playPauseIcon = playPauseBtn.querySelector('i');
-    const currentTimeText = document.getElementById('currentTime');
-    const durationText = document.getElementById('duration');
-    const seekBarProgress = document.getElementById('seekBarProgress');
-    const seekBarContainer = document.getElementById('seekBarContainer');
-    const seekHandle = document.getElementById('seekHandle');
-    const statusText = document.getElementById('statusText');
-    const videoLoader = document.getElementById('videoLoader');
-
-    let videoErrorTimeout; 
-
-    function saveAndPlay() {
-        if (!isAdWatched) {
-            alert(t('adErrorStart'));
-            return; 
-        }
-
-        let tgCode = document.getElementById('videoUrl').value.trim(); 
-        
-        if(!tgCode) return alert(t("enterUrl"));
-
-        video.muted = false; 
-        videoLoader.style.display = 'block';
-        document.getElementById('placeholderText').style.display = 'none';
-
-        if (tgCode.toUpperCase().startsWith("TG-")) {
-            statusText.innerText = t("checkingCode");
-            let searchCode = tgCode.toUpperCase(); 
-
-            firebase.database().ref('secure_links/' + searchCode).once('value').then((snapshot) => {
-                if (snapshot.exists()) {
-                    let data = snapshot.val();
-                    let actualUrl = data.link || data.url || data.real_url;
-                    let movieName = data.title || data.name || "Unknown Movie";
-                    let posterImage = data.poster || data.image || "";
-
-                    if (!actualUrl) {
-                        alert(t('noMovieLink'));
-                        videoLoader.style.display = 'none';
-                        statusText.innerText = t('errorLink');
-                        return;
-                    }
-
-                    document.getElementById('videoTitle').value = movieName; 
-
-                    dbRef.push({ 
-                        title: movieName, 
-                        url: actualUrl, 
-                        poster: posterImage, 
-                        timestamp: new Date().toLocaleString() 
-                    });
+                if (data.status === "Success") {
+                    // স্ক্রিনে তথ্য দেখানো
+                    document.getElementById('video-thumbnail').src = data.thumbnail;
+                    document.getElementById('video-title').textContent = data.title;
                     
-                    startPlayer(actualUrl, posterImage);
-
+                    // ডাউনলোড লিংক সেট করা
+                    finalDownloadLink.href = data.download_url;
+                    
+                    loadingDiv.style.display = 'none';
+                    resultDiv.style.display = 'block';
                 } else {
-                    alert(t("invalidCode"));
-                    statusText.innerText = t('readyPlay');
-                    videoLoader.style.display = 'none';
+                    throw new Error('ভিডিওর লিংক খুঁজে পাওয়া যায়নি।');
                 }
-            }).catch(error => {
-                alert(t('dbError'));
-                videoLoader.style.display = 'none';
-            });
-        } else {
-            if(!tgCode.startsWith("http")) {
-                alert(t("invalidUrlError"));
-                videoLoader.style.display = 'none';
-                statusText.innerText = "Invalid URL";
-                return;
+
+            } catch (error) {
+                loadingDiv.style.display = 'none';
+                alert('ভুল হয়েছে: ' + error.message);
             }
-
-            let titleInput = document.getElementById('videoTitle').value.trim() || "Unknown Video";
-            dbRef.push({ 
-                title: titleInput, 
-                url: tgCode, 
-                poster: "",
-                timestamp: new Date().toLocaleString() 
-            });
-            startPlayer(tgCode, "");
-        }
-        
-        // প্লে হওয়ার পর স্ট্যাটাস রিসেট করা
-        isAdWatched = false;
-        isAdClicked = false;
-        clearInterval(adTimerInterval);
-        
-        let adBtn = document.getElementById('adBtn');
-        adBtn.innerHTML = t('adBtn');
-        adBtn.classList.remove('success');
-        adBtn.style.background = ""; 
-    }
-
-    function startPlayer(url, posterUrl = "") {
-        document.getElementById('placeholderText').style.display = 'none';
-        video.style.display = 'block';
-        video.style.objectFit = 'cover'; 
-        clearTimeout(videoErrorTimeout); 
-
-        if(posterUrl) {
-            video.poster = posterUrl;
-        } else {
-            video.removeAttribute('poster');
-        }
-
-        video.pause();
-        video.removeAttribute('src');
-        video.load();
-
-        if (Hls.isSupported() && url.includes(".m3u8")) {
-            const hls = new Hls();
-            hls.loadSource(url);
-            hls.attachMedia(video);
-            hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                video.play().catch(e => console.log(e));
-            });
-            hls.on(Hls.Events.ERROR, function (event, data) {
-                if (data.fatal) {
-                    statusText.innerText = t('brokenLink');
-                    videoLoader.style.display = 'none';
-                    playPauseIcon.className = 'fa-solid fa-play';
-                }
-            });
-        } else {
-            video.src = url;
-            video.load(); 
-            
-            let playPromise = video.play();
-            if (playPromise !== undefined) {
-                playPromise.catch(error => {
-                    console.log("Play interrupted:", error);
-                    statusText.innerText = t('clickPlay');
-                    videoLoader.style.display = 'none';
-                    playPauseIcon.className = 'fa-solid fa-play';
-                });
-            }
-        }
-
-        playPauseIcon.className = 'fa-solid fa-pause';
-        showControls();
-        statusText.innerText = t('loadingVideo');
-        videoLoader.style.display = 'block';
-
-        videoErrorTimeout = setTimeout(() => {
-            if(video.readyState === 0) {
-                statusText.innerText = t('timeoutBroken');
-                videoLoader.style.display = 'none';
-                playPauseIcon.className = 'fa-solid fa-play';
-            }
-        }, 15000);
-    }
-
-    video.addEventListener('playing', () => {
-        clearTimeout(videoErrorTimeout); 
-        videoLoader.style.display = 'none';
-        statusText.innerText = t('playing');
-        video.style.objectFit = 'contain'; 
-    });
-
-    video.addEventListener('waiting', () => {
-        videoLoader.style.display = 'block';
-        statusText.innerText = t('buffering');
-    });
-
-    video.addEventListener('error', () => {
-        clearTimeout(videoErrorTimeout);
-        statusText.innerText = t('errorVideoUrl');
-        videoLoader.style.display = 'none';
-        playPauseIcon.className = 'fa-solid fa-play';
-    });
-
-    function deleteHistoryItem(event, key) {
-        event.stopPropagation(); 
-        if(confirm(t("deleteHistory"))) dbRef.child(key).remove();
-    }
-
-    function loadHistoryFromFirebase() {
-        const listDiv = document.getElementById('historyList');
-        dbRef.on('value', (snapshot) => {
-            listDiv.innerHTML = ""; 
-            if(!snapshot.exists()){ listDiv.innerHTML = `<p style='text-align:center; color:gray;'>${t('noHist')}</p>`; return; }
-            let historyArray = [];
-            snapshot.forEach((childSnapshot) => {
-                let data = childSnapshot.val();
-                data.key = childSnapshot.key; 
-                historyArray.push(data);
-            });
-            historyArray.reverse();
-
-            historyArray.forEach((data) => {
-                let iconOrPoster = `<div class="item-play-icon"><i class="fa-solid fa-play"></i></div>`;
-                if(data.poster && data.poster !== "") iconOrPoster = `<img src="${data.poster}" class="item-poster" alt="Poster" onerror="this.src='https://via.placeholder.com/50x50?text=No+Poster'">`;
-                let safePoster = data.poster ? data.poster.replace(/'/g, "\\'") : "";
-                let safeUrl = data.url ? data.url.replace(/'/g, "\\'") : "";
-
-                listDiv.innerHTML += `
-                    <div class="history-item" onclick="startPlayer('${safeUrl}', '${safePoster}')">
-                        ${iconOrPoster}
-                        <div class="item-info"><h4>${data.title}</h4><p><small>${data.timestamp}</small></p></div>
-                        <div class="history-options" onclick="deleteHistoryItem(event, '${data.key}')"><i class="fa-solid fa-ellipsis-vertical"></i></div>
-                    </div>`;
-            });
         });
-    }
-
-    function loadMoviesFromFirebase() {
-        const gridDiv = document.getElementById('moviesGrid');
-        firebase.database().ref('public_movies').on('value', (snapshot) => {
-            gridDiv.innerHTML = ""; 
-            if(!snapshot.exists()){
-                gridDiv.innerHTML = `<div class="placeholder-box" style="grid-column: span 2;"><i class="fa-solid fa-film" style="font-size: 30px; margin-bottom:10px; color:var(--primary-red);"></i><br>${t('noMovies')}</div>`;
-                gridDiv.style.display = "block";
-                return;
-            }
-            gridDiv.style.display = "grid";
-            const dataObj = snapshot.val();
-            const keys = Object.keys(dataObj).reverse();
-            keys.forEach(key => {
-                const data = dataObj[key];
-                const safeTitle = data.title ? data.title.replace(/'/g, "\\'") : 'Unknown';
-                const safeCode = data.code ? data.code.replace(/'/g, "\\'") : '';
-                const isFav = isFavorite(data.code);
-
-                gridDiv.innerHTML += `
-                    <div class="movie-card" onclick="playMovie('${safeTitle}', '${safeCode}')">
-                        <div class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite(event, '${safeTitle}', '${safeCode}', '${data.poster}')">
-                            <i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
-                        </div>
-                        <img src="${data.poster}" alt="Poster" onerror="this.src='https://via.placeholder.com/150x220?text=No+Poster'">
-                        <div class="movie-card-info"><h4>${data.title}</h4></div>
-                    </div>`;
-            });
-        });
-    }
-
-    function playMovie(title, code) {
-        document.getElementById('videoTitle').value = title;
-        document.getElementById('videoUrl').value = code;
-        const homeNavBtn = document.querySelector('.bottom-nav .nav-item:nth-child(1)');
-        switchNav('home', homeNavBtn);
-        saveAndPlay();
-        document.querySelector('.content-card').scrollTop = 0;
-    }
-
-    loadMoviesFromFirebase();
-    loadFavorites(); 
-
-    function togglePlay(e) {
-        if(e) e.stopPropagation();
-        if (video.paused) {
-            video.play();
-            playPauseIcon.className = 'fa-solid fa-pause';
-            statusText.innerText = t('playing');
-        } else {
-            video.pause();
-            playPauseIcon.className = 'fa-solid fa-play';
-            statusText.innerText = t('paused');
-        }
-    }
-
-    playPauseBtn.onclick = togglePlay;
-    document.getElementById('rewindBtn').onclick = (e) => { e.stopPropagation(); video.currentTime -= 10; };
-    document.getElementById('forwardBtn').onclick = (e) => { e.stopPropagation(); video.currentTime += 10; };
-
-    video.addEventListener('loadedmetadata', () => { durationText.textContent = formatTime(video.duration); });
-
-    let isDragging = false; 
-    video.addEventListener('timeupdate', () => {
-        if (!isDragging) { 
-            currentTimeText.textContent = formatTime(video.currentTime);
-            const percentage = (video.currentTime / video.duration) * 100;
-            seekBarProgress.style.width = percentage + '%';
-            seekHandle.style.left = percentage + '%';
-        }
-    });
-
-    function formatTime(seconds) {
-        if(isNaN(seconds)) return "00:00";
-        let h = Math.floor(seconds / 3600);
-        let m = Math.floor((seconds % 3600) / 60);
-        let s = Math.floor(seconds % 60);
-        m = m < 10 ? '0' + m : m;
-        s = s < 10 ? '0' + s : s;
-        return h > 0 ? h + ':' + m + ':' + s : m + ':' + s;
-    }
-
-    let dragPercentage = 0;
-    function getPercentage(e) {
-        const rect = seekBarContainer.getBoundingClientRect();
-        let clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-        let posPercentage = (clientX - rect.left) / rect.width;
-        return Math.max(0, Math.min(1, posPercentage)); 
-    }
-
-    function updateSeekBarUI(percentage) {
-        seekBarProgress.style.width = (percentage * 100) + '%';
-        seekHandle.style.left = (percentage * 100) + '%';
-        currentTimeText.textContent = formatTime(percentage * video.duration);
-    }
-
-    function startDragging(e) { e.stopPropagation(); isDragging = true; dragPercentage = getPercentage(e); updateSeekBarUI(dragPercentage); }
-    function duringDragging(e) { if(isDragging) { if(e.type.includes('touch')) e.preventDefault(); dragPercentage = getPercentage(e); updateSeekBarUI(dragPercentage); } }
-    function stopDragging() { if(isDragging) { isDragging = false; if(video.duration) { video.currentTime = dragPercentage * video.duration; } } }
-
-    seekBarContainer.addEventListener('mousedown', startDragging);
-    seekBarContainer.addEventListener('touchstart', startDragging, {passive: false});
-    document.addEventListener('mousemove', duringDragging);
-    document.addEventListener('touchmove', duringDragging, {passive: false});
-    document.addEventListener('mouseup', stopDragging);
-    document.addEventListener('touchend', stopDragging);
-
-    document.getElementById('restartBtn').onclick = (e) => { e.stopPropagation(); video.currentTime = 0; video.play(); playPauseIcon.className = 'fa-solid fa-pause'; };
-
-    const settingsMenu = document.getElementById('settingsMenu');
-    const qualityOption = document.getElementById('qualityOption');
-    const qualityDisplay = document.getElementById('qualityDisplay');
-    let qualities = ['Auto', '1080p', '720p', '480p', '360p'];
-    let qualityIndex = 0;
-
-    qualityOption.innerText = `Quality: Auto`;
-    qualityOption.onclick = (e) => { e.stopPropagation(); qualityIndex = (qualityIndex + 1) % qualities.length; let selectedQuality = qualities[qualityIndex]; qualityOption.innerText = `${t("qualityText")}: ${selectedQuality}`; qualityDisplay.innerText = selectedQuality; statusText.innerText = `${t("qualityText")}: ${selectedQuality}`; };
-
-    const speedOption = document.getElementById('speedOption');
-    const downloadOption = document.getElementById('downloadOption');
-    let speeds = [1, 1.5, 2];
-    let speedIndex = 0;
-
-    document.getElementById('settingsBtn').onclick = (e) => { e.stopPropagation(); settingsMenu.style.display = settingsMenu.style.display === 'flex' ? 'none' : 'flex'; };
-
-    speedOption.onclick = (e) => { e.stopPropagation(); speedIndex = (speedIndex + 1) % speeds.length; video.playbackRate = speeds[speedIndex]; speedOption.innerText = `${t('speed')}: ${speeds[speedIndex]}x`; statusText.innerText = `${t('speed')}: ${speeds[speedIndex]}x`; };
-    downloadOption.onclick = (e) => { e.stopPropagation(); settingsMenu.style.display = 'none'; if(video.src) { alert(t("downloadAlert")); } };
-
-    document.addEventListener('click', () => { settingsMenu.style.display = 'none'; });
-
-    document.getElementById('pipBtn').onclick = async (e) => { e.stopPropagation(); try { if (document.pictureInPictureElement) { await document.exitPictureInPicture(); } else { await video.requestPictureInPicture(); } } catch (error) { console.log("PiP not supported"); } };
-    document.getElementById('fullscreenBtn').onclick = (e) => { e.stopPropagation(); if (!document.fullscreenElement) { videoContainer.requestFullscreen().catch(err => console.log(err)); } else { document.exitFullscreen(); } };
-
-    let controlsTimeout;
-    function showControls() {
-        playerControls.style.display = 'flex';
-        clearTimeout(controlsTimeout);
-        if (!video.paused) {
-            controlsTimeout = setTimeout(() => {
-                if(!isDragging) {
-                    playerControls.style.display = 'none';
-                    settingsMenu.style.display = 'none';
-                }
-            }, 3000);
-        }
-    }
-
-    videoContainer.addEventListener('mousemove', showControls);
-    videoContainer.addEventListener('touchstart', showControls, {passive: true});
-    
-    videoContainer.addEventListener('click', (e) => {
-        if (video.muted) video.muted = false;
-
-        if(e.target.closest('.controls-center') || e.target.closest('.controls-bottom-bar') || e.target.closest('.controls-top') || e.target.closest('.settings-menu')) return;
-        if (playerControls.style.display === 'none' || playerControls.style.display === '') { showControls(); } else { playerControls.style.display = 'none'; settingsMenu.style.display = 'none'; }
-    });
-</script>
-
+    </script>
 </body>
 </html>
