@@ -3,129 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>প্রফেশনাল ফেসবুক ডাউনলোডার</title>
+    <title>Facebook Downloader Pro</title>
     <style>
-        :root { --fb-blue: #1877f2; --success: #42b72a; --bg: #f0f2f5; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .card { background: white; width: 100%; max-width: 500px; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        h2 { color: var(--fb-blue); text-align: center; }
-        .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
-        input { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 15px; outline: none; }
-        input:focus { border-color: var(--fb-blue); }
-        button { background: var(--fb-blue); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-
-        /* প্রগ্রেস বার */
-        .progress-container { display: none; margin: 20px 0; }
-        .progress-bg { background: #eee; border-radius: 10px; height: 12px; overflow: hidden; }
-        .progress-bar { background: var(--fb-blue); width: 0%; height: 100%; transition: width 0.4s; }
-        .status-text { font-size: 13px; color: #555; margin-top: 5px; display: block; text-align: center; }
-
-        #result { display: none; animation: fadeIn 0.5s; }
-        .video-box { text-align: center; margin-bottom: 20px; }
-        .thumb { width: 100%; border-radius: 10px; box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
+        :root { --blue: #1877f2; --green: #42b72a; }
+        body { font-family: sans-serif; background: #f0f2f5; padding: 20px; display: flex; justify-content: center; }
+        .box { background: white; width: 100%; max-width: 450px; padding: 20px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box;}
+        button { width: 100%; background: var(--blue); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
         
-        /* টেবিল ডিজাইন */
+        .progress-bar { display: none; background: #eee; height: 10px; border-radius: 5px; margin: 20px 0; overflow: hidden; }
+        .progress-fill { background: var(--blue); width: 0%; height: 100%; transition: 0.4s; }
+
+        #result { display: none; text-align: center; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; }
-        .dl-btn { background: var(--success); color: white; text-decoration: none; padding: 6px 12px; border-radius: 5px; font-size: 13px; font-weight: bold; }
-        
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        th, td { padding: 10px; border-bottom: 1px solid #eee; }
+        .dl-btn { background: var(--green); color: white; text-decoration: none; padding: 5px 10px; border-radius: 4px; font-size: 12px; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>FB Downloader Pro</h2>
-    <div class="input-group">
-        <input type="text" id="urlInput" placeholder="ভিডিও লিংক এখানে পেস্ট করুন...">
-        <button onclick="startProcessing()">Download</button>
-    </div>
+<div class="box">
+    <h2 style="color: var(--blue); text-align: center;">FB Downloader</h2>
+    <input type="text" id="url" placeholder="লিংক পেস্ট করুন...">
+    <button onclick="fetchVideo()">Download</button>
 
-    <!-- প্রফেশনাল লাইন বার -->
-    <div class="progress-container" id="progCont">
-        <div class="progress-bg">
-            <div class="progress-bar" id="progBar"></div>
-        </div>
-        <span class="status-text" id="statusText">লিংক চেক করা হচ্ছে...</span>
-    </div>
+    <div class="progress-bar" id="pBar"><div class="progress-fill" id="pFill"></div></div>
 
     <div id="result">
-        <div class="video-box">
-            <img id="thumbnail" class="thumb" src="" alt="">
-            <h4 id="title" style="margin-top: 10px; color: #333;"></h4>
-        </div>
-        
+        <img id="thumb" style="width: 100%; border-radius: 8px;" src="">
+        <h4 id="title"></h4>
         <table>
-            <thead>
-                <tr style="background: #f9f9f9;">
-                    <th>Quality</th>
-                    <th>Size</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="formatTable">
-                <!-- এখানে রেজোলিউশন লিস্ট আসবে -->
-            </tbody>
+            <thead><tr><th>Quality</th><th>Size</th><th>Action</th></tr></thead>
+            <tbody id="table"></tbody>
         </table>
     </div>
 </div>
 
 <script>
-    async function startProcessing() {
-        const url = document.getElementById('urlInput').value;
-        const progCont = document.getElementById('progCont');
-        const progBar = document.getElementById('progBar');
-        const statusText = document.getElementById('statusText');
+    // --- এখানে আপনার মোবাইলের IP টি বসান ---
+    const myIP = "192.168.0.103"; // উদাহরণ: "192.168.0.105"
+
+    async function fetchVideo() {
+        const url = document.getElementById('url').value;
+        const pBar = document.getElementById('pBar');
+        const pFill = document.getElementById('pFill');
         const result = document.getElementById('result');
 
         if(!url) return alert("লিংক দিন!");
 
-        // রিসেট এবং প্রগ্রেস শুরু
         result.style.display = 'none';
-        progCont.style.display = 'block';
-        updateProgress(20, "সার্ভারের সাথে কানেক্ট হচ্ছে...");
+        pBar.style.display = 'block';
+        pFill.style.width = '30%';
 
         try {
-            updateProgress(50, "ভিডিও ফাইল খোঁজা হচ্ছে...");
-            const response = await fetch(`http://localhost:3000/fetch?url=${encodeURIComponent(url)}`);
+            const response = await fetch(`http://${myIP}:3000/fetch?url=${encodeURIComponent(url)}`);
             const data = await response.json();
 
             if(data.status === "Success") {
-                updateProgress(80, "রেজোলিউশন তালিকা তৈরি হচ্ছে...");
-                
-                document.getElementById('thumbnail').src = data.thumbnail;
+                pFill.style.width = '100%';
+                document.getElementById('thumb').src = data.thumbnail;
                 document.getElementById('title').innerText = data.title;
                 
-                const tableBody = document.getElementById('formatTable');
-                tableBody.innerHTML = '';
-
+                let rows = '';
                 data.formats.forEach(f => {
-                    const row = `<tr>
+                    // ডাউনলোড বাটনটি এখন সরাসরি আমাদের সার্ভারের 'download-now' রুট ব্যবহার করবে
+                    rows += `<tr>
                         <td>${f.resolution}</td>
                         <td>${f.size}</td>
-                        <td><a href="http://localhost:3000/download-file?url=${encodeURIComponent(f.url)}&name=${encodeURIComponent(data.title)}" class="dl-btn">Download</a></td>
+                        <td><a href="http://${myIP}:3000/download-now?url=${encodeURIComponent(f.url)}&name=${encodeURIComponent(data.title)}" class="dl-btn">Download</a></td>
                     </tr>`;
-                    tableBody.innerHTML += row;
                 });
-
-                updateProgress(100, "ভিডিও প্রস্তুত!");
-                setTimeout(() => {
-                    progCont.style.display = 'none';
-                    result.style.display = 'block';
-                }, 500);
-            } else {
-                alert("এরর: ভিডিও পাওয়া যায়নি!");
-                progCont.style.display = 'none';
-            }
-        } catch (e) {
-            alert("সার্ভার এরর!");
-            progCont.style.display = 'none';
-        }
-    }
-
-    function updateProgress(width, text) {
-        document.getElementById('progBar').style.width = width + '%';
-        document.getElementById('statusText').innerText = text;
+                document.getElementById('table').innerHTML = rows;
+                setTimeout(() => { pBar.style.display = 'none'; result.style.display = 'block'; }, 500);
+            } else { alert("Error!"); pBar.style.display = 'none'; }
+        } catch (e) { alert("সার্ভার অফ আছে!"); pBar.style.display = 'none'; }
     }
 </script>
 
