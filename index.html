@@ -3,186 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ফেসবুক ভিডিও ডাউনলোডার</title>
+    <title>প্রফেশনাল ফেসবুক ডাউনলোডার</title>
     <style>
-        :root {
-            --primary-color: #1877F2;
-            --secondary-color: #42B72A;
-            --light-gray: #f0f2f5;
-            --dark-gray: #65676b;
-            --text-color: #1c1e21;
-            --white-color: #ffffff;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
+        :root { --fb-blue: #1877f2; --success: #42b72a; --bg: #f0f2f5; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .card { background: white; width: 100%; max-width: 500px; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        h2 { color: var(--fb-blue); text-align: center; }
+        .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        input { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 15px; outline: none; }
+        input:focus { border-color: var(--fb-blue); }
+        button { background: var(--fb-blue); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* প্রগ্রেস বার */
+        .progress-container { display: none; margin: 20px 0; }
+        .progress-bg { background: #eee; border-radius: 10px; height: 12px; overflow: hidden; }
+        .progress-bar { background: var(--fb-blue); width: 0%; height: 100%; transition: width 0.4s; }
+        .status-text { font-size: 13px; color: #555; margin-top: 5px; display: block; text-align: center; }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--light-gray);
-            color: var(--text-color);
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background-color: var(--white-color);
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-        }
-
-        header { text-align: center; margin-bottom: 2rem; }
-        header h1 { color: var(--primary-color); font-size: 2.2rem; margin-bottom: 0.5rem; }
-        header p { color: var(--dark-gray); }
-
-        .downloader-form { display: flex; gap: 10px; margin-bottom: 2rem; }
-        #video-url {
-            flex-grow: 1; padding: 15px; font-size: 1rem;
-            border: 1px solid #ddd; border-radius: var(--border-radius);
-        }
-
-        #download-btn {
-            padding: 15px 25px; font-weight: bold; color: white;
-            background-color: var(--primary-color); border: none;
-            border-radius: var(--border-radius); cursor: pointer;
-        }
-
-        #loading { display: none; text-align: center; margin: 2rem 0; }
-        .spinner {
-            border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color);
-            border-radius: 50%; width: 40px; height: 40px;
-            animation: spin 1s linear infinite; margin: 0 auto 10px;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        #result {
-            display: none; margin-top: 2rem; padding: 1.5rem;
-            border: 1px solid #ddd; border-radius: var(--border-radius);
-            background-color: #fafafa; text-align: center;
-        }
+        #result { display: none; animation: fadeIn 0.5s; }
+        .video-box { text-align: center; margin-bottom: 20px; }
+        .thumb { width: 100%; border-radius: 10px; box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
         
-        .video-info { margin-bottom: 1.5rem; }
-        .video-thumbnail {
-            width: 100%; max-width: 300px; border-radius: var(--border-radius);
-            margin-bottom: 10px; border: 1px solid #ddd;
-        }
+        /* টেবিল ডিজাইন */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; }
+        .dl-btn { background: var(--success); color: white; text-decoration: none; padding: 6px 12px; border-radius: 5px; font-size: 13px; font-weight: bold; }
         
-        .download-links a {
-            display: inline-block; text-decoration: none; color: white;
-            background-color: var(--secondary-color); padding: 12px 25px;
-            border-radius: var(--border-radius); font-weight: bold;
-            transition: 0.3s;
-        }
-        .download-links a:hover { transform: translateY(-2px); background-color: #36a420; }
-
-        .instructions { margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1.5rem; }
-        .instructions h2 { font-size: 1.2rem; margin-bottom: 1rem; color: var(--primary-color); }
-        .instructions ol { padding-left: 20px; color: var(--dark-gray); }
-        .instructions li { margin-bottom: 8px; }
-
-        footer { text-align: center; margin-top: 2rem; padding: 1rem; font-size: 0.8rem; color: var(--dark-gray); }
-
-        @media (max-width: 600px) {
-            .downloader-form { flex-direction: column; }
-            .container { margin: 10px; padding: 1.2rem; }
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <header>
-            <h1>FB Video Downloader</h1>
-            <p>আপনার পছন্দের ফেসবুক ভিডিওটি সহজেই ডাউনলোড করুন।</p>
-        </header>
-
-        <main>
-            <form class="downloader-form" id="download-form">
-                <input type="url" id="video-url" placeholder="ভিডিওর লিংক এখানে পেস্ট করুন..." required>
-                <button type="submit" id="download-btn">ডাউনলোড</button>
-            </form>
-
-            <div id="loading">
-                <div class="spinner"></div>
-                <p>প্রসেসিং হচ্ছে, দয়া করে অপেক্ষা করুন...</p>
-            </div>
-
-            <div id="result">
-                <div class="video-info">
-                    <img id="video-thumbnail" src="" alt="Thumbnail" class="video-thumbnail">
-                    <h3 id="video-title">ভিডিওর টাইটেল</h3>
-                </div>
-                <div class="download-links">
-                    <!-- এই বাটনটি ভিডিও ডাউনলোড শুরু করবে -->
-                    <a href="#" id="final-download-link" target="_blank">ভিডিওটি ডাউনলোড করুন</a>
-                </div>
-            </div>
-        </main>
-
-        <section class="instructions">
-            <h2>কিভাবে ব্যবহার করবেন?</h2>
-            <ol>
-                <li>ফেসবুক থেকে ভিডিওর লিংক কপি করুন।</li>
-                <li>লিংকটি উপরের বক্সে পেস্ট করে 'ডাউনলোড' বাটনে ক্লিক করুন।</li>
-                <li>ভিডিওর প্রিভিউ আসলে 'ডাউনলোড করুন' বাটনে ক্লিক করে সেভ করুন।</li>
-            </ol>
-        </section>
+<div class="card">
+    <h2>FB Downloader Pro</h2>
+    <div class="input-group">
+        <input type="text" id="urlInput" placeholder="ভিডিও লিংক এখানে পেস্ট করুন...">
+        <button onclick="startProcessing()">Download</button>
     </div>
 
-    <footer>
-        <p>© 2024 FB Downloader - ব্যক্তিগত ব্যবহারের জন্য।</p>
-    </footer>
+    <!-- প্রফেশনাল লাইন বার -->
+    <div class="progress-container" id="progCont">
+        <div class="progress-bg">
+            <div class="progress-bar" id="progBar"></div>
+        </div>
+        <span class="status-text" id="statusText">লিংক চেক করা হচ্ছে...</span>
+    </div>
 
-    <script>
-        const downloadForm = document.getElementById('download-form');
-        const videoUrlInput = document.getElementById('video-url');
-        const loadingDiv = document.getElementById('loading');
-        const resultDiv = document.getElementById('result');
-        const finalDownloadLink = document.getElementById('final-download-link');
+    <div id="result">
+        <div class="video-box">
+            <img id="thumbnail" class="thumb" src="" alt="">
+            <h4 id="title" style="margin-top: 10px; color: #333;"></h4>
+        </div>
+        
+        <table>
+            <thead>
+                <tr style="background: #f9f9f9;">
+                    <th>Quality</th>
+                    <th>Size</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="formatTable">
+                <!-- এখানে রেজোলিউশন লিস্ট আসবে -->
+            </tbody>
+        </table>
+    </div>
+</div>
 
-        downloadForm.addEventListener('submit', async function(event) {
-            event.preventDefault(); // পেজ রিলোড বন্ধ করা
+<script>
+    async function startProcessing() {
+        const url = document.getElementById('urlInput').value;
+        const progCont = document.getElementById('progCont');
+        const progBar = document.getElementById('progBar');
+        const statusText = document.getElementById('statusText');
+        const result = document.getElementById('result');
 
-            const videoUrl = videoUrlInput.value.trim();
-            if (!videoUrl) return;
+        if(!url) return alert("লিংক দিন!");
 
-            // ডিজাইন পরিবর্তন করা
-            resultDiv.style.display = 'none';
-            loadingDiv.style.display = 'block';
+        // রিসেট এবং প্রগ্রেস শুরু
+        result.style.display = 'none';
+        progCont.style.display = 'block';
+        updateProgress(20, "সার্ভারের সাথে কানেক্ট হচ্ছে...");
 
-            // আপনার টার্মাক্স এপিআই এর সঠিক লিংক (Localhost API)
-            // এটি ব্রাউজার থেকে আপনার টার্মাক্স সার্ভারে রিকোয়েস্ট পাঠাবে
-            const apiEndpoint = `http://localhost:3000/fetch?url=${encodeURIComponent(videoUrl)}`;
+        try {
+            updateProgress(50, "ভিডিও ফাইল খোঁজা হচ্ছে...");
+            const response = await fetch(`http://localhost:3000/fetch?url=${encodeURIComponent(url)}`);
+            const data = await response.json();
 
-            try {
-                const response = await fetch(apiEndpoint);
+            if(data.status === "Success") {
+                updateProgress(80, "রেজোলিউশন তালিকা তৈরি হচ্ছে...");
                 
-                if (!response.ok) throw new Error('সার্ভারে সমস্যা হয়েছে।');
+                document.getElementById('thumbnail').src = data.thumbnail;
+                document.getElementById('title').innerText = data.title;
+                
+                const tableBody = document.getElementById('formatTable');
+                tableBody.innerHTML = '';
 
-                const data = await response.json();
+                data.formats.forEach(f => {
+                    const row = `<tr>
+                        <td>${f.resolution}</td>
+                        <td>${f.size}</td>
+                        <td><a href="http://localhost:3000/download-file?url=${encodeURIComponent(f.url)}&name=${encodeURIComponent(data.title)}" class="dl-btn">Download</a></td>
+                    </tr>`;
+                    tableBody.innerHTML += row;
+                });
 
-                if (data.status === "Success") {
-                    // স্ক্রিনে তথ্য দেখানো
-                    document.getElementById('video-thumbnail').src = data.thumbnail;
-                    document.getElementById('video-title').textContent = data.title;
-                    
-                    // ডাউনলোড লিংক সেট করা
-                    finalDownloadLink.href = data.download_url;
-                    
-                    loadingDiv.style.display = 'none';
-                    resultDiv.style.display = 'block';
-                } else {
-                    throw new Error('ভিডিওর লিংক খুঁজে পাওয়া যায়নি।');
-                }
-
-            } catch (error) {
-                loadingDiv.style.display = 'none';
-                alert('ভুল হয়েছে: ' + error.message);
+                updateProgress(100, "ভিডিও প্রস্তুত!");
+                setTimeout(() => {
+                    progCont.style.display = 'none';
+                    result.style.display = 'block';
+                }, 500);
+            } else {
+                alert("এরর: ভিডিও পাওয়া যায়নি!");
+                progCont.style.display = 'none';
             }
-        });
-    </script>
+        } catch (e) {
+            alert("সার্ভার এরর!");
+            progCont.style.display = 'none';
+        }
+    }
+
+    function updateProgress(width, text) {
+        document.getElementById('progBar').style.width = width + '%';
+        document.getElementById('statusText').innerText = text;
+    }
+</script>
+
 </body>
 </html>
