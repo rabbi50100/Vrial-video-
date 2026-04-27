@@ -1,84 +1,248 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Facebook Downloader Pro</title>
+    <title>Premium Video Downloader</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        :root { --blue: #1877f2; --green: #42b72a; }
-        body { font-family: sans-serif; background: #f0f2f5; padding: 20px; display: flex; justify-content: center; }
-        .box { background: white; width: 100%; max-width: 450px; padding: 20px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box;}
-        button { width: 100%; background: var(--blue); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        
-        .progress-bar { display: none; background: #eee; height: 10px; border-radius: 5px; margin: 20px 0; overflow: hidden; }
-        .progress-fill { background: var(--blue); width: 0%; height: 100%; transition: 0.4s; }
-
-        #result { display: none; text-align: center; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 10px; border-bottom: 1px solid #eee; }
-        .dl-btn { background: var(--green); color: white; text-decoration: none; padding: 5px 10px; border-radius: 4px; font-size: 12px; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #000000 100%);
+            background-attachment: fixed;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .progress-transition {
+            transition: width 0.5s ease-in-out;
+        }
     </style>
 </head>
-<body>
+<body class="min-h-screen flex items-center justify-center p-4 text-white">
 
-<div class="box">
-    <h2 style="color: var(--blue); text-align: center;">FB Downloader</h2>
-    <input type="text" id="url" placeholder="লিংক পেস্ট করুন...">
-    <button onclick="fetchVideo()">Download</button>
+    <!-- Main Container -->
+    <div class="glass-panel w-full max-w-2xl rounded-3xl shadow-2xl p-6 sm:p-10 relative overflow-hidden">
+        
+        <!-- Background Glow -->
+        <div class="absolute -top-20 -left-20 w-40 h-40 bg-purple-500 rounded-full mix-blend-screen filter blur-[80px] opacity-50"></div>
+        <div class="absolute -bottom-20 -right-20 w-40 h-40 bg-blue-500 rounded-full mix-blend-screen filter blur-[80px] opacity-50"></div>
 
-    <div class="progress-bar" id="pBar"><div class="progress-fill" id="pFill"></div></div>
+        <div class="relative z-10">
+            <!-- Header -->
+            <div class="text-center mb-10">
+                <h1 class="text-3xl sm:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-purple-500 mb-2">
+                    <i class="fa-solid fa-cloud-arrow-down mr-2"></i>Global Downloader
+                </h1>
+                <p class="text-gray-400 text-sm sm:text-base">Powered by Termux Local Server</p>
+            </div>
 
-    <div id="result">
-        <img id="thumb" style="width: 100%; border-radius: 8px;" src="">
-        <h4 id="title"></h4>
-        <table>
-            <thead><tr><th>Quality</th><th>Size</th><th>Action</th></tr></thead>
-            <tbody id="table"></tbody>
-        </table>
-    </div>
-</div>
+            <!-- Input Section -->
+            <div id="inputSection" class="relative group">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                    <i class="fa-solid fa-link text-gray-400 group-focus-within:text-cyan-400 transition-colors"></i>
+                </div>
+                <input type="text" id="videoUrl" value="https://www.youtube.com/shorts/VHB9vhI5e00" placeholder="Paste video link here..." 
+                    class="block w-full p-4 pl-12 text-sm sm:text-base text-white bg-white/5 border border-white/10 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition-all placeholder-gray-500 shadow-inner">
+                <button id="fetchBtn" onclick="startProcess()" 
+                    class="absolute right-2 text-white bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 focus:ring-4 focus:outline-none focus:ring-cyan-300 font-medium rounded-lg text-sm px-6 py-2.5 top-1.5 bottom-1.5 transition-all shadow-lg hover:shadow-cyan-500/30">
+                    Fetch <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
+            </div>
 
-<script>
-    // --- এখানে আপনার মোবাইলের IP টি বসান ---
-    const myIP = "192.168.0.103"; // উদাহরণ: "192.168.0.105"
+            <!-- Progress Bar Section -->
+            <div id="progressSection" class="hidden mt-8">
+                <div class="flex justify-between mb-2">
+                    <span id="progressText" class="text-sm font-medium text-cyan-400">Connecting to server...</span>
+                    <span id="progressPercent" class="text-sm font-medium text-cyan-400">10%</span>
+                </div>
+                <div class="w-full bg-gray-700/50 rounded-full h-2.5 border border-white/5 shadow-inner">
+                    <div id="progressBar" class="bg-gradient-to-r from-cyan-400 to-purple-500 h-2.5 rounded-full progress-transition w-10 relative">
+                        <div class="absolute top-0 right-0 bottom-0 left-0 bg-white/20 rounded-full animate-pulse"></div>
+                    </div>
+                </div>
+            </div>
 
-    async function fetchVideo() {
-        const url = document.getElementById('url').value;
-        const pBar = document.getElementById('pBar');
-        const pFill = document.getElementById('pFill');
-        const result = document.getElementById('result');
+            <!-- Result Section -->
+            <div id="resultSection" class="hidden mt-8 animate-[fadeIn_0.5s_ease-out]">
+                <!-- Video Info -->
+                <div class="flex items-center space-x-4 mb-6 bg-white/5 p-3 rounded-xl border border-white/5">
+                    <div class="w-16 h-16 bg-gray-800 rounded-lg flex items-center justify-center overflow-hidden border border-gray-700 shrink-0">
+                        <img id="videoThumb" src="" alt="Thumb" class="w-full h-full object-cover hidden">
+                        <i id="videoIcon" class="fa-brands fa-youtube text-3xl text-red-500"></i>
+                    </div>
+                    <div class="overflow-hidden w-full">
+                        <h3 class="text-white font-medium truncate" id="videoTitle">Processing...</h3>
+                        <div class="flex items-center justify-between mt-1">
+                            <p class="text-xs text-gray-400" id="videoDuration">Duration: 0:00</p>
+                            <p class="text-xs text-gray-400" id="videoPlatform">Platform</p>
+                        </div>
+                    </div>
+                </div>
 
-        if(!url) return alert("লিংক দিন!");
-
-        result.style.display = 'none';
-        pBar.style.display = 'block';
-        pFill.style.width = '30%';
-
-        try {
-            const response = await fetch(`http://${myIP}:3000/fetch?url=${encodeURIComponent(url)}`);
-            const data = await response.json();
-
-            if(data.status === "Success") {
-                pFill.style.width = '100%';
-                document.getElementById('thumb').src = data.thumbnail;
-                document.getElementById('title').innerText = data.title;
+                <!-- Dynamic Quality List -->
+                <div class="space-y-3" id="qualityList">
+                    <!-- Formats will be injected here by JS -->
+                </div>
                 
-                let rows = '';
-                data.formats.forEach(f => {
-                    // ডাউনলোড বাটনটি এখন সরাসরি আমাদের সার্ভারের 'download-now' রুট ব্যবহার করবে
-                    rows += `<tr>
-                        <td>${f.resolution}</td>
-                        <td>${f.size}</td>
-                        <td><a href="http://${myIP}:3000/download-now?url=${encodeURIComponent(f.url)}&name=${encodeURIComponent(data.title)}" class="dl-btn">Download</a></td>
-                    </tr>`;
-                });
-                document.getElementById('table').innerHTML = rows;
-                setTimeout(() => { pBar.style.display = 'none'; result.style.display = 'block'; }, 500);
-            } else { alert("Error!"); pBar.style.display = 'none'; }
-        } catch (e) { alert("সার্ভার অফ আছে!"); pBar.style.display = 'none'; }
-    }
-</script>
+                <!-- Try Another -->
+                <div class="mt-6 text-center">
+                    <button onclick="resetUI()" class="text-gray-400 hover:text-white text-sm transition-colors underline underline-offset-4">
+                        Download another video
+                    </button>
+                </div>
+            </div>
 
+        </div>
+    </div>
+
+    <!-- Integration Script -->
+    <script>
+        async function startProcess() {
+            const urlInput = document.getElementById('videoUrl').value;
+            if(!urlInput) {
+                alert("Please enter a video link first!");
+                return;
+            }
+
+            // আপনার লোকাল API লিংক
+            const API_BASE_URL = "http://localhost:3000";
+
+            document.getElementById('resultSection').classList.add('hidden');
+            document.getElementById('qualityList').innerHTML = '';
+            
+            const progressSection = document.getElementById('progressSection');
+            progressSection.classList.remove('hidden');
+            
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const progressPercent = document.getElementById('progressPercent');
+
+            // Reset Error styles if any
+            progressBar.className = "bg-gradient-to-r from-cyan-400 to-purple-500 h-2.5 rounded-full progress-transition relative";
+
+            try {
+                // Step 1: Connecting
+                progressBar.style.width = '30%';
+                progressText.innerText = 'Connecting to Android Server...';
+                progressPercent.innerText = '30%';
+
+                // Step 2: Fetching API
+                setTimeout(() => {
+                    if(progressBar.style.width === '30%') {
+                        progressBar.style.width = '60%';
+                        progressText.innerText = 'Extracting video data...';
+                        progressPercent.innerText = '60%';
+                    }
+                }, 1000);
+
+                // Call your Termux API (Updated Route to /api/info)
+                const reqUrl = `${API_BASE_URL}/api/info?url=${encodeURIComponent(urlInput)}`;
+                const response = await fetch(reqUrl);
+                const data = await response.json();
+
+                // Check if API returned an error
+                if (!data.error) {
+                    progressBar.style.width = '90%';
+                    progressText.innerText = 'Generating download links...';
+                    progressPercent.innerText = '90%';
+
+                    // Set Title, Thumbnail, Duration & Platform
+                    document.getElementById('videoTitle').innerText = data.title || "Video Found!";
+                    document.getElementById('videoDuration').innerText = `Duration: ${data.duration || '0:00'}`;
+                    document.getElementById('videoPlatform').innerText = (data.platform || '').toUpperCase();
+                    
+                    if(data.thumbnail) {
+                        document.getElementById('videoThumb').src = data.thumbnail;
+                        document.getElementById('videoThumb').classList.remove('hidden');
+                        document.getElementById('videoIcon').classList.add('hidden');
+                    }
+
+                    // Build formats UI dynamically (Updated to match data.qualities)
+                    const qualityList = document.getElementById('qualityList');
+                    let formatsHTML = '';
+
+                    const validFormats = data.qualities || [];
+
+                    if (validFormats.length === 0) {
+                        formatsHTML = `<div class="p-4 text-center text-red-400 border border-red-500/30 bg-red-500/10 rounded-xl">No download links found. Video might be private.</div>`;
+                    } else {
+                        validFormats.forEach((format, index) => {
+                            let labelText = format.label; // e.g. "Video (Auto)"
+                            let sizeText = format.size; // e.g. "2.5 MB" or "Unknown"
+                            let extText = (format.extension || 'mp4').toUpperCase();
+                            
+                            // Highlight Best Quality (Video vs Audio)
+                            let isVideo = format.quality === 'Best Quality';
+                            let bestBadge = isVideo ? `<span class="text-[10px] bg-purple-500 text-white px-1.5 py-0.5 rounded ml-1">Video</span>` : `<span class="text-[10px] bg-blue-500 text-white px-1.5 py-0.5 rounded ml-1">Audio</span>`;
+                            let bestStyle = isVideo ? 'border-purple-500/50 shadow-lg shadow-purple-500/10' : 'border-white/10 hover:bg-white/10';
+
+                            formatsHTML += `
+                            <div class="flex items-center justify-between p-3 sm:p-4 rounded-xl bg-white/5 border transition-colors group relative overflow-hidden ${bestStyle}">
+                                ${isVideo ? '<div class="absolute top-0 left-0 w-1 h-full bg-purple-500"></div>' : '<div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>'}
+                                <div class="flex items-center space-x-3 pl-2 w-1/2">
+                                    <span class="bg-gray-800 text-cyan-300 text-xs font-bold px-2 py-1 rounded truncate max-w-[80px] sm:max-w-full">${labelText}</span>
+                                    <span class="text-sm text-gray-300 hidden sm:inline whitespace-nowrap">${extText} Format ${bestBadge}</span>
+                                </div>
+                                <div class="flex items-center justify-end space-x-4 w-1/2">
+                                    <span class="text-xs text-gray-400 hidden sm:block">${sizeText}</span>
+                                    <a href="${format.url}" target="_blank" download class="text-white ${isVideo ? 'bg-purple-600 hover:bg-purple-500' : 'bg-blue-600 hover:bg-blue-500'} rounded-lg px-4 py-2 text-sm font-medium transition-all whitespace-nowrap">
+                                        <i class="fa-solid fa-download mr-1"></i> Save
+                                    </a>
+                                </div>
+                            </div>
+                            `;
+                        });
+                    }
+
+                    qualityList.innerHTML = formatsHTML;
+
+                    progressBar.style.width = '100%';
+                    progressText.innerText = 'Ready!';
+                    progressPercent.innerText = '100%';
+                    
+                    // Show result after a small delay
+                    setTimeout(() => {
+                        progressSection.classList.add('hidden');
+                        document.getElementById('resultSection').classList.remove('hidden');
+                    }, 800);
+
+                } else {
+                    throw new Error(data.error || "Failed to process the video.");
+                }
+
+            } catch (error) {
+                console.error(error);
+                progressBar.style.width = '100%';
+                progressBar.className = "bg-gradient-to-r from-red-500 to-red-600 h-2.5 rounded-full progress-transition relative";
+                progressText.innerText = 'Error!';
+                progressText.classList.replace('text-cyan-400', 'text-red-400');
+                progressPercent.innerText = '';
+                alert("Server Error: \n" + error.message);
+            }
+        }
+
+        function resetUI() {
+            document.getElementById('videoUrl').value = '';
+            document.getElementById('resultSection').classList.add('hidden');
+            document.getElementById('progressSection').classList.add('hidden');
+            document.getElementById('videoThumb').classList.add('hidden');
+            document.getElementById('videoIcon').classList.remove('hidden');
+            document.getElementById('progressBar').style.width = '10%';
+            
+            const progressText = document.getElementById('progressText');
+            progressText.innerText = 'Connecting to server...';
+            progressText.classList.replace('text-red-400', 'text-cyan-400');
+        }
+    </script>
 </body>
 </html>
