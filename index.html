@@ -278,7 +278,7 @@
             resultBox.classList.add('hidden');
 
             try {
-                const API_URL = 'http://localhost:3000';
+                const API_URL = 'https://scoop-firms-inspired-echo.trycloudflare.com';
                 const response = await fetch(`${API_URL}/api/info?url=${encodeURIComponent(urlInput)}`);
                 const data = await response.json();
 
