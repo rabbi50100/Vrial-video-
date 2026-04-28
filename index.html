@@ -3,246 +3,485 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Video Downloader</title>
+    <title>MediaDownloader Pro</title>
+    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { 400: '#818cf8', 500: '#6366f1', 600: '#4f46e5' },
+                        surface: '#0f172a',
+                        surface50: '#1e293b',
+                        accent: '#06b6d4',
+                    },
+                    animation: { 'spin-slow': 'spin 3s linear infinite' }
+                }
+            }
+        }
+    </script>
+
+    <!-- Font Awesome & Google Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #000000 100%);
-            background-attachment: fixed;
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background-color: #334155; border-radius: 10px; }
+        .animate-shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
         }
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+        .page { display: none; animation: fadeIn 0.4s ease-out; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background: #1e293b; border: 1px solid rgba(255,255,255,0.1); padding: 12px 20px; border-radius: 12px; font-size: 14px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5); animation: toastIn 0.3s ease-out; display: flex; align-items: center; gap: 10px; }
+        @keyframes toastIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* ✅ Aspect Ratio Classes */
+        .aspect-16-9 { aspect-ratio: 16/9; }
+        .aspect-9-16 { aspect-ratio: 9/16; max-height: 70vh; }
+        .aspect-4-5 { aspect-ratio: 4/5; max-height: 70vh; }
+        
+        /* ✅ Quality Badge */
+        .quality-badge { 
+            position: absolute; top: 8px; right: 8px; 
+            background: rgba(0,0,0,0.8); color: white; 
+            padding: 2px 8px; border-radius: 4px; 
+            font-size: 11px; font-weight: 600; 
+            backdrop-filter: blur(4px);
         }
-        .progress-transition {
-            transition: width 0.5s ease-in-out;
+        
+        /* ✅ Download Button */
+        .dl-btn { transition: all 0.2s; }
+        .dl-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99,102,241,0.3); }
+        .dl-btn:active { transform: translateY(0); }
+        .dl-btn.downloading { opacity: 0.7; cursor: wait; }
+        
+        /* ✅ Player */
+        .player-wrapper { 
+            position: relative; background: #000; 
+            border-radius: 12px; overflow: hidden; 
+            display: flex; align-items: center; justify-content: center;
+        }
+        .player-wrapper video, 
+        .player-wrapper img { 
+            width: 100%; height: 100%; object-fit: contain; 
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4 text-white">
+<body class="min-h-screen flex flex-col">
 
-    <!-- Main Container -->
-    <div class="glass-panel w-full max-w-2xl rounded-3xl shadow-2xl p-6 sm:p-10 relative overflow-hidden">
-        
-        <!-- Background Glow -->
-        <div class="absolute -top-20 -left-20 w-40 h-40 bg-purple-500 rounded-full mix-blend-screen filter blur-[80px] opacity-50"></div>
-        <div class="absolute -bottom-20 -right-20 w-40 h-40 bg-blue-500 rounded-full mix-blend-screen filter blur-[80px] opacity-50"></div>
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
 
-        <div class="relative z-10">
-            <!-- Header -->
-            <div class="text-center mb-10">
-                <h1 class="text-3xl sm:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-purple-500 mb-2">
-                    <i class="fa-solid fa-cloud-arrow-down mr-2"></i>Global Downloader
-                </h1>
-                <p class="text-gray-400 text-sm sm:text-base">Powered by Termux Local Server</p>
-            </div>
-
-            <!-- Input Section -->
-            <div id="inputSection" class="relative group">
-                <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-                    <i class="fa-solid fa-link text-gray-400 group-focus-within:text-cyan-400 transition-colors"></i>
-                </div>
-                <input type="text" id="videoUrl" value="https://www.youtube.com/shorts/VHB9vhI5e00" placeholder="Paste video link here..." 
-                    class="block w-full p-4 pl-12 text-sm sm:text-base text-white bg-white/5 border border-white/10 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition-all placeholder-gray-500 shadow-inner">
-                <button id="fetchBtn" onclick="startProcess()" 
-                    class="absolute right-2 text-white bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 focus:ring-4 focus:outline-none focus:ring-cyan-300 font-medium rounded-lg text-sm px-6 py-2.5 top-1.5 bottom-1.5 transition-all shadow-lg hover:shadow-cyan-500/30">
-                    Fetch <i class="fa-solid fa-arrow-right ml-1"></i>
+    <!-- Header -->
+    <header class="sticky top-0 z-50 border-b border-white/5 bg-surface/80 backdrop-blur-xl">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 items-center justify-between">
+                <button onclick="navigate('home')" class="flex items-center gap-2.5 transition-opacity hover:opacity-80">
+                    <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-accent shadow-lg">
+                        <i class="fa-solid fa-download text-white"></i>
+                    </div>
+                    <span class="hidden text-lg font-bold text-white sm:block">
+                        Media<span class="text-primary-400">Downloader</span><span class="ml-0.5 text-xs font-medium text-accent">Pro</span>
+                    </span>
                 </button>
-            </div>
 
-            <!-- Progress Bar Section -->
-            <div id="progressSection" class="hidden mt-8">
-                <div class="flex justify-between mb-2">
-                    <span id="progressText" class="text-sm font-medium text-cyan-400">Connecting to server...</span>
-                    <span id="progressPercent" class="text-sm font-medium text-cyan-400">10%</span>
-                </div>
-                <div class="w-full bg-gray-700/50 rounded-full h-2.5 border border-white/5 shadow-inner">
-                    <div id="progressBar" class="bg-gradient-to-r from-cyan-400 to-purple-500 h-2.5 rounded-full progress-transition w-10 relative">
-                        <div class="absolute top-0 right-0 bottom-0 left-0 bg-white/20 rounded-full animate-pulse"></div>
-                    </div>
-                </div>
-            </div>
+                <nav class="hidden items-center gap-1 md:flex">
+                    <button onclick="navigate('home')" id="nav-home" class="nav-btn bg-primary-500/10 text-primary-400 flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all">
+                        <i class="fa-solid fa-house"></i> <span data-i18n="nav.home">Home</span>
+                    </button>
+                    <button onclick="navigate('history')" id="nav-history" class="nav-btn text-gray-400 hover:bg-white/5 hover:text-gray-200 flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all">
+                        <i class="fa-solid fa-clock-rotate-left"></i> <span data-i18n="nav.history">History</span>
+                    </button>
+                    <button onclick="navigate('favorites')" id="nav-favorites" class="nav-btn text-gray-400 hover:bg-white/5 hover:text-gray-200 flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all">
+                        <i class="fa-solid fa-heart"></i> <span data-i18n="nav.favorites">Favorites</span>
+                    </button>
+                </nav>
 
-            <!-- Result Section -->
-            <div id="resultSection" class="hidden mt-8 animate-[fadeIn_0.5s_ease-out]">
-                <!-- Video Info -->
-                <div class="flex items-center space-x-4 mb-6 bg-white/5 p-3 rounded-xl border border-white/5">
-                    <div class="w-16 h-16 bg-gray-800 rounded-lg flex items-center justify-center overflow-hidden border border-gray-700 shrink-0">
-                        <img id="videoThumb" src="" alt="Thumb" class="w-full h-full object-cover hidden">
-                        <i id="videoIcon" class="fa-brands fa-youtube text-3xl text-red-500"></i>
-                    </div>
-                    <div class="overflow-hidden w-full">
-                        <h3 class="text-white font-medium truncate" id="videoTitle">Processing...</h3>
-                        <div class="flex items-center justify-between mt-1">
-                            <p class="text-xs text-gray-400" id="videoDuration">Duration: 0:00</p>
-                            <p class="text-xs text-gray-400" id="videoPlatform">Platform</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Dynamic Quality List -->
-                <div class="space-y-3" id="qualityList">
-                    <!-- Formats will be injected here by JS -->
-                </div>
-                
-                <!-- Try Another -->
-                <div class="mt-6 text-center">
-                    <button onclick="resetUI()" class="text-gray-400 hover:text-white text-sm transition-colors underline underline-offset-4">
-                        Download another video
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleLang()" class="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-gray-400 hover:bg-white/5 hover:text-gray-200 border border-white/10">
+                        <i class="fa-solid fa-globe text-primary-400"></i> <span id="current-lang">EN</span>
                     </button>
                 </div>
             </div>
-
         </div>
-    </div>
+    </header>
 
-    <!-- Integration Script -->
+    <!-- Main Content -->
+    <main class="flex-1">
+        
+        <!-- HOME PAGE -->
+        <div id="page-home" class="page active">
+            <section class="relative overflow-hidden py-12 sm:py-20">
+                <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div class="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-500/5 blur-[120px]"></div>
+                </div>
+                
+                <div class="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
+                    <h1 class="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl mb-4">
+                        <span data-i18n="hero.title1">Download Any</span> 
+                        <span class="bg-gradient-to-r from-primary-400 to-accent bg-clip-text text-transparent">Video</span><br>
+                        <span data-i18n="hero.title2">in Seconds</span>
+                    </h1>
+                    <p class="mx-auto max-w-2xl text-gray-400 sm:text-lg mb-8" data-i18n="hero.subtitle">Fast, free, and easy to use</p>
+
+                    <form onsubmit="fetchVideo(event)" class="mx-auto max-w-2xl">
+                        <div class="relative flex items-center rounded-2xl border-2 border-white/10 bg-white/5 backdrop-blur-sm transition-all focus-within:border-primary-500/50 focus-within:bg-primary-500/5">
+                            <div class="flex h-14 items-center pl-5 sm:h-16 text-primary-400">
+                                <i class="fa-solid fa-link"></i>
+                            </div>
+                            <input type="url" id="videoUrl" placeholder="Paste video URL here..." required
+                                class="h-14 flex-1 bg-transparent px-3 text-sm text-white placeholder-gray-500 outline-none sm:h-16 sm:text-base">
+                            <div class="pr-2 sm:pr-3">
+                                <button type="submit" id="fetchBtn" class="flex h-10 items-center gap-2 rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 px-5 text-sm font-semibold text-white shadow-lg transition-all hover:from-primary-400 hover:to-primary-500 sm:h-12 sm:px-6">
+                                    <i class="fa-solid fa-magnifying-glass" id="fetchIcon"></i>
+                                    <span id="fetchText" data-i18n="hero.button">Fetch</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div id="statusArea" class="mt-6"></div>
+
+                    <div class="mt-10 flex flex-wrap justify-center gap-3">
+                        <span class="inline-flex items-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-2 text-sm text-gray-400"><i class="fa-brands fa-youtube text-red-500"></i> YouTube</span>
+                        <span class="inline-flex items-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-2 text-sm text-gray-400"><i class="fa-brands fa-tiktok text-pink-500"></i> TikTok</span>
+                        <span class="inline-flex items-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-2 text-sm text-gray-400"><i class="fa-brands fa-facebook text-blue-500"></i> Facebook</span>
+                        <span class="inline-flex items-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-2 text-sm text-gray-400"><i class="fa-brands fa-instagram text-purple-500"></i> Instagram</span>
+                        <span class="inline-flex items-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-2 text-sm text-gray-400"><i class="fa-brands fa-pinterest text-red-400"></i> Pinterest</span>
+                    </div>
+                </div>
+            </section>
+
+            <div id="resultContainer" class="hidden pb-12 mx-auto max-w-4xl px-4"></div>
+        </div>
+
+        <!-- HISTORY PAGE -->
+        <div id="page-history" class="page">
+            <div class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+                <div class="mb-6 flex items-center justify-between">
+                    <h2 class="text-2xl font-bold text-white" data-i18n="history.title">Download History</h2>
+                    <button onclick="clearHistory()" class="flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 transition">
+                        <i class="fa-solid fa-trash"></i> <span data-i18n="history.clear">Clear All</span>
+                    </button>
+                </div>
+                <div id="historyList" class="space-y-3"></div>
+            </div>
+        </div>
+
+        <!-- FAVORITES PAGE -->
+        <div id="page-favorites" class="page">
+            <div class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+                <h2 class="text-2xl font-bold text-white mb-6" data-i18n="favorites.title">Favorites</h2>
+                <div id="favoritesList" class="grid gap-4 sm:grid-cols-2"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto border-t border-white/5 py-8 text-center text-sm text-gray-500">
+        <p data-i18n="footer.copyright">© 2026 MediaDownloader Pro. All rights reserved.</p>
+    </footer>
+
+    <!-- ✅ JavaScript Logic -->
     <script>
-        async function startProcess() {
-            const urlInput = document.getElementById('videoUrl').value;
-            if(!urlInput) {
-                alert("Please enter a video link first!");
-                return;
+        // --- 1. LOCALIZATION ---
+        const translations = {
+            en: {
+                "nav.home": "Home", "nav.history": "History", "nav.favorites": "Favorites",
+                "hero.title1": "Download Any", "hero.title2": "in Seconds",
+                "hero.subtitle": "Fast, free, and easy to use", "hero.button": "Get Video",
+                "history.title": "Download History", "history.clear": "Clear All", "history.empty": "No downloads yet.",
+                "favorites.title": "Favorites", "favorites.empty": "No favorites yet.",
+                "video.download": "Download Video", "audio.download": "Download Audio",
+                "toast.fetched": "Video found! 🎉", "toast.error": "Failed to fetch video.",
+                "footer.copyright": "© 2026 MediaDownloader Pro. All rights reserved."
+            },
+            bn: {
+                "nav.home": "হোম", "nav.history": "হিস্ট্রি", "nav.favorites": "ফেভারিটস",
+                "hero.title1": "যেকোনো ভিডিও নামান", "hero.title2": "কয়েক সেকেন্ডে",
+                "hero.subtitle": "দ্রুত, ফ্রি এবং সহজে ব্যবহারযোগ্য", "hero.button": "ভিডিও খুঁজুন",
+                "history.title": "ডাউনলোডের ইতিহাস", "history.clear": "সব মুছুন", "history.empty": "এখনো কিছু ডাউনলোড করা হয়নি।",
+                "favorites.title": "পছন্দের তালিকা", "favorites.empty": "তালিকায় কিছু নেই।",
+                "video.download": "ভিডিও ডাউনলোড করুন", "audio.download": "অডিও ডাউনলোড করুন",
+                "toast.fetched": "ভিডিও পাওয়া গেছে! 🎉", "toast.error": "ভিডিও আনতে ব্যর্থ হয়েছে।",
+                "footer.copyright": "© ২০২৬ মিডিয়া ডাউনলোডার প্রো। সর্বস্বত্ব সংরক্ষিত।"
             }
+        };
 
-            // আপনার লোকাল API লিংক
-            const API_BASE_URL = "http://localhost:3000";
+        let currentLang = 'en';
+        let currentVideoData = null;
 
-            document.getElementById('resultSection').classList.add('hidden');
-            document.getElementById('qualityList').innerHTML = '';
+        function toggleLang() {
+            currentLang = currentLang === 'en' ? 'bn' : 'en';
+            document.getElementById('current-lang').innerText = currentLang.toUpperCase();
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if(translations[currentLang][key]) el.innerText = translations[currentLang][key];
+            });
+            renderHistory();
+            renderFavorites();
+        }
+
+        function t(key) { return translations[currentLang][key] || key; }
+
+        // --- 2. TOAST ---
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            const icon = type === 'success' ? '<i class="fa-solid fa-circle-check text-primary-400"></i>' : '<i class="fa-solid fa-circle-exclamation text-red-400"></i>';
+            toast.innerHTML = `${icon} <span class="text-white">${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        // --- 3. NAVIGATION ---
+        function navigate(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(`page-${pageId}`).classList.add('active');
+            ['home', 'history', 'favorites'].forEach(id => {
+                const btn = document.getElementById(`nav-${id}`);
+                if(btn) {
+                    btn.className = 'nav-btn flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ' + 
+                                    (id === pageId ? 'bg-primary-500/10 text-primary-400' : 'text-gray-400 hover:bg-white/5 hover:text-gray-200');
+                }
+            });
+            if(pageId === 'history') renderHistory();
+            if(pageId === 'favorites') renderFavorites();
+        }
+
+        // --- 4. API FETCH ---
+        async function fetchVideo(e) {
+            e.preventDefault();
+            const urlInput = document.getElementById('videoUrl').value.trim();
+            if(!urlInput) return showToast('Please enter a URL', 'error');
+
+            const btn = document.getElementById('fetchBtn');
+            const originalBtnHTML = btn.innerHTML;
+            const statusArea = document.getElementById('statusArea');
+            const resultBox = document.getElementById('resultContainer');
             
-            const progressSection = document.getElementById('progressSection');
-            progressSection.classList.remove('hidden');
-            
-            const progressBar = document.getElementById('progressBar');
-            const progressText = document.getElementById('progressText');
-            const progressPercent = document.getElementById('progressPercent');
-
-            // Reset Error styles if any
-            progressBar.className = "bg-gradient-to-r from-cyan-400 to-purple-500 h-2.5 rounded-full progress-transition relative";
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing...`;
+            btn.disabled = true;
+            statusArea.innerHTML = `<div class="text-primary-400 animate-pulse"><i class="fa-solid fa-bolt"></i> Connecting to server...</div>`;
+            resultBox.classList.add('hidden');
 
             try {
-                // Step 1: Connecting
-                progressBar.style.width = '30%';
-                progressText.innerText = 'Connecting to Android Server...';
-                progressPercent.innerText = '30%';
-
-                // Step 2: Fetching API
-                setTimeout(() => {
-                    if(progressBar.style.width === '30%') {
-                        progressBar.style.width = '60%';
-                        progressText.innerText = 'Extracting video data...';
-                        progressPercent.innerText = '60%';
-                    }
-                }, 1000);
-
-                // Call your Termux API (Updated Route to /api/info)
-                const reqUrl = `${API_BASE_URL}/api/info?url=${encodeURIComponent(urlInput)}`;
-                const response = await fetch(reqUrl);
+                const API_URL = 'http://localhost:3000';
+                const response = await fetch(`${API_URL}/api/info?url=${encodeURIComponent(urlInput)}`);
                 const data = await response.json();
 
-                // Check if API returned an error
-                if (!data.error) {
-                    progressBar.style.width = '90%';
-                    progressText.innerText = 'Generating download links...';
-                    progressPercent.innerText = '90%';
-
-                    // Set Title, Thumbnail, Duration & Platform
-                    document.getElementById('videoTitle').innerText = data.title || "Video Found!";
-                    document.getElementById('videoDuration').innerText = `Duration: ${data.duration || '0:00'}`;
-                    document.getElementById('videoPlatform').innerText = (data.platform || '').toUpperCase();
-                    
-                    if(data.thumbnail) {
-                        document.getElementById('videoThumb').src = data.thumbnail;
-                        document.getElementById('videoThumb').classList.remove('hidden');
-                        document.getElementById('videoIcon').classList.add('hidden');
-                    }
-
-                    // Build formats UI dynamically (Updated to match data.qualities)
-                    const qualityList = document.getElementById('qualityList');
-                    let formatsHTML = '';
-
-                    const validFormats = data.qualities || [];
-
-                    if (validFormats.length === 0) {
-                        formatsHTML = `<div class="p-4 text-center text-red-400 border border-red-500/30 bg-red-500/10 rounded-xl">No download links found. Video might be private.</div>`;
-                    } else {
-                        validFormats.forEach((format, index) => {
-                            let labelText = format.label; // e.g. "Video (Auto)"
-                            let sizeText = format.size; // e.g. "2.5 MB" or "Unknown"
-                            let extText = (format.extension || 'mp4').toUpperCase();
-                            
-                            // Highlight Best Quality (Video vs Audio)
-                            let isVideo = format.quality === 'Best Quality';
-                            let bestBadge = isVideo ? `<span class="text-[10px] bg-purple-500 text-white px-1.5 py-0.5 rounded ml-1">Video</span>` : `<span class="text-[10px] bg-blue-500 text-white px-1.5 py-0.5 rounded ml-1">Audio</span>`;
-                            let bestStyle = isVideo ? 'border-purple-500/50 shadow-lg shadow-purple-500/10' : 'border-white/10 hover:bg-white/10';
-
-                            formatsHTML += `
-                            <div class="flex items-center justify-between p-3 sm:p-4 rounded-xl bg-white/5 border transition-colors group relative overflow-hidden ${bestStyle}">
-                                ${isVideo ? '<div class="absolute top-0 left-0 w-1 h-full bg-purple-500"></div>' : '<div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>'}
-                                <div class="flex items-center space-x-3 pl-2 w-1/2">
-                                    <span class="bg-gray-800 text-cyan-300 text-xs font-bold px-2 py-1 rounded truncate max-w-[80px] sm:max-w-full">${labelText}</span>
-                                    <span class="text-sm text-gray-300 hidden sm:inline whitespace-nowrap">${extText} Format ${bestBadge}</span>
-                                </div>
-                                <div class="flex items-center justify-end space-x-4 w-1/2">
-                                    <span class="text-xs text-gray-400 hidden sm:block">${sizeText}</span>
-                                    <a href="${format.url}" target="_blank" download class="text-white ${isVideo ? 'bg-purple-600 hover:bg-purple-500' : 'bg-blue-600 hover:bg-blue-500'} rounded-lg px-4 py-2 text-sm font-medium transition-all whitespace-nowrap">
-                                        <i class="fa-solid fa-download mr-1"></i> Save
-                                    </a>
-                                </div>
-                            </div>
-                            `;
-                        });
-                    }
-
-                    qualityList.innerHTML = formatsHTML;
-
-                    progressBar.style.width = '100%';
-                    progressText.innerText = 'Ready!';
-                    progressPercent.innerText = '100%';
-                    
-                    // Show result after a small delay
-                    setTimeout(() => {
-                        progressSection.classList.add('hidden');
-                        document.getElementById('resultSection').classList.remove('hidden');
-                    }, 800);
-
-                } else {
-                    throw new Error(data.error || "Failed to process the video.");
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || 'Failed to fetch video');
                 }
 
-            } catch (error) {
-                console.error(error);
-                progressBar.style.width = '100%';
-                progressBar.className = "bg-gradient-to-r from-red-500 to-red-600 h-2.5 rounded-full progress-transition relative";
-                progressText.innerText = 'Error!';
-                progressText.classList.replace('text-cyan-400', 'text-red-400');
-                progressPercent.innerText = '';
-                alert("Server Error: \n" + error.message);
+                currentVideoData = { id: 'vid_' + Date.now(), ...data, sourceUrl: urlInput };
+                showToast('Video found! 🎉');
+                statusArea.innerHTML = '';
+                renderVideoCard(currentVideoData);
+                resultBox.classList.remove('hidden');
+                addToHistory(currentVideoData);
+                
+            } catch (err) {
+                console.error('[Fetch Error]', err);
+                showToast(err.message || 'Failed to fetch video', 'error');
+                statusArea.innerHTML = `<div class="text-red-400 p-4 bg-red-500/10 rounded-xl border border-red-500/20 text-sm"><i class="fa-solid fa-triangle-exclamation mr-2"></i> ${err.message}. <br><span class="text-gray-500 mt-1 block">💡 Make sure backend is running on port 3000</span></div>`;
+            } finally {
+                btn.innerHTML = originalBtnHTML;
+                btn.disabled = false;
             }
         }
 
-        function resetUI() {
-            document.getElementById('videoUrl').value = '';
-            document.getElementById('resultSection').classList.add('hidden');
-            document.getElementById('progressSection').classList.add('hidden');
-            document.getElementById('videoThumb').classList.add('hidden');
-            document.getElementById('videoIcon').classList.remove('hidden');
-            document.getElementById('progressBar').style.width = '10%';
-            
-            const progressText = document.getElementById('progressText');
-            progressText.innerText = 'Connecting to server...';
-            progressText.classList.replace('text-red-400', 'text-cyan-400');
+        // --- 5. RENDER VIDEO CARD ---
+        function renderVideoCard(video) {
+            const container = document.getElementById('resultContainer');
+            const isFav = getFavorites().some(f => f.videoId === video.id);
+            const aspectClass = { '16:9': 'aspect-16-9', '9:16': 'aspect-9-16', '4:5': 'aspect-4-5' }[video.aspectRatio] || 'aspect-16-9';
+            const videoQualities = video.qualities.filter(q => q.type === 'video');
+            const audioQualities = video.qualities.filter(q => q.type === 'audio');
+
+            const generateQualityBtn = (q) => `
+                <button onclick="handleDownload('${q.url}', '${q.extension}', '${video.id}', '${q.label}', '${video.platform}', '${escapeHtml(video.title)}', '${escapeHtml(video.thumbnail)}', '${q.type}', this)" 
+                        class="dl-btn group relative overflow-hidden rounded-xl border border-white/5 bg-white/[0.02] p-3 text-left transition hover:border-primary-500/30 hover:bg-primary-500/5">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-semibold text-white">${q.label}</span>
+                        ${q.hasAudio === false ? '<span class="text-[10px] text-gray-500 bg-gray-500/10 px-1.5 py-0.5 rounded">No Audio</span>' : ''}
+                    </div>
+                    <div class="mt-1 flex items-center gap-2 text-xs text-gray-400">
+                        <span>${q.size}</span>
+                        ${q.bitrate ? `<span>• ${q.bitrate}</span>` : ''}
+                        <span class="ml-auto text-primary-400 group-hover:text-primary-300"><i class="fa-solid fa-download"></i></span>
+                    </div>
+                </button>
+            `;
+
+            container.innerHTML = `
+                <div class="overflow-hidden rounded-2xl border border-white/10 bg-surface50 shadow-2xl">
+                    <div class="grid md:grid-cols-5">
+                        <div class="relative md:col-span-2 bg-black p-2">
+                            <div class="player-wrapper ${aspectClass} group cursor-pointer" id="mediaContainer-${video.id}" onclick="playVideo('${video.id}', '${video.playUrl}', '${video.aspectRatio}')">
+                                <img src="${video.thumbnail}" class="w-full h-full object-cover opacity-90 group-hover:opacity-70 transition">
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <div class="bg-primary-500/90 backdrop-blur h-14 w-14 rounded-full flex items-center justify-center shadow-xl shadow-primary-500/40 group-hover:scale-110 transition-transform">
+                                        <i class="fa-solid fa-play text-white text-lg ml-0.5"></i>
+                                    </div>
+                                </div>
+                                <div class="quality-badge">${video.duration}</div>
+                                <div class="absolute top-3 left-3 bg-black/80 px-2 py-1 rounded text-xs text-white font-bold tracking-wider border border-white/10">${video.platform}</div>
+                            </div>
+                        </div>
+                        <div class="p-5 md:col-span-3 border-l border-white/5">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="pr-3">
+                                    <h2 class="text-lg font-bold text-white leading-tight line-clamp-2">${escapeHtml(video.title)}</h2>
+                                    ${video.author ? `<p class="text-xs text-gray-400 mt-1">by ${escapeHtml(video.author)}</p>` : ''}
+                                    ${video.viewCount ? `<p class="text-xs text-primary-400 mt-0.5"><i class="fa-solid fa-eye"></i> ${video.viewCount} views</p>` : ''}
+                                </div>
+                                <button onclick="toggleFavorite('${video.id}')" id="favBtn-${video.id}" class="h-10 w-10 shrink-0 rounded-xl border ${isFav ? 'border-red-500/30 bg-red-500/10 text-red-500' : 'border-white/10 text-gray-500 hover:bg-white/5 hover:text-white'} flex items-center justify-center transition">
+                                    <i class="fa-solid fa-heart"></i>
+                                </button>
+                            </div>
+                            ${videoQualities.length > 0 ? `<div class="mb-4"><h3 class="text-sm font-semibold text-gray-300 mb-2 flex items-center gap-2"><i class="fa-solid fa-film text-primary-400"></i> Video Qualities</h3><div class="grid grid-cols-2 gap-2">${videoQualities.map(generateQualityBtn).join('')}</div></div>` : ''}
+                            ${audioQualities.length > 0 ? `<div><h3 class="text-sm font-semibold text-gray-300 mb-2 flex items-center gap-2"><i class="fa-solid fa-music text-accent"></i> Audio Only</h3><div class="grid grid-cols-2 gap-2">${audioQualities.map(generateQualityBtn).join('')}</div></div>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
         }
+
+        // --- 6. PLAY VIDEO ---
+        function playVideo(containerId, url, aspectRatio) {
+            if(!url) return showToast('Playback not available', 'error');
+            const container = document.getElementById(`mediaContainer-${containerId}`);
+            container.className = `player-wrapper ${aspectRatio === '9:16' ? 'aspect-9-16' : aspectRatio === '4:5' ? 'aspect-4-5' : 'aspect-16-9'} bg-black`;
+            container.innerHTML = `<video controls autoplay class="w-full h-full object-contain bg-black outline-none" onerror="this.parentElement.innerHTML='<div class=\\'text-red-400 text-center p-4\\'><i class=\\'fa-solid fa-circle-exclamation\\'></i><br>Video playback failed.<br><button onclick=\\'window.open(\\'${url}\\', \\'_blank\\')\\' class=\\'mt-2 text-primary-400 underline\\'>Open in new tab</button></div>'"><source src="${url}" type="video/mp4">Your browser does not support video playback.</video>`;
+            container.classList.remove('cursor-pointer', 'group');
+            container.onclick = null;
+        }
+
+        // --- 7. DOWNLOAD ---
+        async function handleDownload(fileUrl, ext, videoId, quality, platform, title, thumbnail, type, btnEl) {
+            if (!fileUrl) return showToast('Download link not available', 'error');
+            const originalHTML = btnEl.innerHTML;
+            btnEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Preparing...`;
+            btnEl.classList.add('downloading');
+            btnEl.disabled = true;
+
+            try {
+                addToHistory({ id: videoId, title, thumbnail, quality, platform, type, time: Date.now() });
+                const fileName = sanitizeFilename(`${platform}_${quality}_${Date.now()}.${ext}`);
+                const a = document.createElement('a');
+                a.href = fileUrl;
+                a.download = fileName;
+                a.target = '_blank';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => showToast(`Download started: ${quality}`, 'success'), 2000);
+            } catch (e) {
+                console.error('[Download Error]', e);
+                window.open(fileUrl, '_blank');
+                showToast('Opening in new tab...', 'success');
+            } finally {
+                setTimeout(() => {
+                    btnEl.innerHTML = originalHTML;
+                    btnEl.classList.remove('downloading');
+                    btnEl.disabled = false;
+                }, 1500);
+            }
+        }
+
+        function sanitizeFilename(filename) {
+            return filename.replace(/[<>:"/\\|?*]/g, '_').slice(0, 150);
+        }
+
+        function escapeHtml(text) {
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return String(text).replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // --- 8. HISTORY ---
+        function getHistory() { return JSON.parse(localStorage.getItem('mdp_history') || '[]'); }
+        function addToHistory(item) {
+            const history = getHistory();
+            history.unshift({ ...item });
+            if(history.length > 50) history.pop();
+            localStorage.setItem('mdp_history', JSON.stringify(history));
+        }
+        function clearHistory() { localStorage.removeItem('mdp_history'); renderHistory(); showToast('History cleared'); }
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            const data = getHistory();
+            if(data.length === 0) {
+                list.innerHTML = `<div class="text-center text-gray-500 py-10"><i class="fa-solid fa-clock-rotate-left text-4xl mb-3 opacity-20"></i><br>${t('history.empty')}</div>`;
+                return;
+            }
+            list.innerHTML = data.map(item => `
+                <div class="flex items-center gap-4 rounded-xl border border-white/5 bg-white/[0.02] p-4 hover:bg-white/5 transition">
+                    <img src="${item.thumbnail}" class="h-16 w-24 rounded-lg object-cover shadow-md">
+                    <div class="flex-1">
+                        <h3 class="text-sm font-medium text-white line-clamp-1">${item.title}</h3>
+                        <p class="text-xs text-gray-400 mt-1"><span class="text-primary-400 font-medium">${item.platform}</span> • ${item.quality} • ${new Date(item.time).toLocaleDateString()}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- 9. FAVORITES ---
+        function getFavorites() { return JSON.parse(localStorage.getItem('mdp_favorites') || '[]'); }
+        function toggleFavorite(videoId) {
+            if(!currentVideoData) return;
+            let favs = getFavorites();
+            const exists = favs.findIndex(f => f.videoId === videoId);
+            const btn = document.getElementById(`favBtn-${videoId}`);
+            if(exists > -1) {
+                favs.splice(exists, 1);
+                if(btn) btn.className = "h-10 w-10 shrink-0 rounded-xl border border-white/10 text-gray-500 hover:bg-white/5 hover:text-white flex items-center justify-center transition";
+                showToast("Removed from favorites");
+            } else {
+                favs.unshift({ videoId, title: currentVideoData.title, thumbnail: currentVideoData.thumbnail, platform: currentVideoData.platform });
+                if(btn) btn.className = "h-10 w-10 shrink-0 rounded-xl border border-red-500/30 bg-red-500/10 text-red-500 shadow-lg shadow-red-500/20 flex items-center justify-center transition";
+                showToast("Added to favorites");
+            }
+            localStorage.setItem('mdp_favorites', JSON.stringify(favs));
+        }
+        function renderFavorites() {
+            const list = document.getElementById('favoritesList');
+            const data = getFavorites();
+            if(data.length === 0) {
+                list.innerHTML = `<div class="col-span-2 text-center text-gray-500 py-10"><i class="fa-solid fa-heart-crack text-4xl mb-3 opacity-20"></i><br>${t('favorites.empty')}</div>`;
+                return;
+            }
+            list.innerHTML = data.map(item => `
+                <div class="rounded-xl border border-white/10 bg-surface50 overflow-hidden shadow-lg group hover:border-primary-500/50 transition">
+                    <div class="relative h-40">
+                        <img src="${item.thumbnail}" class="h-full w-full object-cover group-hover:scale-105 transition duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                        <div class="absolute bottom-3 left-3 right-3">
+                            <span class="bg-primary-500 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">${item.platform}</span>
+                            <h3 class="text-sm font-semibold text-white line-clamp-1 mt-2">${item.title}</h3>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderHistory();
+            renderFavorites();
+        });
     </script>
 </body>
 </html>
