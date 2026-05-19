@@ -4,36 +4,79 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VidGrab Pro - ভিডিও ডাউনলোডার</title>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://googleapis.com" rel="stylesheet">
     <style>
         :root { --primary: #6366f1; --bg: #0f172a; --card: rgba(255, 255, 255, 0.05); }
-        body { margin: 0; font-family: 'Hind Siliguri', sans-serif; background-color: var(--bg); color: white; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; box-sizing: border-box; }
-        
-        /* Top Navigation for Auth */
-        nav { width: 100%; max-width: 500px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .logo-nav { font-size: 22px; font-weight: bold; color: var(--primary); }
-        .nav-btn { background: rgba(255,255,255,0.1); color: white; border: none; padding: 8px 15px; border-radius: 10px; cursor: pointer; transition: 0.3s; font-size: 14px; margin-left: 5px; font-weight: bold;}
-        .nav-btn:hover { background: rgba(255,255,255,0.2); }
-        .btn-logout { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
-        .btn-logout:hover { background: #ef4444; color: white; }
-
+        body { margin: 0; font-family: 'Hind Siliguri', sans-serif; background-color: var(--bg); color: white; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
         .container { width: 100%; max-width: 500px; text-align: center; }
-        h1 { color: var(--primary); margin-top: 10px; font-size: 2.5rem; }
+        h1 { color: var(--primary); margin-top: 20px; font-size: 2.5rem; }
         p { color: #94a3b8; margin-bottom: 30px; }
         
         /* Input Box Updated Design */
-        .input-box { background: var(--card); padding: 5px; border-radius: 50px; display: flex; align-items: center; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 10px; transition: border 0.3s ease; }
-        .input-box:focus-within { border: 1px solid var(--primary); }
-        input { flex: 1; background: transparent; border: none; color: white; padding: 12px 20px; outline: none; font-size: 16px; width: 100%; }
+        .input-box { 
+            background: var(--card); 
+            padding: 5px; /* বক্সের ভেতরের স্পেস */
+            border-radius: 50px; /* রাউন্ডেড ডিজাইন */
+            display: flex; 
+            align-items: center; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            margin-bottom: 10px; 
+            transition: border 0.3s ease;
+        }
+        .input-box:focus-within {
+            border: 1px solid var(--primary); /* ক্লিক করলে বর্ডার কালার হবে */
+        }
+        
+        input { 
+            flex: 1; 
+            background: transparent; 
+            border: none; 
+            color: white; 
+            padding: 12px 20px; 
+            outline: none; 
+            font-size: 16px; 
+            width: 100%; 
+        }
         
         /* Clear (Cross) Button */
-        .action-btn { background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 16px; transition: 0.3s; font-weight: bold; border-radius: 50%; width: 35px; height: 35px; display: none; align-items: center; justify-content: center; margin-right: 5px; }
+        .action-btn { 
+            background: transparent; 
+            border: none; 
+            color: #94a3b8; 
+            cursor: pointer; 
+            font-size: 16px; 
+            transition: 0.3s; 
+            font-weight: bold; 
+            border-radius: 50%; 
+            width: 35px;
+            height: 35px;
+            display: none; /* ডিফল্টভাবে লুকানো */
+            align-items: center;
+            justify-content: center;
+            margin-right: 5px;
+        }
         .action-btn:hover { background: rgba(255, 255, 255, 0.1); color: #ef4444; }
 
-        /* Analyze Button */
-        button#analyzeBtn { background: var(--primary); color: white; border: none; padding: 0 20px; height: 42px; border-radius: 40px; cursor: pointer; font-weight: bold; font-size: 14px; transition: transform 0.15s ease, background 0.3s ease, box-shadow 0.3s ease; }
-        button#analyzeBtn:hover { background: #4f46e5; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); }
-        button#analyzeBtn:active { transform: scale(0.90); }
+        /* Analyze (চেক করুন) Button with Animation */
+        button#analyzeBtn { 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            padding: 0 20px; 
+            height: 42px; /* ইনপুট বক্সের উপরে-নিচে মিলে যাওয়ার জন্য নির্দিষ্ট সাইজ */
+            border-radius: 40px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 14px;
+            transition: transform 0.15s ease, background 0.3s ease, box-shadow 0.3s ease;
+        }
+        button#analyzeBtn:hover {
+            background: #4f46e5;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+        button#analyzeBtn:active {
+            transform: scale(0.90); /* ক্লিক করলে বাউন্স এনিমেশন হবে */
+        }
 
         /* Progress Bar */
         .progress-container { width: 100%; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; margin-bottom: 20px; overflow: hidden; display: none; }
@@ -45,57 +88,21 @@
         .download-btn:hover { background: #16a34a; }
         
         footer { margin-top: auto; padding: 20px; color: #64748b; font-size: 14px; }
-
-        /* Modals (Auth & History) */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: #1e293b; padding: 30px; border-radius: 20px; width: 90%; max-width: 380px; text-align: center; position: relative; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 20px; cursor: pointer; color: #94a3b8; border: none; background: transparent; font-weight: bold;}
-        .close-modal:hover { color: #ef4444; }
-        
-        .auth-input { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 10px; margin-bottom: 15px; outline: none; box-sizing: border-box; font-family: inherit; }
-        .auth-input:focus { border-color: var(--primary); }
-        .auth-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; margin-bottom: 10px; font-family: inherit; }
-        .auth-btn:hover { background: #4f46e5; }
-        
-        .google-btn { background: white; color: #0f172a; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: bold; }
-        .google-btn:hover { background: #f1f5f9; }
-        .google-btn img { width: 20px; }
-        
-        .toggle-auth { color: #94a3b8; font-size: 14px; cursor: pointer; margin-top: 10px; }
-        .toggle-auth span { color: var(--primary); font-weight: bold; }
-
-        /* History List */
-        .history-list { max-height: 350px; overflow-y: auto; text-align: left; margin-top: 15px; padding-right: 5px; }
-        .history-list::-webkit-scrollbar { width: 5px; }
-        .history-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 5px; }
-        .history-item { display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 12px; margin-bottom: 10px; cursor: pointer; transition: 0.3s; border: 1px solid transparent; }
-        .history-item:hover { background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.5); }
-        .history-img { width: 70px; height: 50px; object-fit: cover; border-radius: 8px; background: #000; }
-        .history-info h4 { margin: 0; font-size: 14px; color: white; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .empty-history { color: #94a3b8; font-size: 14px; text-align: center; margin-top: 20px; }
     </style>
 </head>
 <body>
-
-<nav>
-    <div class="logo-nav">VidGrab Pro</div>
-    <div id="loggedOutState">
-        <button class="nav-btn" onclick="openModal('authModal')">লগইন / সাইন আপ</button>
-    </div>
-    <div id="loggedInState" style="display: none;">
-        <button class="nav-btn" onclick="loadHistory()">হিস্ট্রি</button>
-        <button class="nav-btn btn-logout" onclick="logout()">লগআউট</button>
-    </div>
-</nav>
 
 <div class="container">
     <h1>VidGrab Pro</h1>
     <p>সব সোশ্যাল মিডিয়া থেকে ভিডিও ডাউনলোড করুন একদম সহজে।</p>
 
     <div class="input-box">
-        <input type="text" id="videoUrl" placeholder="ভিডিওর লিঙ্ক এখানে দিন..." oninput="window.toggleButtons()">
-        <button id="clearBtn" class="action-btn" onclick="window.clearInput()">✕</button>
-        <button id="analyzeBtn" onclick="window.processVideo()">চেক করুন</button>
+        <input type="text" id="videoUrl" placeholder="ভিডিওর লিঙ্ক এখানে দিন..." oninput="toggleButtons()">
+        
+        <!-- Clear (Cross) Button -->
+        <button id="clearBtn" class="action-btn" onclick="clearInput()">✕</button>
+        
+        <button id="analyzeBtn" onclick="analyzeVideo()">চেক করুন</button>
     </div>
 
     <div class="progress-container" id="progressContainer">
@@ -103,238 +110,85 @@
     </div>
 
     <div id="resultArea">
-        <video id="videoPlayer" controls poster="">আপনার ব্রাউজার ভিডিও সাপোর্ট করে না।</video>
+        <video id="videoPlayer" controls poster="">
+            আপনার ব্রাউজার ভিডিও সাপোর্ট করে না।
+        </video>
         <h3 id="videoTitle" style="margin: 10px 0;"></h3>
         <button id="dlBtn" class="download-btn">সরাসরি ডাউনলোড</button>
     </div>
 </div>
 
-<footer>&copy; 2024 VidGrab Pro | All Rights Reserved</footer>
+<footer>
+    &copy; 2024 VidGrab Pro | All Rights Reserved
+</footer>
 
-<!-- Auth Modal -->
-<div id="authModal" class="modal">
-    <div class="modal-content">
-        <button class="close-modal" onclick="closeModal('authModal')">✕</button>
-        <h2 id="authTitle" style="margin-top: 0;">লগইন</h2>
-        <input type="email" id="emailInput" class="auth-input" placeholder="ইমেইল অ্যাড্রেস">
-        <input type="password" id="passInput" class="auth-input" placeholder="পাসওয়ার্ড">
-        <button class="auth-btn" onclick="handleAuth()" id="authActionBtn">লগইন করুন</button>
-        
-        <div style="margin: 15px 0; color: #64748b; font-size: 14px;">অথবা</div>
-        
-        <button class="auth-btn google-btn" onclick="signInWithGoogle()">
-            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google"> Google দিয়ে চালিয়ে যান
-        </button>
-        
-        <div class="toggle-auth" onclick="toggleAuthMode()">
-            <span id="authToggleText">অ্যাকাউন্ট নেই? নতুন তৈরি করুন</span>
-        </div>
-    </div>
-</div>
+<script>
+    const BASE_URL = "http://localhost:3000";
+    const urlInput = document.getElementById('videoUrl');
+    const clearBtn = document.getElementById('clearBtn');
 
-<!-- History Modal -->
-<div id="historyModal" class="modal">
-    <div class="modal-content" style="max-width: 450px;">
-        <button class="close-modal" onclick="closeModal('historyModal')">✕</button>
-        <h2 style="margin-top: 0; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">আপনার হিস্ট্রি</h2>
-        <div class="history-list" id="historyList">
-            <!-- Items will be loaded here -->
-        </div>
-    </div>
-</div>
+    // ইনপুট মুছে ফেলা
+    function clearInput() {
+        urlInput.value = '';
+        toggleButtons();
+        urlInput.focus(); // ক্রস করার পর কার্সর আবার বক্সে চলে আসবে
+    }
 
-<!-- Firebase SDK Module -->
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
-    import { getDatabase, ref, set, get, child, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
-
-    // আপনার দেওয়া Firebase Config
-    const firebaseConfig = {
-      apiKey: "AIzaSyBEePBfwMrVLNtapYGfpfsN-YWi3_K7Mv4",
-      authDomain: "vidgrab-pro.firebaseapp.com",
-      databaseURL: "https://vidgrab-pro-default-rtdb.firebaseio.com",
-      projectId: "vidgrab-pro",
-      storageBucket: "vidgrab-pro.firebasestorage.app",
-      messagingSenderId: "510494077769",
-      appId: "1:510494077769:web:cc33426f8e44e794ab2098"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
-    const provider = new GoogleAuthProvider();
-
-    let currentUser = null;
-    let isLoginMode = true;
-    const BASE_URL = "http://localhost:3000"; 
-
-    // ইউজার স্টেট মনিটরিং
-    onAuthStateChanged(auth, (user) => {
-        currentUser = user;
-        if (user) {
-            document.getElementById('loggedOutState').style.display = 'none';
-            document.getElementById('loggedInState').style.display = 'flex';
-            closeModal('authModal');
+    // বাটন কন্ট্রোল (লিংক দিলে শুধু ক্রস বাটন আসবে)
+    function toggleButtons() {
+        if (urlInput.value.length > 0) {
+            clearBtn.style.display = 'flex';
         } else {
-            document.getElementById('loggedOutState').style.display = 'flex';
-            document.getElementById('loggedInState').style.display = 'none';
+            clearBtn.style.display = 'none';
         }
-    });
+    }
 
-    // গ্লোবাল ফাংশনগুলো (HTML থেকে কল করার জন্য)
-    window.openModal = (id) => document.getElementById(id).style.display = 'flex';
-    window.closeModal = (id) => document.getElementById(id).style.display = 'none';
-    
-    window.toggleAuthMode = () => {
-        isLoginMode = !isLoginMode;
-        document.getElementById('authTitle').innerText = isLoginMode ? "লগইন" : "সাইন আপ";
-        document.getElementById('authActionBtn').innerText = isLoginMode ? "লগইন করুন" : "অ্যাকাউন্ট তৈরি করুন";
-        document.getElementById('authToggleText').innerText = isLoginMode ? "অ্যাকাউন্ট নেই? নতুন তৈরি করুন" : "আগে থেকেই অ্যাকাউন্ট আছে? লগইন করুন";
-    };
-
-    window.handleAuth = async () => {
-        const email = document.getElementById('emailInput').value;
-        const pass = document.getElementById('passInput').value;
-        if(!email || !pass) return alert("ইমেইল এবং পাসওয়ার্ড দিন!");
-        try {
-            if(isLoginMode) await signInWithEmailAndPassword(auth, email, pass);
-            else await createUserWithEmailAndPassword(auth, email, pass);
-        } catch (error) { alert("এরর: " + error.message); }
-    };
-
-    window.signInWithGoogle = async () => {
-        try { await signInWithPopup(auth, provider); } 
-        catch (error) { alert("Google লগইন ব্যর্থ হয়েছে!"); }
-    };
-
-    window.logout = () => signOut(auth);
-
-    // URL কে ফায়ারবেস ডাটাবেজের নিরাপদ Key হিসেবে তৈরি করা
-    const getSafeKey = (url) => encodeURIComponent(url).replace(/[.#$\[\]\/]/g, '_');
-
-    // ভিডিও অ্যানালাইস এবং ক্যাশিং সিস্টেম
-    window.processVideo = async (historyUrl = null) => {
-        const urlInput = document.getElementById('videoUrl');
-        const url = historyUrl || urlInput.value.trim();
-        
-        if (!url) return alert("দয়া করে একটি লিঙ্ক দিন!");
-        if (historyUrl) { urlInput.value = historyUrl; window.toggleButtons(); }
-        
-        window.closeModal('historyModal');
-        
+    async function analyzeVideo() {
+        const url = urlInput.value.trim();
         const resultArea = document.getElementById('resultArea');
         const videoPlayer = document.getElementById('videoPlayer');
         const progressContainer = document.getElementById('progressContainer');
         const progressBar = document.getElementById('progressBar');
 
+        if (!url) {
+            alert("দয়া করে একটি লিঙ্ক দিন!");
+            return;
+        }
+
         resultArea.style.display = 'none';
         progressContainer.style.display = 'block';
         progressBar.style.width = '0%';
+        
         setTimeout(() => { progressBar.style.width = '85%'; }, 100);
 
-        const safeKey = getSafeKey(url);
-        let finalData = null;
-
         try {
-            // ১. আগে চেক করবে ডাটাবেসে লিংকটি সেভ করা আছে কিনা
-            const cacheSnapshot = await get(child(ref(db), `video_cache/${safeKey}`));
-            
-            if (cacheSnapshot.exists()) {
-                // ডাটাবেস থেকে পেলে সাথে সাথে লোড হবে
-                finalData = cacheSnapshot.val();
-                progressBar.style.width = '100%';
-            } else {
-                // ডাটাবেসে না থাকলে API কল করবে
-                const response = await fetch(`${BASE_URL}/api/analyze?url=${encodeURIComponent(url)}`);
-                const apiData = await response.json();
-                
-                if (apiData.error) throw new Error(apiData.error);
-                
-                finalData = {
-                    title: apiData.title || "Social Video",
-                    thumbnail: apiData.thumbnail || "",
-                    originalUrl: url,
-                    downloadUrl: `${BASE_URL}/api/download?url=${encodeURIComponent(url)}`
-                };
+            const response = await fetch(`${BASE_URL}/api/analyze?url=${encodeURIComponent(url)}`);
+            const data = await response.json();
 
-                // নতুন ডাটা ফায়ারবেস ক্যাশে সেভ করে রাখবে
-                await set(ref(db, `video_cache/${safeKey}`), finalData);
-                progressBar.style.width = '100%';
-            }
-
-            // ভিডিও প্লেয়ারে ডাটা সেট করা
-            videoPlayer.src = finalData.downloadUrl;
-            videoPlayer.poster = finalData.thumbnail;
-            document.getElementById('videoTitle').innerText = finalData.title;
-            document.getElementById('dlBtn').onclick = () => window.location.href = finalData.downloadUrl;
-
-            // ইউজার লগইন থাকলে তার পার্সোনাল হিস্ট্রিতে সেভ হবে
-            if (currentUser) {
-                await set(ref(db, `users/${currentUser.uid}/history/${safeKey}`), {
-                    title: finalData.title,
-                    thumbnail: finalData.thumbnail,
-                    originalUrl: url,
-                    timestamp: Date.now()
-                });
-            }
-
-            setTimeout(() => {
+            if (data.error) {
+                alert("এরর: " + data.error);
                 progressContainer.style.display = 'none';
-                resultArea.style.display = 'block';
-            }, 600);
+            } else {
+                progressBar.style.width = '100%';
+                const downloadUrl = `${BASE_URL}/api/download?url=${encodeURIComponent(url)}`;
+                videoPlayer.src = downloadUrl; 
+                videoPlayer.poster = data.thumbnail || "";
+                document.getElementById('videoTitle').innerText = data.title || "Social Video";
 
+                document.getElementById('dlBtn').onclick = function() {
+                    window.location.href = downloadUrl;
+                };
+                
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                    resultArea.style.display = 'block';
+                }, 600);
+            }
         } catch (error) {
-            alert(error.message || "সার্ভার বা নেটওয়ার্ক সমস্যা!");
+            alert("সার্ভার সমস্যা!");
             progressContainer.style.display = 'none';
         }
-    };
-
-    // হিস্ট্রি লোড করা
-    window.loadHistory = async () => {
-        if (!currentUser) return;
-        openModal('historyModal');
-        const listDiv = document.getElementById('historyList');
-        listDiv.innerHTML = '<p class="empty-history">লোড হচ্ছে...</p>';
-
-        try {
-            const snapshot = await get(child(ref(db), `users/${currentUser.uid}/history`));
-            if (snapshot.exists()) {
-                let html = '';
-                // ডাটা শর্টিং (নতুন আগে দেখাবে)
-                const dataArr = Object.values(snapshot.val()).sort((a,b) => b.timestamp - a.timestamp);
-                
-                dataArr.forEach(item => {
-                    html += `
-                    <div class="history-item" onclick="processVideo('${item.originalUrl}')">
-                        <img src="${item.thumbnail || ''}" class="history-img" onerror="this.src=''">
-                        <div class="history-info">
-                            <h4>${item.title}</h4>
-                        </div>
-                    </div>`;
-                });
-                listDiv.innerHTML = html;
-            } else {
-                listDiv.innerHTML = '<p class="empty-history">আপনার কোনো হিস্ট্রি নেই।</p>';
-            }
-        } catch (error) {
-            listDiv.innerHTML = '<p class="empty-history">হিস্ট্রি লোড করতে সমস্যা হয়েছে!</p>';
-        }
-    };
-
-    // UI Controls (আগের ডিজাইনের লজিক)
-    window.clearInput = () => {
-        const urlInput = document.getElementById('videoUrl');
-        urlInput.value = '';
-        window.toggleButtons();
-        urlInput.focus();
-    };
-
-    window.toggleButtons = () => {
-        const urlInput = document.getElementById('videoUrl');
-        document.getElementById('clearBtn').style.display = urlInput.value.length > 0 ? 'flex' : 'none';
-    };
-
+    }
 </script>
 
 </body>
