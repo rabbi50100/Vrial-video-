@@ -1,195 +1,811 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VidGrab Pro - ভিডিও ডাউনলোডার</title>
-    <link href="https://googleapis.com" rel="stylesheet">
-    <style>
-        :root { --primary: #6366f1; --bg: #0f172a; --card: rgba(255, 255, 255, 0.05); }
-        body { margin: 0; font-family: 'Hind Siliguri', sans-serif; background-color: var(--bg); color: white; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
-        .container { width: 100%; max-width: 500px; text-align: center; }
-        h1 { color: var(--primary); margin-top: 20px; font-size: 2.5rem; }
-        p { color: #94a3b8; margin-bottom: 30px; }
-        
-        /* Input Box Updated Design */
-        .input-box { 
-            background: var(--card); 
-            padding: 5px; /* বক্সের ভেতরের স্পেস */
-            border-radius: 50px; /* রাউন্ডেড ডিজাইন */
-            display: flex; 
-            align-items: center; 
-            border: 1px solid rgba(255,255,255,0.1); 
-            margin-bottom: 10px; 
-            transition: border 0.3s ease;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VidGrab Pro - Free Video Downloader | YouTube, TikTok, Instagram</title>
+  <meta name="description" content="Download videos from YouTube, Facebook, TikTok, Instagram, and Pinterest. Fast, free, and secure video downloader with HD quality support.">
+  <meta name="keywords" content="video downloader, youtube downloader, tiktok downloader, instagram downloader, facebook downloader">
+  <meta name="author" content="VidGrab Pro">
+  <meta property="og:title" content="VidGrab Pro - Free Video Downloader">
+  <meta property="og:description" content="Download videos from YouTube, Facebook, TikTok, Instagram, and Pinterest in HD quality.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://vidgrabpro.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          colors: { primary: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 900: '#1e3a8a' }, dark: { 800: '#1a1a2e', 900: '#0f0f1a', 950: '#0a0a12' } }
         }
-        .input-box:focus-within {
-            border: 1px solid var(--primary); /* ক্লিক করলে বর্ডার কালার হবে */
-        }
-        
-        input { 
-            flex: 1; 
-            background: transparent; 
-            border: none; 
-            color: white; 
-            padding: 12px 20px; 
-            outline: none; 
-            font-size: 16px; 
-            width: 100%; 
-        }
-        
-        /* Clear (Cross) Button */
-        .action-btn { 
-            background: transparent; 
-            border: none; 
-            color: #94a3b8; 
-            cursor: pointer; 
-            font-size: 16px; 
-            transition: 0.3s; 
-            font-weight: bold; 
-            border-radius: 50%; 
-            width: 35px;
-            height: 35px;
-            display: none; /* ডিফল্টভাবে লুকানো */
-            align-items: center;
-            justify-content: center;
-            margin-right: 5px;
-        }
-        .action-btn:hover { background: rgba(255, 255, 255, 0.1); color: #ef4444; }
-
-        /* Analyze (চেক করুন) Button with Animation */
-        button#analyzeBtn { 
-            background: var(--primary); 
-            color: white; 
-            border: none; 
-            padding: 0 20px; 
-            height: 42px; /* ইনপুট বক্সের উপরে-নিচে মিলে যাওয়ার জন্য নির্দিষ্ট সাইজ */
-            border-radius: 40px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            font-size: 14px;
-            transition: transform 0.15s ease, background 0.3s ease, box-shadow 0.3s ease;
-        }
-        button#analyzeBtn:hover {
-            background: #4f46e5;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
-        }
-        button#analyzeBtn:active {
-            transform: scale(0.90); /* ক্লিক করলে বাউন্স এনিমেশন হবে */
-        }
-
-        /* Progress Bar */
-        .progress-container { width: 100%; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; margin-bottom: 20px; overflow: hidden; display: none; }
-        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #6366f1, #a855f7); transition: width 0.6s cubic-bezier(0.1, 0.7, 1.0, 0.1); }
-
-        #resultArea { background: var(--card); padding: 20px; border-radius: 20px; display: none; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-top: 20px; }
-        video { width: 100%; border-radius: 15px; margin-bottom: 15px; background: #000; }
-        .download-btn { display: block; width: 100%; background: #22c55e; color: white; text-decoration: none; padding: 15px 0; border-radius: 12px; font-weight: bold; margin-top: 10px; font-size: 18px; border: none; cursor: pointer; transition: 0.3s; }
-        .download-btn:hover { background: #16a34a; }
-        
-        footer { margin-top: auto; padding: 20px; color: #64748b; font-size: 14px; }
-    </style>
+      }
+    }
+  </script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #0a0a12 0%, #1a1a2e 50%, #0f0f1a 100%); min-height: 100vh; color: #e5e7eb; }
+    .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); }
+    .glass-light { background: rgba(255, 255, 255, 0.06); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.1); }
+    .glass-card { background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.08); transition: all 0.3s ease; }
+    .glass-card:hover { background: rgba(255, 255, 255, 0.08); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(59, 130, 246, 0.15); }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); } 50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.6); } }
+    @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+    .animate-slide-up { animation: slideUp 0.5s ease-out forwards; }
+    .animate-pulse-glow { animation: pulse-glow 2s infinite; }
+    .animate-spin-slow { animation: spin-slow 1.5s linear infinite; }
+    .loading-spinner { width: 24px; height: 24px; border: 3px solid rgba(255,255,255,0.2); border-top: 3px solid #3b82f6; border-radius: 50%; animation: spin-slow 1s linear infinite; }
+    .progress-shimmer { background: linear-gradient(90deg, #3b82f6 25%, #60a5fa 50%, #3b82f6 75%); background-size: 200% 100%; animation: shimmer 2s infinite; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+    ::-webkit-scrollbar-thumb { background: rgba(59, 130, 246, 0.4); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(59, 130, 246, 0.6); }
+    .platform-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: transform 0.2s; }
+    .platform-icon:hover { transform: scale(1.1); }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 50; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-content { transform: scale(0.95); transition: transform 0.3s; }
+    .modal-overlay.active .modal-content { transform: scale(1); }
+    .toast { position: fixed; bottom: 24px; right: 24px; background: rgba(30, 30, 50, 0.95); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(8px); padding: 16px 24px; border-radius: 12px; display: flex; align-items: center; gap: 12px; transform: translateX(120%); transition: transform 0.4s ease; z-index: 100; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+    .toast.show { transform: translateX(0); }
+    input[type="email"], input[type="password"], input[type="text"] { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); transition: all 0.2s; }
+    input[type="email"]:focus, input[type="password"]:focus, input[type="text"]:focus { border-color: #3b82f6; background: rgba(59, 130, 246, 0.08); outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+    .btn-primary { background: linear-gradient(135deg, #2563eb, #3b82f6); transition: all 0.3s; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-secondary { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); transition: all 0.3s; }
+    .btn-secondary:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.2); }
+    .tab-btn { padding: 8px 20px; border-radius: 8px; transition: all 0.2s; color: #9ca3af; }
+    .tab-btn.active { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .tab-btn:hover:not(.active) { background: rgba(255,255,255,0.05); color: #e5e7eb; }
+    .history-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); transition: all 0.2s; }
+    .history-item:hover { background: rgba(255,255,255,0.06); border-color: rgba(59, 130, 246, 0.2); }
+    @media (max-width: 640px) { .hero-title { font-size: 2rem !important; } .input-group { flex-direction: column; } .input-group input { width: 100%; } }
+    .video-preview { aspect-ratio: 16/9; position: relative; overflow: hidden; border-radius: 16px; background: #000; }
+    .video-preview.short { aspect-ratio: 9/16; max-width: 360px; margin: 0 auto; }
+    .play-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; cursor: pointer; }
+    .video-preview:hover .play-overlay { opacity: 1; }
+    .auth-container { max-width: 420px; width: 100%; }
+    .platform-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 500; }
+    .gradient-text { background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .res-btn { padding: 12px 24px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); transition: all 0.2s; cursor: pointer; min-width: 100px; text-align: center; }
+    .res-btn:hover { background: rgba(59, 130, 246, 0.15); border-color: #3b82f6; }
+    .res-btn .quality { font-weight: 600; color: #e5e7eb; }
+    .res-btn .size { font-size: 0.75rem; color: #9ca3af; }
+    .nav-blur { background: rgba(15, 15, 26, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+  </style>
 </head>
-<body>
+<body class="min-h-screen">
 
-<div class="container">
-    <h1>VidGrab Pro</h1>
-    <p>সব সোশ্যাল মিডিয়া থেকে ভিডিও ডাউনলোড করুন একদম সহজে।</p>
+  <!-- Navigation -->
+  <nav class="nav-blur fixed top-0 left-0 right-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <a href="#" class="flex items-center gap-2" onclick="showPage('home')">
+          <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          </div>
+          <span class="text-lg font-bold">VidGrab<span class="text-blue-400">Pro</span></span>
+        </a>
+        <div class="hidden md:flex items-center gap-6">
+          <a href="#features" class="text-sm text-gray-400 hover:text-white transition" data-i18n="nav_features">Features</a>
+          <a href="#platforms" class="text-sm text-gray-400 hover:text-white transition" data-i18n="nav_platforms">Platforms</a>
+          <a href="#" onclick="showPage('history')" class="text-sm text-gray-400 hover:text-white transition" data-i18n="nav_history">History</a>
+        </div>
+        <div class="flex items-center gap-3">
+          <select id="langSwitcher" class="glass bg-transparent text-sm px-2 py-1 rounded border-0 cursor-pointer" onchange="changeLanguage(this.value)">
+            <option value="en">🇺🇸 EN</option><option value="bn">🇧🇩 BN</option><option value="hi">🇮🇳 HI</option><option value="es">🇪🇸 ES</option>
+          </select>
+          <div id="authButtons">
+            <button onclick="showAuthModal()" class="btn-secondary px-4 py-2 rounded-lg text-sm" data-i18n="nav_login">Login</button>
+          </div>
+          <div id="userMenu" class="hidden relative">
+            <button onclick="toggleUserDropdown()" class="flex items-center gap-2 hover:opacity-80">
+              <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-xs font-bold" id="userAvatar">U</div>
+              <span class="text-sm hidden sm:block" id="userName">User</span>
+            </button>
+            <div id="userDropdown" class="absolute right-0 mt-2 w-48 glass rounded-xl py-2 hidden">
+              <a href="#" onclick="showPage('history'); toggleUserDropdown();" class="block px-4 py-2 text-sm hover:bg-white/5" data-i18n="menu_history">My History</a>
+              <a href="#" onclick="showPage('settings'); toggleUserDropdown();" class="block px-4 py-2 text-sm hover:bg-white/5" data-i18n="menu_settings">Settings</a>
+              <hr class="border-white/10 my-1">
+              <a href="#" onclick="logout()" class="block px-4 py-2 text-sm text-red-400 hover:bg-white/5" data-i18n="menu_logout">Logout</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
 
-    <div class="input-box">
-        <input type="text" id="videoUrl" placeholder="ভিডিওর লিঙ্ক এখানে দিন..." oninput="toggleButtons()">
+  <main class="pt-24 pb-16">
+    <section id="homePage" class="page">
+      <div class="max-w-4xl mx-auto px-4 text-center animate-fade-in">
+        <h1 class="hero-title text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
+          <span class="gradient-text" data-i18n="hero_title">Download Videos</span><br>
+          <span class="text-white" data-i18n="hero_subtitle">From Any Platform</span>
+        </h1>
+        <p class="text-lg text-gray-400 mb-10 max-w-2xl mx-auto" data-i18n="hero_desc">Paste any video link from YouTube, TikTok, Instagram, Facebook, or Pinterest. Download in HD quality for free.</p>
         
-        <!-- Clear (Cross) Button -->
-        <button id="clearBtn" class="action-btn" onclick="clearInput()">✕</button>
+        <div class="max-w-2xl mx-auto animate-slide-up">
+          <div class="flex flex-col sm:flex-row gap-2">
+            <div class="flex-1 flex items-center bg-white/5 rounded-xl px-4">
+              <svg class="w-5 h-5 text-gray-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101"/></svg>
+              <input id="urlInput" type="text" placeholder="Paste video URL here..." class="w-full py-4 bg-transparent border-0 text-white placeholder-gray-500 focus:outline-none text-sm" data-i18n-placeholder="url_placeholder">
+            </div>
+            <button id="analyzeBtn" onclick="analyzeVideo()" class="btn-primary px-8 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 whitespace-nowrap">
+              <span data-i18n="btn_analyze">Analyze</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </button>
+          </div>
+        </div>
         
-        <button id="analyzeBtn" onclick="analyzeVideo()">চেক করুন</button>
+        <div class="flex items-center justify-center gap-4 mt-8 flex-wrap">
+          <span class="text-sm text-gray-500" data-i18n="supported_on">Supported:</span>
+          <div class="flex gap-3">
+            <div class="platform-icon bg-red-500/20 text-red-400" title="YouTube">▶</div>
+            <div class="platform-icon bg-blue-500/20 text-blue-400" title="Facebook">f</div>
+            <div class="platform-icon bg-pink-500/20 text-pink-400" title="Instagram">📷</div>
+            <div class="platform-icon bg-purple-500/20 text-purple-400" title="TikTok">♪</div>
+            <div class="platform-icon bg-red-600/20 text-red-500" title="Pinterest">P</div>
+          </div>
+        </div>
+      </div>
+      
+      <div id="loadingState" class="hidden max-w-2xl mx-auto px-4 mt-12">
+        <div class="glass-card rounded-2xl p-8 text-center">
+          <div class="loading-spinner mx-auto mb-4"></div>
+          <p class="text-lg font-medium" data-i18n="analyzing">Analyzing your video, please wait...</p>
+          <div class="mt-4 h-2 bg-white/10 rounded-full overflow-hidden"><div class="progress-shimmer h-full rounded-full" style="width: 100%"></div></div>
+        </div>
+      </div>
+      
+      <div id="resultSection" class="hidden max-w-3xl mx-auto px-4 mt-12">
+        <div class="glass-card rounded-2xl overflow-hidden animate-fade-in">
+          <div class="p-6">
+            <div id="videoPreview" class="video-preview mb-6 relative">
+              <img id="videoThumbnail" src="" alt="Video Thumbnail" class="w-full h-full object-cover">
+              <div class="play-overlay" onclick="togglePreview()">
+                <div class="w-16 h-16 bg-white/20 backdrop-blur rounded-full flex items-center justify-center">
+                  <svg id="playIcon" class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                </div>
+              </div>
+              <div id="platformBadge" class="absolute top-3 left-3 platform-badge bg-black/60 backdrop-blur text-white"></div>
+              <div id="durationBadge" class="absolute bottom-3 right-3 platform-badge bg-black/60 backdrop-blur text-white"></div>
+            </div>
+            <div class="mb-6">
+              <h3 id="videoTitle" class="text-xl font-bold mb-2"></h3>
+              <div class="flex items-center gap-3 text-sm text-gray-400">
+                <span id="videoAuthor"></span>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-3">
+              <button onclick="downloadAudio()" class="btn-secondary flex-1 px-6 py-3 rounded-xl flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
+                <span data-i18n="btn_download_audio">Download Audio</span>
+              </button>
+              <button onclick="showQualityModal()" class="btn-primary flex-1 px-6 py-3 rounded-xl flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                <span data-i18n="btn_download_video">Download Video</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <section id="features" class="max-w-6xl mx-auto px-4 mt-24">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold mb-3" data-i18n="features_title">Why Choose VidGrab Pro?</h2>
+          <p class="text-gray-400" data-i18n="features_subtitle">Fast, secure, and completely free video downloader</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="glass-card rounded-2xl p-6 animate-slide-up" style="animation-delay: 0.1s">
+            <div class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mb-4"><svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div>
+            <h3 class="text-lg font-semibold mb-2" data-i18n="feat_fast">Lightning Fast</h3>
+            <p class="text-gray-400 text-sm" data-i18n="feat_fast_desc">Download videos in seconds with our optimized servers</p>
+          </div>
+          <div class="glass-card rounded-2xl p-6 animate-slide-up" style="animation-delay: 0.2s">
+            <div class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center mb-4"><svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div>
+            <h3 class="text-lg font-semibold mb-2" data-i18n="feat_secure">100% Secure</h3>
+            <p class="text-gray-400 text-sm" data-i18n="feat_secure_desc">No malware, no ads. Your data stays protected</p>
+          </div>
+          <div class="glass-card rounded-2xl p-6 animate-slide-up" style="animation-delay: 0.3s">
+            <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center mb-4"><svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+            <h3 class="text-lg font-semibold mb-2" data-i18n="feat_free">Completely Free</h3>
+            <p class="text-gray-400 text-sm" data-i18n="feat_free_desc">No registration required for basic downloads</p>
+          </div>
+        </div>
+      </section>
+      
+      <section id="platforms" class="max-w-4xl mx-auto px-4 mt-24">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold mb-3" data-i18n="platforms_title">Supported Platforms</h2>
+          <p class="text-gray-400" data-i18n="platforms_subtitle">Download from all major video platforms</p>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div class="glass-card rounded-2xl p-6 text-center animate-slide-up" style="animation-delay: 0.05s">
+            <div class="w-14 h-14 bg-red-500/20 rounded-2xl flex items-center justify-center mx-auto mb-3"><svg class="w-7 h-7 text-red-400" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></div>
+            <p class="font-medium">YouTube</p>
+          </div>
+          <div class="glass-card rounded-2xl p-6 text-center animate-slide-up" style="animation-delay: 0.1s">
+            <div class="w-14 h-14 bg-blue-500/20 rounded-2xl flex items-center justify-center mx-auto mb-3"><svg class="w-7 h-7 text-blue-400" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+            <p class="font-medium">Facebook</p>
+          </div>
+          <div class="glass-card rounded-2xl p-6 text-center animate-slide-up" style="animation-delay: 0.15s">
+            <div class="w-14 h-14 bg-pink-500/20 rounded-2xl flex items-center justify-center mx-auto mb-3"><svg class="w-7 h-7 text-pink-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></div>
+            <p class="font-medium">Instagram</p>
+          </div>
+          <div class="glass-card rounded-2xl p-6 text-center animate-slide-up" style="animation-delay: 0.2s">
+            <div class="w-14 h-14 bg-purple-500/20 rounded-2xl flex items-center justify-center mx-auto mb-3"><svg class="w-7 h-7 text-purple-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.65-1.62-1.02-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg></div>
+            <p class="font-medium">TikTok</p>
+          </div>
+          <div class="glass-card rounded-2xl p-6 text-center animate-slide-up" style="animation-delay: 0.25s">
+            <div class="w-14 h-14 bg-red-600/20 rounded-2xl flex items-center justify-center mx-auto mb-3"><svg class="w-7 h-7 text-red-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12.015 1.884c1.307-.122 2.548-.347 3.832-.272 1.285.075 2.57.247 3.842.528 1.272.28 2.478.682 3.523 1.324 1.045.642 1.877 1.463 2.453 2.472.576 1.009.896 2.157.973 3.342.077 1.185.006 2.384-.264 3.57-.27 1.186-.72 2.327-1.4 3.367-.68 1.04-1.553 1.96-2.595 2.708-1.042.748-2.23 1.315-3.517 1.657-1.287.342-2.633.449-3.983.308-1.35-.141-2.65-.46-3.854-1.008-1.204-.548-2.284-1.32-3.166-2.282-.882-.962-1.557-2.112-2.024-3.378-.467-1.266-.723-2.632-.748-4.04-.025-1.408.174-2.802.64-4.118.466-1.316 1.194-2.534 2.136-3.596C7.82 2.724 9.078 1.88 10.506 1.36c1.428-.52 2.982-.788 4.509-.788v1.312z"/></svg></div>
+            <p class="font-medium">Pinterest</p>
+          </div>
+        </div>
+      </section>
+    </section>
+    
+    <section id="historyPage" class="page hidden max-w-4xl mx-auto px-4">
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h1 class="text-2xl font-bold" data-i18n="history_title">Download History</h1>
+          <p class="text-gray-400 text-sm mt-1" data-i18n="history_subtitle">Your recent downloads</p>
+        </div>
+        <button onclick="clearAllHistory()" class="btn-secondary px-4 py-2 rounded-lg text-sm flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg><span data-i18n="btn_clear_all">Clear All</span></button>
+      </div>
+      <div id="historyList" class="space-y-3"></div>
+      <div id="emptyHistory" class="glass-card rounded-2xl p-12 text-center"><svg class="w-16 h-16 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><h3 class="text-lg font-medium mb-2" data-i18n="no_history">No history yet</h3><p class="text-gray-400 text-sm" data-i18n="no_history_desc">Your downloaded videos will appear here</p></div>
+    </section>
+    
+    <section id="settingsPage" class="page hidden max-w-2xl mx-auto px-4">
+      <h1 class="text-2xl font-bold mb-8" data-i18n="settings_title">Settings</h1>
+      <div class="glass-card rounded-2xl p-6 space-y-6">
+        <div><h3 class="font-medium mb-4" data-i18n="settings_language">Language</h3><div class="flex gap-3"><button class="tab-btn active" onclick="changeLanguage('en')">English</button><button class="tab-btn" onclick="changeLanguage('bn')">বাংলা</button><button class="tab-btn" onclick="changeLanguage('hi')">हिन्दी</button><button class="tab-btn" onclick="changeLanguage('es')">Español</button></div></div>
+        <hr class="border-white/10">
+        <div><h3 class="font-medium mb-4" data-i18n="settings_quality">Default Quality</h3><select id="defaultQuality" class="glass bg-transparent px-4 py-2 rounded-lg border-0 w-full"><option value="1080">1080p (HD)</option><option value="720" selected>720p</option><option value="480">480p</option><option value="360">360p</option></select></div>
+        <hr class="border-white/10">
+        <div><h3 class="font-medium mb-4" data-i18n="settings_format">Default Format</h3><div class="flex gap-3"><button class="tab-btn active" onclick="setFormat('mp4', this)">MP4</button><button class="tab-btn" onclick="setFormat('webm', this)">WebM</button><button class="tab-btn" onclick="setFormat('mkv', this)">MKV</button></div></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-white/5 mt-24">
+    <div class="max-w-6xl mx-auto px-4 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div><div class="flex items-center gap-2 mb-4"><div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center"><svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></div><span class="text-lg font-bold">VidGrab<span class="text-blue-400">Pro</span></span></div><p class="text-gray-400 text-sm" data-i18n="footer_desc">Free online video downloader. Download videos from YouTube, TikTok, Instagram, Facebook, and more.</p></div>
+        <div><h4 class="font-medium mb-4" data-i18n="footer_links">Quick Links</h4><ul class="space-y-2 text-sm text-gray-400"><li><a href="#" class="hover:text-white transition" data-i18n="nav_home">Home</a></li><li><a href="#features" class="hover:text-white transition" data-i18n="nav_features">Features</a></li><li><a href="#platforms" class="hover:text-white transition" data-i18n="nav_platforms">Platforms</a></li></ul></div>
+        <div><h4 class="font-medium mb-4" data-i18n="footer_legal">Legal</h4><ul class="space-y-2 text-sm text-gray-400"><li><a href="#" onclick="showModal('privacy')" class="hover:text-white transition" data-i18n="footer_privacy">Privacy Policy</a></li><li><a href="#" onclick="showModal('terms')" class="hover:text-white transition" data-i18n="footer_terms">Terms & Conditions</a></li></ul></div>
+        <div><h4 class="font-medium mb-4" data-i18n="footer_contact">Contact</h4><ul class="space-y-2 text-sm text-gray-400"><li>support@vidgrabpro.com</li><li data-i18n="footer_copyright">© 2026 VidGrab Pro. All rights reserved.</li></ul></div>
+      </div>
     </div>
+  </footer>
 
-    <div class="progress-container" id="progressContainer">
-        <div class="progress-bar" id="progressBar"></div>
+  <!-- Quality Modal -->
+  <div id="qualityModal" class="modal-overlay">
+    <div class="modal-content glass rounded-2xl p-6 max-w-md w-full mx-4">
+      <div class="flex items-center justify-between mb-6"><h3 class="text-lg font-bold" data-i18n="modal_quality">Select Quality</h3><button onclick="hideModal('qualityModal')" class="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+      <div class="space-y-3" id="qualityOptions"></div>
+      <p class="text-xs text-gray-500 mt-4 text-center" data-i18n="quality_note">Higher quality may take longer to process</p>
     </div>
+  </div>
 
-    <div id="resultArea">
-        <video id="videoPlayer" controls poster="">
-            আপনার ব্রাউজার ভিডিও সাপোর্ট করে না।
-        </video>
-        <h3 id="videoTitle" style="margin: 10px 0;"></h3>
-        <button id="dlBtn" class="download-btn">সরাসরি ডাউনলোড</button>
+  <!-- Auth Modal -->
+  <div id="authModal" class="modal-overlay">
+    <div class="modal-content auth-container glass rounded-2xl p-6 mx-4">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-xl font-bold" id="authTitle" data-i18n="auth_title">Login / Sign Up</h3>
+        <button onclick="hideModal('authModal')" class="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+      </div>
+      <div class="flex gap-2 mb-6">
+        <button id="tabLogin" class="tab-btn active flex-1 text-center" onclick="toggleAuthTab('login')" data-i18n="auth_login">Login</button>
+        <button id="tabSignup" class="tab-btn flex-1 text-center" onclick="toggleAuthTab('signup')" data-i18n="auth_signup">Sign Up</button>
+      </div>
+      <form onsubmit="handleAuth(event)" class="space-y-4">
+        <div id="nameField" class="hidden">
+          <label class="block text-sm text-gray-400 mb-2" data-i18n="auth_name">Name</label>
+          <input type="text" id="authName" class="w-full px-4 py-3 rounded-xl text-white" placeholder="John Doe">
+        </div>
+        <div>
+          <label class="block text-sm text-gray-400 mb-2" data-i18n="auth_email">Email</label>
+          <input type="email" id="authEmail" required class="w-full px-4 py-3 rounded-xl text-white" placeholder="your@email.com">
+        </div>
+        <div>
+          <label class="block text-sm text-gray-400 mb-2" data-i18n="auth_password">Password</label>
+          <input type="password" id="authPassword" required minlength="6" class="w-full px-4 py-3 rounded-xl text-white" placeholder="••••••••">
+        </div>
+        <button type="submit" id="authSubmitBtn" class="btn-primary w-full py-3 rounded-xl font-semibold" data-i18n="auth_login_btn">Login</button>
+      </form>
+      <p class="text-center text-xs text-gray-500 mt-4" data-i18n="auth_note">Login or create a new account with the same form</p>
     </div>
-</div>
+  </div>
 
-<footer>
-    &copy; 2024 VidGrab Pro | All Rights Reserved
-</footer>
+  <!-- Privacy Policy Modal -->
+  <div id="privacyModal" class="modal-overlay">
+    <div class="modal-content glass rounded-2xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-6"><h3 class="text-xl font-bold" data-i18n="footer_privacy">Privacy Policy</h3><button onclick="hideModal('privacyModal')" class="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+      <div class="space-y-4 text-sm text-gray-300">
+        <p>Last updated: January 1, 2026</p><p>VidGrab Pro respects your privacy.</p>
+        <h4 class="font-medium text-white">Information We Collect</h4><p>We collect information you provide during registration, including your name and email address.</p>
+        <h4 class="font-medium text-white">How We Use Your Data</h4><p>Your data is used to provide and improve our service and maintain your download history.</p>
+        <h4 class="font-medium text-white">Data Security</h4><p>We use industry-standard encryption to protect your data.</p>
+        <h4 class="font-medium text-white">Contact</h4><p>For privacy concerns, contact us at privacy@vidgrabpro.com</p>
+      </div>
+    </div>
+  </div>
 
-<script>
-    const BASE_URL = "https://root-hotels-adjusted-corn.trycloudflare.com";
-    const urlInput = document.getElementById('videoUrl');
-    const clearBtn = document.getElementById('clearBtn');
+  <!-- Terms Modal -->
+  <div id="termsModal" class="modal-overlay">
+    <div class="modal-content glass rounded-2xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-6"><h3 class="text-xl font-bold" data-i18n="footer_terms">Terms & Conditions</h3><button onclick="hideModal('termsModal')" class="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+      <div class="space-y-4 text-sm text-gray-300">
+        <p>Last updated: January 1, 2026</p>
+        <h4 class="font-medium text-white">Acceptable Use</h4><p>VidGrab Pro is for personal use only. Do not download copyrighted content without permission.</p>
+        <h4 class="font-medium text-white">Limitations</h4><p>We do not guarantee uninterrupted service.</p>
+        <h4 class="font-medium text-white">Liability</h4><p>Users are responsible for ensuring compliance with copyright laws.</p>
+      </div>
+    </div>
+  </div>
 
-    // ইনপুট মুছে ফেলা
-    function clearInput() {
-        urlInput.value = '';
-        toggleButtons();
-        urlInput.focus(); // ক্রস করার পর কার্সর আবার বক্সে চলে আসবে
+  <div id="toastContainer"></div>
+
+  <script>
+  // =============================================
+  // ১. কনফিগারেশন — এখানে তোমার আসল URL বসাও
+  // =============================================
+  const API_BASE = window.location.hostname === 'localhost'
+    ? 'http://localhost:3000'
+    : 'https://applicable-earth-analyses-tail.trycloudflare.com'; // Production URL এখানে দাও
+
+  // Firebase কনফিগ — তোমার আসল values দাও
+  const firebaseConfig = {
+    apiKey: "AIzaSyBEePBfwMrVLNtapYGfpfsN-YWi3_K7Mv4",
+  authDomain: "vidgrab-pro.firebaseapp.com",
+  databaseURL: "https://vidgrab-pro-default-rtdb.firebaseio.com",
+  projectId: "vidgrab-pro",
+  storageBucket: "vidgrab-pro.firebasestorage.app",
+  messagingSenderId: "510494077769",
+  appId: "1:510494077769:web:cc33426f8e44e794ab2098"
+};
+
+  // Firebase init
+  let firebaseAuth = null;
+  try {
+    const firebaseApp = firebase.initializeApp(firebaseConfig);
+    firebaseAuth = firebase.auth();
+  } catch(e) {
+    console.warn('Firebase not configured:', e.message);
+  }
+
+  // =============================================
+  // ২. State Variables
+  // =============================================
+  let currentUser = null;
+  let currentVideoData = null; // server থেকে আসা আসল ডাটা (dbId + formats)
+  let isPreviewPlaying = false;
+  let authMode = 'login';
+
+  // =============================================
+  // ৩. Translations
+  // =============================================
+  const translations = {
+    en: { nav_features:"Features",nav_platforms:"Platforms",nav_history:"History",nav_login:"Login / Sign Up",hero_title:"Download Videos",hero_subtitle:"From Any Platform",hero_desc:"Paste any video link from YouTube, TikTok, Instagram, Facebook, or Pinterest. Download in HD quality for free.",url_placeholder:"Paste video URL here...",btn_analyze:"Analyze",supported_on:"Supported:",analyzing:"Analyzing your video, please wait...",btn_download_audio:"Download Audio",btn_download_video:"Download Video",features_title:"Why Choose VidGrab Pro?",features_subtitle:"Fast, secure, and completely free video downloader",feat_fast:"Lightning Fast",feat_fast_desc:"Download videos in seconds with our optimized servers",feat_secure:"100% Secure",feat_secure_desc:"No malware, no ads. Your data stays protected",feat_free:"Completely Free",feat_free_desc:"No registration required for basic downloads",platforms_title:"Supported Platforms",platforms_subtitle:"Download from all major video platforms",history_title:"Download History",history_subtitle:"Your recent downloads",btn_clear_all:"Clear All",no_history:"No history yet",no_history_desc:"Your downloaded videos will appear here",settings_title:"Settings",settings_language:"Language",settings_quality:"Default Quality",settings_format:"Default Format",footer_desc:"Free online video downloader.",footer_links:"Quick Links",footer_legal:"Legal",footer_privacy:"Privacy Policy",footer_terms:"Terms & Conditions",footer_contact:"Contact",footer_copyright:"© 2026 VidGrab Pro. All rights reserved.",nav_home:"Home",modal_quality:"Select Quality",quality_note:"Higher quality may take longer to process",auth_login:"Login",auth_email:"Email",auth_password:"Password",auth_login_btn:"Login",auth_signup:"Sign Up",auth_name:"Name",auth_signup_btn:"Sign Up",menu_history:"My History",menu_settings:"Settings",menu_logout:"Logout",toast_download_started:"Download started!",toast_login_success:"Login successful!",toast_signup_success:"Account created!",toast_logout:"Logged out successfully",toast_cleared:"History cleared",toast_deleted:"Item deleted",auth_title_login:"Login",auth_title_signup:"Sign Up",auth_note:"Login or create a new account with the same form",error_analyze:"Failed to analyze video. Please try again.",error_download:"Download failed. Please re-analyze the video." },
+    bn: { nav_features:"ফিচার",nav_platforms:"প্ল্যাটফর্ম",nav_history:"ইতিহাস",nav_login:"লগইন / সাইন আপ",hero_title:"ভিডিও ডাউনলোড করুন",hero_subtitle:"যেকোনো প্ল্যাটফর্ম থেকে",hero_desc:"YouTube, TikTok, Instagram, Facebook বা Pinterest থেকে যেকোনো ভিডিও লিঙ্ক পেস্ট করুন।",url_placeholder:"ভিডিও URL এখানে পেস্ট করুন...",btn_analyze:"বিশ্লেষণ",supported_on:"সমর্থিত:",analyzing:"আপনার ভিডিও বিশ্লেষণ করা হচ্ছে...",btn_download_audio:"অডিও ডাউনলোড",btn_download_video:"ভিডিও ডাউনলোড",features_title:"কেন VidGrab Pro?",features_subtitle:"দ্রুত, নিরাপদ এবং বিনামূল্যে",feat_fast:"বজ্রগতি",feat_fast_desc:"সেকেন্ডে ডাউনলোড করুন",feat_secure:"১০০% নিরাপদ",feat_secure_desc:"কোনো ম্যালওয়্যার বা বিজ্ঞাপন নেই",feat_free:"সম্পূর্ণ বিনামূল্যে",feat_free_desc:"রেজিস্ট্রেশন ছাড়াই ডাউনলোড করুন",platforms_title:"সমর্থিত প্ল্যাটফর্ম",platforms_subtitle:"সব প্রধান ভিডিও প্ল্যাটফর্ম থেকে ডাউনলোড",history_title:"ডাউনলোড ইতিহাস",history_subtitle:"সাম্প্রতিক ডাউনলোড",btn_clear_all:"সব মুছুন",no_history:"কোনো ইতিহাস নেই",no_history_desc:"ডাউনলোড করা ভিডিও এখানে দেখাবে",settings_title:"সেটিংস",settings_language:"ভাষা",settings_quality:"ডিফল্ট কোয়ালিটি",settings_format:"ডিফল্ট ফরম্যাট",footer_desc:"বিনামূল্যে ভিডিও ডাউনলোডার।",footer_links:"দ্রুত লিঙ্ক",footer_legal:"আইনি",footer_privacy:"গোপনীয়তা নীতি",footer_terms:"শর্তাবলী",footer_contact:"যোগাযোগ",footer_copyright:"© 2026 VidGrab Pro।",nav_home:"হোম",modal_quality:"কোয়ালিটি নির্বাচন",quality_note:"উচ্চ কোয়ালিটিতে বেশি সময় লাগতে পারে",auth_login:"লগইন",auth_email:"ইমেইল",auth_password:"পাসওয়ার্ড",auth_login_btn:"লগইন",auth_signup:"সাইন আপ",auth_name:"নাম",auth_signup_btn:"সাইন আপ",menu_history:"আমার ইতিহাস",menu_settings:"সেটিংস",menu_logout:"লগআউট",toast_download_started:"ডাউনলোড শুরু!",toast_login_success:"লগইন সফল!",toast_signup_success:"অ্যাকাউন্ট তৈরি হয়েছে!",toast_logout:"লগআউট সফল",toast_cleared:"ইতিহাস মুছে গেছে",toast_deleted:"আইটেম মুছে গেছে",auth_title_login:"লগইন",auth_title_signup:"সাইন আপ",auth_note:"একই ফর্ম দিয়ে লগইন বা অ্যাকাউন্ট তৈরি করুন",error_analyze:"ভিডিও বিশ্লেষণ করা যায়নি। আবার চেষ্টা করুন।",error_download:"ডাউনলোড ব্যর্থ হয়েছে। পুনরায় অ্যানালাইজ করুন।" },
+    hi: { nav_features:"विशेषताएं",nav_platforms:"प्लेटफ़ॉर्म",nav_history:"इतिहास",nav_login:"लॉगिन / साइन अप",hero_title:"वीडियो डाउनलोड करें",hero_subtitle:"किसी भी प्लेटफ़ॉर्म से",hero_desc:"YouTube, TikTok, Instagram से लिंक पेस्ट करें। मुफ्त HD डाउनलोड।",url_placeholder:"वीडियो URL यहाँ पेस्ट करें...",btn_analyze:"विश्लेषण",supported_on:"समर्थित:",analyzing:"विश्लेषण हो रहा है...",btn_download_audio:"ऑडियो डाउनलोड",btn_download_video:"वीडियो डाउनलोड",features_title:"VidGrab Pro क्यों?",features_subtitle:"तेज़, सुरक्षित और मुफ्त",feat_fast:"बिजली की गति",feat_fast_desc:"सेकंड में डाउनलोड",feat_secure:"100% सुरक्षित",feat_secure_desc:"कोई मैलवेयर नहीं",feat_free:"पूरी तरह मुफ्त",feat_free_desc:"बिना रजिस्ट्रेशन के",platforms_title:"समर्थित प्लेटफ़ॉर्म",platforms_subtitle:"सभी प्लेटफ़ॉर्म से डाउनलोड",history_title:"डाउनलोड इतिहास",history_subtitle:"हाल के डाउनलोड",btn_clear_all:"सभी साफ करें",no_history:"कोई इतिहास नहीं",no_history_desc:"डाउनलोड यहाँ दिखेंगे",settings_title:"सेटिंग्स",settings_language:"भाषा",settings_quality:"डिफ़ॉल्ट गुणवत्ता",settings_format:"डिफ़ॉल्ट प्रारूप",footer_desc:"मुफ्त ऑनलाइन वीडियो डाउनलोडर।",footer_links:"त्वरित लिंक",footer_legal:"कानूनी",footer_privacy:"गोपनीयता नीति",footer_terms:"नियम",footer_contact:"संपर्क",footer_copyright:"© 2026 VidGrab Pro।",nav_home:"होम",modal_quality:"गुणवत्ता चुनें",quality_note:"उच्च गुणवत्ता में समय लग सकता है",auth_login:"लॉगिन",auth_email:"ईमेल",auth_password:"पासवर्ड",auth_login_btn:"लॉगिन",auth_signup:"साइन अप",auth_name:"नाम",auth_signup_btn:"साइन अप",menu_history:"मेरा इतिहास",menu_settings:"सेटिंग्स",menu_logout:"लॉगआउट",toast_download_started:"डाउनलोड शुरू!",toast_login_success:"लॉगिन सफल!",toast_signup_success:"खाता बनाया!",toast_logout:"लॉगआउट सफल",toast_cleared:"इतिहास साफ",toast_deleted:"आइटम हटाया",auth_title_login:"लॉगिन",auth_title_signup:"साइन अप",auth_note:"लॉगिन या नया खाता बनाएं",error_analyze:"विश्लेषण विफल। पुनः प्रयास करें।",error_download:"डाउनलोड विफल।" },
+    es: { nav_features:"Características",nav_platforms:"Plataformas",nav_history:"Historial",nav_login:"Iniciar sesión / Registro",hero_title:"Descargar Videos",hero_subtitle:"De Cualquier Plataforma",hero_desc:"Pega el enlace de YouTube, TikTok, Instagram, etc. Descarga gratis en HD.",url_placeholder:"Pega la URL aquí...",btn_analyze:"Analizar",supported_on:"Compatible:",analyzing:"Analizando...",btn_download_audio:"Descargar Audio",btn_download_video:"Descargar Video",features_title:"¿Por qué VidGrab Pro?",features_subtitle:"Rápido, seguro y gratuito",feat_fast:"Ultra Rápido",feat_fast_desc:"Descarga en segundos",feat_secure:"100% Seguro",feat_secure_desc:"Sin malware ni anuncios",feat_free:"Completamente Gratis",feat_free_desc:"Sin registro requerido",platforms_title:"Plataformas",platforms_subtitle:"Todas las principales plataformas",history_title:"Historial",history_subtitle:"Descargas recientes",btn_clear_all:"Limpiar Todo",no_history:"Sin historial",no_history_desc:"Tus descargas aparecerán aquí",settings_title:"Configuración",settings_language:"Idioma",settings_quality:"Calidad Predeterminada",settings_format:"Formato Predeterminado",footer_desc:"Descargador de videos gratuito.",footer_links:"Enlaces",footer_legal:"Legal",footer_privacy:"Privacidad",footer_terms:"Términos",footer_contact:"Contacto",footer_copyright:"© 2026 VidGrab Pro.",nav_home:"Inicio",modal_quality:"Seleccionar Calidad",quality_note:"Mayor calidad tarda más",auth_login:"Iniciar sesión",auth_email:"Correo",auth_password:"Contraseña",auth_login_btn:"Iniciar sesión",auth_signup:"Registrarse",auth_name:"Nombre",auth_signup_btn:"Registrarse",menu_history:"Mi Historial",menu_settings:"Configuración",menu_logout:"Cerrar sesión",toast_download_started:"¡Descarga iniciada!",toast_login_success:"¡Sesión iniciada!",toast_signup_success:"¡Cuenta creada!",toast_logout:"Sesión cerrada",toast_cleared:"Historial borrado",toast_deleted:"Eliminado",auth_title_login:"Iniciar sesión",auth_title_signup:"Registrarse",auth_note:"Inicia sesión o regístrate",error_analyze:"Análisis fallido. Intenta de nuevo.",error_download:"Descarga fallida." }
+  };
+
+  let currentLang = localStorage.getItem('vidgrab_lang') || 'en';
+  function t(key) { return (translations[currentLang]&&translations[currentLang][key])||translations['en'][key]||key; }
+
+  // =============================================
+  // ৪. Toast
+  // =============================================
+  function showToast(message, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = `<div class="w-6 h-6 ${type==='success'?'bg-green-500':'bg-red-500'} rounded-full flex items-center justify-center flex-shrink-0"><svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${type==='success'?'M5 13l4 4L19 7':'M6 18L18 6M6 6l12 12'}"/></svg></div><span class="text-sm">${message}</span>`;
+    container.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add('show'));
+    setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 400); }, 3000);
+  }
+
+  // =============================================
+  // ৫. i18n
+  // =============================================
+  function applyTranslations() {
+    document.querySelectorAll('[data-i18n]').forEach(el => { const k=el.getAttribute('data-i18n'); if(translations[currentLang]&&translations[currentLang][k]) el.textContent=translations[currentLang][k]; });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { const k=el.getAttribute('data-i18n-placeholder'); if(translations[currentLang]&&translations[currentLang][k]) el.placeholder=translations[currentLang][k]; });
+    document.getElementById('langSwitcher').value = currentLang;
+  }
+  function changeLanguage(lang) { currentLang=lang; localStorage.setItem('vidgrab_lang',lang); applyTranslations(); }
+
+  // =============================================
+  // ৬. Page & Modal
+  // =============================================
+  function showPage(page) {
+    document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));
+    document.getElementById(page+'Page').classList.remove('hidden');
+    if(page==='history') loadHistory();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  function showModal(type) { const id=type==='privacy'?'privacyModal':type==='terms'?'termsModal':type==='quality'?'qualityModal':'authModal'; document.getElementById(id).classList.add('active'); document.body.style.overflow='hidden'; }
+  function hideModal(id) { document.getElementById(id).classList.remove('active'); document.body.style.overflow=''; }
+  function showQualityModal() { renderQualityOptions(); showModal('quality'); }
+  function showAuthModal() { toggleAuthTab('login'); showModal('auth'); }
+
+  // =============================================
+  // ৭. Auth Tab
+  // =============================================
+  function toggleAuthTab(mode) {
+    authMode = mode;
+    const nameField = document.getElementById('nameField');
+    const submitBtn = document.getElementById('authSubmitBtn');
+    const authTitle = document.getElementById('authTitle');
+    if(mode==='login') {
+      nameField.classList.add('hidden');
+      submitBtn.textContent = t('auth_login_btn');
+      authTitle.textContent = t('auth_title_login');
+      document.getElementById('tabLogin').classList.add('active');
+      document.getElementById('tabSignup').classList.remove('active');
+    } else {
+      nameField.classList.remove('hidden');
+      submitBtn.textContent = t('auth_signup_btn');
+      authTitle.textContent = t('auth_title_signup');
+      document.getElementById('tabLogin').classList.remove('active');
+      document.getElementById('tabSignup').classList.add('active');
     }
+  }
 
-    // বাটন কন্ট্রোল (লিংক দিলে শুধু ক্রস বাটন আসবে)
-    function toggleButtons() {
-        if (urlInput.value.length > 0) {
-            clearBtn.style.display = 'flex';
+  function toggleUserDropdown() { document.getElementById('userDropdown').classList.toggle('hidden'); }
+  document.addEventListener('click', (e) => { const menu=document.getElementById('userMenu'); if(menu&&!menu.contains(e.target)) document.getElementById('userDropdown').classList.add('hidden'); });
+
+  // =============================================
+  // ৮. Firebase Auth — আসল Login/Signup
+  // =============================================
+  async function handleAuth(e) {
+    e.preventDefault();
+    const email = document.getElementById('authEmail').value;
+    const password = document.getElementById('authPassword').value;
+    const name = document.getElementById('authName').value || email.split('@')[0];
+
+    if(firebaseAuth) {
+      try {
+        let userCredential;
+        if(authMode === 'signup') {
+          userCredential = await firebaseAuth.createUserWithEmailAndPassword(email, password);
+          await userCredential.user.updateProfile({ displayName: name });
         } else {
-            clearBtn.style.display = 'none';
+          userCredential = await firebaseAuth.signInWithEmailAndPassword(email, password);
         }
+        // onAuthStateChanged handle করবে বাকিটা
+        hideModal('authModal');
+        showToast(authMode==='signup' ? t('toast_signup_success') : t('toast_login_success'));
+      } catch(err) {
+        showToast(err.message, 'error');
+      }
+    } else {
+      // Firebase কনফিগ না থাকলে demo mode
+      currentUser = { name, email, uid: 'demo_'+Date.now() };
+      localStorage.setItem('vidgrab_user', JSON.stringify(currentUser));
+      updateUIForAuth();
+      hideModal('authModal');
+      showToast(authMode==='signup' ? t('toast_signup_success') : t('toast_login_success'));
+    }
+  }
+
+  async function logout() {
+    if(firebaseAuth) {
+      await firebaseAuth.signOut();
+    }
+    currentUser = null;
+    localStorage.removeItem('vidgrab_user');
+    updateUIForAuth();
+    showToast(t('toast_logout'));
+    showPage('home');
+  }
+
+  function updateUIForAuth() {
+    const authButtons = document.getElementById('authButtons');
+    const userMenu = document.getElementById('userMenu');
+    if(currentUser) {
+      authButtons.classList.add('hidden');
+      userMenu.classList.remove('hidden');
+      const displayName = currentUser.displayName || currentUser.name || currentUser.email;
+      document.getElementById('userName').textContent = displayName;
+      document.getElementById('userAvatar').textContent = displayName.charAt(0).toUpperCase();
+    } else {
+      authButtons.classList.remove('hidden');
+      userMenu.classList.add('hidden');
+    }
+  }
+
+  // =============================================
+  // ৯. Platform Detection
+  // =============================================
+  function detectPlatform(url) {
+    if(url.includes('youtube.com')||url.includes('youtu.be')) return {name:'YouTube',color:'red',icon:'▶'};
+    if(url.includes('facebook.com')||url.includes('fb.watch')) return {name:'Facebook',color:'blue',icon:'f'};
+    if(url.includes('instagram.com')) return {name:'Instagram',color:'pink',icon:'📷'};
+    if(url.includes('tiktok.com')) return {name:'TikTok',color:'purple',icon:'♪'};
+    if(url.includes('pinterest.com')) return {name:'Pinterest',color:'red',icon:'P'};
+    return {name:'Video',color:'gray',icon:'🔗'};
+  }
+  function detectAspectRatio(url) {
+    if(url.includes('/shorts/')||url.includes('/reel/')||url.includes('/reels/')||url.includes('tiktok.com')) return 'short';
+    return 'normal';
+  }
+
+  // =============================================
+  // ১০. analyzeVideo — আসল API call
+  // =============================================
+  async function analyzeVideo() {
+    const url = document.getElementById('urlInput').value.trim();
+    if(!url) { showToast('Please enter a video URL', 'error'); return; }
+
+    const loadingState = document.getElementById('loadingState');
+    const resultSection = document.getElementById('resultSection');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+
+    loadingState.classList.remove('hidden');
+    resultSection.classList.add('hidden');
+    analyzeBtn.disabled = true;
+    analyzeBtn.innerHTML = `<div class="loading-spinner"></div>`;
+
+    try {
+      // ✅ আসল server API call
+      const response = await fetch(`${API_BASE}/api/analyze?url=${encodeURIComponent(url)}`);
+
+      if(!response.ok) {
+        const errData = await response.json().catch(()=>({}));
+        throw new Error(errData.error || `Server error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      // data = { dbId, title, thumbnail, formats: [{id, resolution, ext, size}] }
+
+      const platform = detectPlatform(url);
+      const aspectRatio = detectAspectRatio(url);
+
+      // আসল server ডাটা সংরক্ষণ
+      currentVideoData = {
+        dbId: data.dbId,         // ডাউনলোডের জন্য লাগবে
+        title: data.title,
+        thumbnail: data.thumbnail,
+        url,
+        platform,
+        aspectRatio,
+        formats: data.formats    // [{id, resolution, ext, size}]
+      };
+
+      // UI আপডেট
+      document.getElementById('videoThumbnail').src = data.thumbnail || '';
+      document.getElementById('videoTitle').textContent = data.title;
+      document.getElementById('videoAuthor').textContent = '';
+
+      const badge = document.getElementById('platformBadge');
+      const colorClass = platform.color==='red'?'text-red-400':platform.color==='blue'?'text-blue-400':platform.color==='pink'?'text-pink-400':'text-purple-400';
+      badge.innerHTML = `<span class="${colorClass}">${platform.icon}</span> ${platform.name}`;
+      document.getElementById('durationBadge').textContent = '';
+
+      const preview = document.getElementById('videoPreview');
+      if(aspectRatio==='short') {
+        preview.classList.add('short');
+      } else {
+        preview.classList.remove('short');
+      }
+
+      // History তে সেভ
+      saveToHistory(currentVideoData);
+
+      loadingState.classList.add('hidden');
+      resultSection.classList.remove('hidden');
+      resultSection.scrollIntoView({behavior:'smooth', block:'start'});
+
+    } catch(error) {
+      console.error("Analyze Error:", error);
+      showToast(error.message || t('error_analyze'), 'error');
+      loadingState.classList.add('hidden');
+    } finally {
+      analyzeBtn.disabled = false;
+      analyzeBtn.innerHTML = `<span>${t('btn_analyze')}</span><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>`;
+    }
+  }
+
+  // =============================================
+  // ১১. Quality Modal Render
+  // =============================================
+  function renderQualityOptions() {
+    const container = document.getElementById('qualityOptions');
+    if(!currentVideoData || !currentVideoData.formats) return;
+
+    // Video formats (audio only বাদ দিয়ে)
+    const videoFormats = currentVideoData.formats.filter(f =>
+      f.resolution && f.resolution !== 'Audio Only'
+    );
+
+    container.innerHTML = videoFormats.map(fmt => `
+      <button onclick="startDownload('${fmt.id}')" class="res-btn w-full flex items-center justify-between">
+        <div class="text-left">
+          <div class="quality">${fmt.resolution}</div>
+          <div class="size">${fmt.ext.toUpperCase()}</div>
+        </div>
+        <div class="text-right">
+          <div class="text-blue-400 font-medium">${fmt.size}</div>
+          <div class="size text-gray-500">Download</div>
+        </div>
+      </button>
+    `).join('');
+  }
+
+  // =============================================
+  // ১২. startDownload — server /api/download এ redirect
+  // =============================================
+  function startDownload(formatId) {
+    hideModal('qualityModal');
+
+    if(!currentVideoData || !currentVideoData.dbId) {
+      showToast(t('error_download'), 'error');
+      return;
     }
 
-    async function analyzeVideo() {
-        const url = urlInput.value.trim();
-        const resultArea = document.getElementById('resultArea');
-        const videoPlayer = document.getElementById('videoPlayer');
-        const progressContainer = document.getElementById('progressContainer');
-        const progressBar = document.getElementById('progressBar');
+    // ✅ Server এর /api/download endpoint এ পাঠাচ্ছি
+    // Server Firebase থেকে directUrl বের করে redirect করবে
+    const downloadUrl = `${API_BASE}/api/download?dbId=${currentVideoData.dbId}&formatId=${encodeURIComponent(formatId)}`;
+    window.open(downloadUrl, '_blank');
+    showToast(t('toast_download_started'));
+  }
 
-        if (!url) {
-            alert("দয়া করে একটি লিঙ্ক দিন!");
-            return;
-        }
-
-        resultArea.style.display = 'none';
-        progressContainer.style.display = 'block';
-        progressBar.style.width = '0%';
-        
-        setTimeout(() => { progressBar.style.width = '85%'; }, 100);
-
-        try {
-            const response = await fetch(`${BASE_URL}/api/analyze?url=${encodeURIComponent(url)}`);
-            const data = await response.json();
-
-            if (data.error) {
-                alert("এরর: " + data.error);
-                progressContainer.style.display = 'none';
-            } else {
-                progressBar.style.width = '100%';
-                const downloadUrl = `${BASE_URL}/api/download?url=${encodeURIComponent(url)}`;
-                videoPlayer.src = downloadUrl; 
-                videoPlayer.poster = data.thumbnail || "";
-                document.getElementById('videoTitle').innerText = data.title || "Social Video";
-
-                document.getElementById('dlBtn').onclick = function() {
-                    window.location.href = downloadUrl;
-                };
-                
-                setTimeout(() => {
-                    progressContainer.style.display = 'none';
-                    resultArea.style.display = 'block';
-                }, 600);
-            }
-        } catch (error) {
-            alert("সার্ভার সমস্যা!");
-            progressContainer.style.display = 'none';
-        }
+  // =============================================
+  // ১৩. Audio Download
+  // =============================================
+  function downloadAudio() {
+    if(!currentVideoData || !currentVideoData.dbId) {
+      showToast(t('error_download'), 'error');
+      return;
     }
-</script>
 
+    // Audio Only format খুঁজে বের করা
+    const audioFormat = currentVideoData.formats.find(f =>
+      f.resolution === 'Audio Only' || f.resolution?.toLowerCase().includes('audio')
+    );
+
+    if(audioFormat) {
+      startDownload(audioFormat.id);
+    } else if(currentVideoData.formats.length > 0) {
+      // Audio format না পেলে শেষ format (সাধারণত audio)
+      const lastFormat = currentVideoData.formats[currentVideoData.formats.length - 1];
+      startDownload(lastFormat.id);
+    } else {
+      showToast(t('error_download'), 'error');
+    }
+  }
+
+  // =============================================
+  // ১৪. Preview Toggle
+  // =============================================
+  function togglePreview() {
+    isPreviewPlaying = !isPreviewPlaying;
+    const icon = document.getElementById('playIcon');
+    if(isPreviewPlaying) {
+      icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+    } else {
+      icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+    }
+  }
+
+  // =============================================
+  // ১৫. History — LocalStorage
+  // =============================================
+  function saveToLocalStorage(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch(e) { console.error('Storage error:', e); } }
+  function getFromLocalStorage(key, defaultValue=[]) { try { const d=localStorage.getItem(key); return d?JSON.parse(d):defaultValue; } catch(e) { return defaultValue; } }
+
+  function saveToHistory(videoData) {
+    let history = getFromLocalStorage('vidgrab_history');
+    const item = {
+      id: Date.now(),
+      title: videoData.title,
+      thumbnail: videoData.thumbnail,
+      platform: videoData.platform.name,
+      date: new Date().toISOString(),
+      url: videoData.url,
+      dbId: videoData.dbId  // re-download এর জন্য
+    };
+    history.unshift(item);
+    if(history.length > 50) history = history.slice(0, 50);
+    saveToLocalStorage('vidgrab_history', history);
+  }
+
+  function loadHistory() {
+    const history = getFromLocalStorage('vidgrab_history');
+    const list = document.getElementById('historyList');
+    const empty = document.getElementById('emptyHistory');
+    if(history.length === 0) {
+      list.innerHTML = '';
+      empty.classList.remove('hidden');
+      return;
+    }
+    empty.classList.add('hidden');
+    list.innerHTML = history.map(item => {
+      const date = new Date(item.date);
+      const dateStr = date.toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'});
+      return `<div class="history-item rounded-xl p-4 flex items-center gap-4 animate-fade-in">
+        <div class="w-20 h-14 bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
+          <img src="${item.thumbnail}" alt="" class="w-full h-full object-cover" onerror="this.style.display='none'">
+        </div>
+        <div class="flex-1 min-w-0">
+          <h4 class="font-medium text-sm truncate">${item.title}</h4>
+          <p class="text-xs text-gray-500 mt-1">${item.platform} • ${dateStr}</p>
+        </div>
+        <button onclick="deleteHistoryItem(${item.id})" class="w-8 h-8 rounded-full hover:bg-red-500/20 text-gray-500 hover:text-red-400 flex items-center justify-center transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        </button>
+      </div>`;
+    }).join('');
+  }
+
+  function deleteHistoryItem(id) {
+    let history = getFromLocalStorage('vidgrab_history');
+    history = history.filter(item => item.id !== id);
+    saveToLocalStorage('vidgrab_history', history);
+    loadHistory();
+    showToast(t('toast_deleted'));
+  }
+
+  function clearAllHistory() {
+    if(confirm('Are you sure you want to clear all history?')) {
+      saveToLocalStorage('vidgrab_history', []);
+      loadHistory();
+      showToast(t('toast_cleared'));
+    }
+  }
+
+  function setFormat(format, btn) {
+    document.querySelectorAll('#settingsPage .tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  // =============================================
+  // ১৬. Init
+  // =============================================
+  function init() {
+    // Firebase Auth state listener
+    if(firebaseAuth) {
+      firebaseAuth.onAuthStateChanged(user => {
+        if(user) {
+          currentUser = user;
+        } else {
+          currentUser = null;
+        }
+        updateUIForAuth();
+      });
+    } else {
+      // Demo mode fallback
+      const savedUser = localStorage.getItem('vidgrab_user');
+      if(savedUser) {
+        currentUser = JSON.parse(savedUser);
+        updateUIForAuth();
+      }
+    }
+
+    changeLanguage(currentLang);
+
+    document.getElementById('urlInput').addEventListener('keypress', (e) => {
+      if(e.key === 'Enter') analyzeVideo();
+    });
+  }
+
+  init();
+  </script>
 </body>
-</html>
+                  </html>
