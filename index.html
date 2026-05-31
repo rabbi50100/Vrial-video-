@@ -56,8 +56,11 @@
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
     .modal-content { transform: scale(0.95); transition: transform 0.3s; }
     .modal-overlay.active .modal-content { transform: scale(1); }
-    .toast { position: fixed; bottom: 24px; right: 24px; background: rgba(30, 30, 50, 0.95); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(8px); padding: 16px 24px; border-radius: 12px; display: flex; align-items: center; gap: 12px; transform: translateX(120%); transition: transform 0.4s ease; z-index: 100; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
-    .toast.show { transform: translateX(0); }
+    
+    /* ডাউনলোড সাকসেস মেসেজ মাঝ বরাবর দেখানোর জন্য CSS আপডেট */
+    .toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: rgba(30, 30, 50, 0.95); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(8px); padding: 16px 24px; border-radius: 12px; display: flex; align-items: center; gap: 12px; opacity: 0; pointer-events: none; transition: all 0.4s ease; z-index: 100; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+    .toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto; }
+    
     input[type="email"], input[type="password"], input[type="text"] { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); transition: all 0.2s; }
     input[type="email"]:focus, input[type="password"]:focus, input[type="text"]:focus { border-color: #3b82f6; background: rgba(59, 130, 246, 0.08); outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
     .btn-primary { background: linear-gradient(135deg, #2563eb, #3b82f6); transition: all 0.3s; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
@@ -68,11 +71,14 @@
     .tab-btn { padding: 8px 20px; border-radius: 8px; transition: all 0.2s; color: #9ca3af; }
     .tab-btn.active { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
     .tab-btn:hover:not(.active) { background: rgba(255,255,255,0.05); color: #e5e7eb; }
-    .history-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); transition: all 0.2s; }
-    .history-item:hover { background: rgba(255,255,255,0.06); border-color: rgba(59, 130, 246, 0.2); }
+    .history-item { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); transition: all 0.2s; }
+    .history-item:hover { background: rgba(255, 255, 255, 0.06); border-color: rgba(59, 130, 246, 0.2); }
     @media (max-width: 640px) { .hero-title { font-size: 2rem !important; } .input-group { flex-direction: column; } .input-group input { width: 100%; } }
+    
+    /* ভিডিও থাম্বনেইল সর্বদা ১৬:৯ দেখানোর জন্য CSS আপডেট */
     .video-preview { aspect-ratio: 16/9; position: relative; overflow: hidden; border-radius: 16px; background: #000; }
-    .video-preview.short { aspect-ratio: 9/16; max-width: 360px; margin: 0 auto; }
+    .video-preview.short { aspect-ratio: 16/9; }
+    
     .play-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; cursor: pointer; }
     .video-preview:hover .play-overlay { opacity: 1; }
     .auth-container { max-width: 420px; width: 100%; }
@@ -135,16 +141,29 @@
         </h1>
         <p class="text-lg text-gray-400 mb-10 max-w-2xl mx-auto" data-i18n="hero_desc">Paste any video link from YouTube, TikTok, Instagram, Facebook, or Pinterest. Download in HD quality for free.</p>
         
-        <div class="max-w-2xl mx-auto animate-slide-up">
+        <!-- লিংক ইনপুট বক্সের উইডথ বাড়িয়ে max-w-4xl (ফুল ফ্রেম) করা হয়েছে -->
+        <div class="max-w-4xl mx-auto animate-slide-up">
           <div class="flex flex-col sm:flex-row gap-2">
-            <div class="flex-1 flex items-center bg-white/5 rounded-xl px-4">
-              <svg class="w-5 h-5 text-gray-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101"/></svg>
-              <input id="urlInput" type="text" placeholder="Paste video URL here..." class="w-full py-4 bg-transparent border-0 text-white placeholder-gray-500 focus:outline-none text-sm" data-i18n-placeholder="url_placeholder">
+            <!-- চিকন বর্ডার লাইন (border border-white/10) সহ লিংক ইনপুট বক্স -->
+            <div class="flex-1 flex items-center bg-white/5 border border-white/10 rounded-xl px-4 relative">
+              <input id="urlInput" type="text" placeholder="Paste video URL here..." class="w-full py-4 bg-transparent border-0 text-white placeholder-gray-500 focus:outline-none text-sm pr-10" data-i18n-placeholder="url_placeholder">
+              <button id="clearInputBtn" onclick="clearUrlInput()" class="absolute right-4 text-gray-500 hover:text-white focus:outline-none" title="Clear input">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+              </button>
             </div>
             <button id="analyzeBtn" onclick="analyzeVideo()" class="btn-primary px-8 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 whitespace-nowrap">
               <span data-i18n="btn_analyze">Analyze</span>
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
             </button>
+          </div>
+        </div>
+
+        <!-- ব্যানার এড প্লেসহোল্ডার ১ (ইনপুট বক্সের ঠিক নিচে) -->
+        <!-- BANNER AD PLACEHOLDER 1 -->
+        <div class="max-w-4xl mx-auto px-4 mt-8 flex justify-center">
+          <div class="w-full max-w-[728px] h-[90px] bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-gray-500 text-sm">
+            <!-- এখানে আপনার এড কোড (Ad Code Script) পেস্ট করুন -->
+            <span>Advertisement (728x90 Banner Ad)</span>
           </div>
         </div>
         
@@ -197,6 +216,15 @@
                 <span data-i18n="btn_download_video">Download Video</span>
               </button>
             </div>
+          </div>
+        </div>
+
+        <!-- ব্যানার এড প্লেসহোল্ডার ২ (রেজাল্ট সেকশনের নিচে) -->
+        <!-- BANNER AD PLACEHOLDER 2 -->
+        <div class="max-w-3xl mx-auto mt-6 flex justify-center">
+          <div class="w-full max-w-[728px] h-[90px] bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-gray-500 text-sm">
+            <!-- এখানে আপনার এড কোড (Ad Code Script) পেস্ট করুন -->
+            <span>Advertisement (728x90 Banner Ad)</span>
           </div>
         </div>
       </div>
@@ -360,22 +388,25 @@
 
   <script>
   // =============================================
-  // ১. কনফিগারেশন — এখানে তোমার আসল URL বসাও
+  // ১. কনফিগারেশন — এখানে আপনার আসল URL বসাবেন
   // =============================================
   const API_BASE = window.location.hostname === 'localhost'
     ? 'http://localhost:3000'
-    : 'https://villas-approval-pdas-confidence.trycloudflare.com'; // Production URL এখানে দাও
+    : 'https://protecting-language-brothers-alleged.trycloudflare.com'; // Production URL এখানে দিন
 
-  // Firebase কনফিগ — তোমার আসল values দাও
+  // 💥 ডাইরেক্ট লিংক এডের (Direct Link Ad) ইউআরএল — নিচের কোটেশনের ভেতর আপনার এডের লিঙ্কটি বসিয়ে দিন
+  const DIRECT_LINK_AD_URL = "https://www.effectivecpmnetwork.com/uv78x22pja?key=f3ffba790fbb2ff3c308626730a2c9b3";
+
+  // Firebase কনফিগ — আপনার আসল values দিন
   const firebaseConfig = {
     apiKey: "AIzaSyBEePBfwMrVLNtapYGfpfsN-YWi3_K7Mv4",
-  authDomain: "vidgrab-pro.firebaseapp.com",
-  databaseURL: "https://vidgrab-pro-default-rtdb.firebaseio.com",
-  projectId: "vidgrab-pro",
-  storageBucket: "vidgrab-pro.firebasestorage.app",
-  messagingSenderId: "510494077769",
-  appId: "1:510494077769:web:cc33426f8e44e794ab2098"
-};
+    authDomain: "vidgrab-pro.firebaseapp.com",
+    databaseURL: "https://vidgrab-pro-default-rtdb.firebaseio.com",
+    projectId: "vidgrab-pro",
+    storageBucket: "vidgrab-pro.firebasestorage.app",
+    messagingSenderId: "510494077769",
+    appId: "1:510494077769:web:cc33426f8e44e794ab2098"
+  };
 
   // Firebase init
   let firebaseAuth = null;
@@ -394,13 +425,20 @@
   let isPreviewPlaying = false;
   let authMode = 'login';
 
+  // Input ফিল্ড ক্লিয়ার করার জন্য ফাংশন
+  function clearUrlInput() {
+    const input = document.getElementById('urlInput');
+    input.value = '';
+    input.focus();
+  }
+
   // =============================================
   // ৩. Translations
   // =============================================
   const translations = {
     en: { nav_features:"Features",nav_platforms:"Platforms",nav_history:"History",nav_login:"Login / Sign Up",hero_title:"Download Videos",hero_subtitle:"From Any Platform",hero_desc:"Paste any video link from YouTube, TikTok, Instagram, Facebook, or Pinterest. Download in HD quality for free.",url_placeholder:"Paste video URL here...",btn_analyze:"Analyze",supported_on:"Supported:",analyzing:"Analyzing your video, please wait...",btn_download_audio:"Download Audio",btn_download_video:"Download Video",features_title:"Why Choose VidGrab Pro?",features_subtitle:"Fast, secure, and completely free video downloader",feat_fast:"Lightning Fast",feat_fast_desc:"Download videos in seconds with our optimized servers",feat_secure:"100% Secure",feat_secure_desc:"No malware, no ads. Your data stays protected",feat_free:"Completely Free",feat_free_desc:"No registration required for basic downloads",platforms_title:"Supported Platforms",platforms_subtitle:"Download from all major video platforms",history_title:"Download History",history_subtitle:"Your recent downloads",btn_clear_all:"Clear All",no_history:"No history yet",no_history_desc:"Your downloaded videos will appear here",settings_title:"Settings",settings_language:"Language",settings_quality:"Default Quality",settings_format:"Default Format",footer_desc:"Free online video downloader.",footer_links:"Quick Links",footer_legal:"Legal",footer_privacy:"Privacy Policy",footer_terms:"Terms & Conditions",footer_contact:"Contact",footer_copyright:"© 2026 VidGrab Pro. All rights reserved.",nav_home:"Home",modal_quality:"Select Quality",quality_note:"Higher quality may take longer to process",auth_login:"Login",auth_email:"Email",auth_password:"Password",auth_login_btn:"Login",auth_signup:"Sign Up",auth_name:"Name",auth_signup_btn:"Sign Up",menu_history:"My History",menu_settings:"Settings",menu_logout:"Logout",toast_download_started:"Download started!",toast_login_success:"Login successful!",toast_signup_success:"Account created!",toast_logout:"Logged out successfully",toast_cleared:"History cleared",toast_deleted:"Item deleted",auth_title_login:"Login",auth_title_signup:"Sign Up",auth_note:"Login or create a new account with the same form",error_analyze:"Failed to analyze video. Please try again.",error_download:"Download failed. Please re-analyze the video." },
     bn: { nav_features:"ফিচার",nav_platforms:"প্ল্যাটফর্ম",nav_history:"ইতিহাস",nav_login:"লগইন / সাইন আপ",hero_title:"ভিডিও ডাউনলোড করুন",hero_subtitle:"যেকোনো প্ল্যাটফর্ম থেকে",hero_desc:"YouTube, TikTok, Instagram, Facebook বা Pinterest থেকে যেকোনো ভিডিও লিঙ্ক পেস্ট করুন।",url_placeholder:"ভিডিও URL এখানে পেস্ট করুন...",btn_analyze:"বিশ্লেষণ",supported_on:"সমর্থিত:",analyzing:"আপনার ভিডিও বিশ্লেষণ করা হচ্ছে...",btn_download_audio:"অডিও ডাউনলোড",btn_download_video:"ভিডিও ডাউনলোড",features_title:"কেন VidGrab Pro?",features_subtitle:"দ্রুত, নিরাপদ এবং বিনামূল্যে",feat_fast:"বজ্রগতি",feat_fast_desc:"সেকেন্ডে ডাউনলোড করুন",feat_secure:"১০০% নিরাপদ",feat_secure_desc:"কোনো ম্যালওয়্যার বা বিজ্ঞাপন নেই",feat_free:"সম্পূর্ণ বিনামূল্যে",feat_free_desc:"রেজিস্ট্রেশন ছাড়াই ডাউনলোড করুন",platforms_title:"সমর্থিত প্ল্যাটফর্ম",platforms_subtitle:"সব প্রধান ভিডিও প্ল্যাটফর্ম থেকে ডাউনলোড",history_title:"ডাউনলোড ইতিহাস",history_subtitle:"সাম্প্রতিক ডাউনলোড",btn_clear_all:"সব মুছুন",no_history:"কোনো ইতিহাস নেই",no_history_desc:"ডাউনলোড করা ভিডিও এখানে দেখাবে",settings_title:"সেটিংস",settings_language:"ভাষা",settings_quality:"ডিফল্ট কোয়ালিটি",settings_format:"ডিফল্ট ফরম্যাট",footer_desc:"বিনামূল্যে ভিডিও ডাউনলোডার।",footer_links:"দ্রুত লিঙ্ক",footer_legal:"আইনি",footer_privacy:"গোপনীয়তা নীতি",footer_terms:"শর্তাবলী",footer_contact:"যোগাযোগ",footer_copyright:"© 2026 VidGrab Pro।",nav_home:"হোম",modal_quality:"কোয়ালিটি নির্বাচন",quality_note:"উচ্চ কোয়ালিটিতে বেশি সময় লাগতে পারে",auth_login:"লগইন",auth_email:"ইমেইল",auth_password:"পাসওয়ার্ড",auth_login_btn:"লগইন",auth_signup:"সাইন আপ",auth_name:"নাম",auth_signup_btn:"সাইন আপ",menu_history:"আমার ইতিহাস",menu_settings:"সেটিংস",menu_logout:"লগআউট",toast_download_started:"ডাউনলোড শুরু!",toast_login_success:"লগইন সফল!",toast_signup_success:"অ্যাকাউন্ট তৈরি হয়েছে!",toast_logout:"লগআউট সফল",toast_cleared:"ইতিহাস মুছে গেছে",toast_deleted:"আইটেম মুছে গেছে",auth_title_login:"লগইন",auth_title_signup:"সাইন আপ",auth_note:"একই ফর্ম দিয়ে লগইন বা অ্যাকাউন্ট তৈরি করুন",error_analyze:"ভিডিও বিশ্লেষণ করা যায়নি। আবার চেষ্টা করুন।",error_download:"ডাউনলোড ব্যর্থ হয়েছে। পুনরায় অ্যানালাইজ করুন।" },
-    hi: { nav_features:"विशेषताएं",nav_platforms:"प्लेटफ़ॉर्म",nav_history:"इतिहास",nav_login:"लॉगिन / साइन अप",hero_title:"वीडियो डाउनलोड करें",hero_subtitle:"किसी भी प्लेटफ़ॉर्म से",hero_desc:"YouTube, TikTok, Instagram से लिंक पेस्ट करें। मुफ्त HD डाउनलोड।",url_placeholder:"वीडियो URL यहाँ पेस्ट करें...",btn_analyze:"विश्लेषण",supported_on:"समर्थित:",analyzing:"विश्लेषण हो रहा है...",btn_download_audio:"ऑडियो डाउनलोड",btn_download_video:"वीडियो डाउनलोड",features_title:"VidGrab Pro क्यों?",features_subtitle:"तेज़, सुरक्षित और मुफ्त",feat_fast:"बिजली की गति",feat_fast_desc:"सेकंड में डाउनलोड",feat_secure:"100% सुरक्षित",feat_secure_desc:"कोई मैलवेयर नहीं",feat_free:"पूरी तरह मुफ्त",feat_free_desc:"बिना रजिस्ट्रेशन के",platforms_title:"समर्थित प्लेटफ़ॉर्म",platforms_subtitle:"सभी प्लेटफ़ॉर्म से डाउनलोड",history_title:"डाउनलोड इतिहास",history_subtitle:"हाल के डाउनलोड",btn_clear_all:"सभी साफ करें",no_history:"कोई इतिहास नहीं",no_history_desc:"डाउनलोड यहाँ दिखेंगे",settings_title:"सेटिंग्स",settings_language:"भाषा",settings_quality:"डिफ़ॉल्ट गुणवत्ता",settings_format:"डिफ़ॉल्ट प्रारूप",footer_desc:"मुफ्त ऑनलाइन वीडियो डाउनलोडर।",footer_links:"त्वरित लिंक",footer_legal:"कानूनी",footer_privacy:"गोपनीयता नीति",footer_terms:"नियम",footer_contact:"संपर्क",footer_copyright:"© 2026 VidGrab Pro।",nav_home:"होम",modal_quality:"गुणवत्ता चुनें",quality_note:"उच्च गुणवत्ता में समय लग सकता है",auth_login:"लॉगिन",auth_email:"ईमेल",auth_password:"पासवर्ड",auth_login_btn:"लॉगिन",auth_signup:"साइन अप",auth_name:"नाम",auth_signup_btn:"साइन अप",menu_history:"मेरा इतिहास",menu_settings:"सेटिंग्स",menu_logout:"लॉगआउट",toast_download_started:"डाउनलोड शुरू!",toast_login_success:"लॉगिन सफल!",toast_signup_success:"खाता बनाया!",toast_logout:"लॉगआउट सफल",toast_cleared:"इतिहास साफ",toast_deleted:"आइटम हटाया",auth_title_login:"लॉगिन",auth_title_signup:"साइन अप",auth_note:"लॉगिन या नया खाता बनाएं",error_analyze:"विश्लेषण विफल। पुनः प्रयास करें।",error_download:"डाउनलोड विफल।" },
+    hi: { nav_features:"विशेषताएं",nav_platforms:"प्लैटफ़ॉर्म",nav_history:"इतिहास",nav_login:"लॉगिन / साइन अप",hero_title:"वीडियो डाउनलोड करें",hero_subtitle:"किसी भी प्लेटफ़ॉर्म से",hero_desc:"YouTube, TikTok, Instagram से लिंक पेस्ट करें। मुफ्त HD डाउनलोड।",url_placeholder:"वीडियो URL यहाँ पेस्ट करें...",btn_analyze:"विश्लेषण",supported_on:"समर्थित:",analyzing:"विश्लेषण हो रहा है...",btn_download_audio:"ऑडियो डाउनलोड",btn_download_video:"वीडियो डाउनलोड",features_title:"VidGrab Pro क्यों?",features_subtitle:"तेज़, सुरक्षित और मुफ्त",feat_fast:"बिजली की गति",feat_fast_desc:"सेकंड में डाउनलोड",feat_secure:"100% सुरक्षित",feat_secure_desc:"कोई मैलवेयर नहीं",feat_free:"पूरी तरह मुफ्त",feat_free_desc:"बिना रजिस्ट्रेशन के",platforms_title:"समर्थित प्लेटफ़ॉर्म",platforms_subtitle:"सभी प्लेटफ़ॉर्म से डाउनलोड",history_title:"डाउनलोड इतिहास",history_subtitle:"हाल के डाउनलोड",btn_clear_all:"सभी साफ करें",no_history:"कोई इतिहास नहीं",no_history_desc:"डाउनलोड यहाँ दिखेंगे",settings_title:"सेटिंग्स",settings_language:"भाषा",settings_quality:"डिफ़ॉल्ट गुणवत्ता",settings_format:"डीफॉल्ट प्रारूप",footer_desc:"मुफ्त ऑनलाइन वीडियो डाउनलोडर।",footer_links:"त्वरित लिंक",footer_legal:"कानूनी",footer_privacy:"गोपनीयता नीति",footer_terms:"नियम",footer_contact:"संपर्क",footer_copyright:"© 2026 VidGrab Pro।",nav_home:"होम",modal_quality:"गुणवत्ता चुनें",quality_note:"उच्च गुणवत्ता में समय लग सकता है",auth_login:"लॉगिन",auth_email:"ईमेल",auth_password:"पासवर्ड",auth_login_btn:"लॉगिन",auth_signup:"साइन अप",auth_name:"नाम",auth_signup_btn:"साइन अप",menu_history:"मेरा इतिहास",menu_settings:"सेटिंग्स",menu_logout:"लॉगआउट",toast_download_started:"डाउनलोड शुरू!",toast_login_success:"लॉगिन सफल!",toast_signup_success:"खाता बनाया!",toast_logout:"लॉगआउट सफल",toast_cleared:"इतिहास साफ",toast_deleted:"आइटम हटाया",auth_title_login:"लॉगिन",auth_title_signup:"साइन अप",auth_note:"लॉगिन या नया खाता बनाएं",error_analyze:"विश्लेषण विफल। पुनः प्रयास करें।",error_download:"डाउनलोड विफल।" },
     es: { nav_features:"Características",nav_platforms:"Plataformas",nav_history:"Historial",nav_login:"Iniciar sesión / Registro",hero_title:"Descargar Videos",hero_subtitle:"De Cualquier Plataforma",hero_desc:"Pega el enlace de YouTube, TikTok, Instagram, etc. Descarga gratis en HD.",url_placeholder:"Pega la URL aquí...",btn_analyze:"Analizar",supported_on:"Compatible:",analyzing:"Analizando...",btn_download_audio:"Descargar Audio",btn_download_video:"Descargar Video",features_title:"¿Por qué VidGrab Pro?",features_subtitle:"Rápido, seguro y gratuito",feat_fast:"Ultra Rápido",feat_fast_desc:"Descarga en segundos",feat_secure:"100% Seguro",feat_secure_desc:"Sin malware ni anuncios",feat_free:"Completamente Gratis",feat_free_desc:"Sin registro requerido",platforms_title:"Plataformas",platforms_subtitle:"Todas las principales plataformas",history_title:"Historial",history_subtitle:"Descargas recientes",btn_clear_all:"Limpiar Todo",no_history:"Sin historial",no_history_desc:"Tus descargas aparecerán aquí",settings_title:"Configuración",settings_language:"Idioma",settings_quality:"Calidad Predeterminada",settings_format:"Formato Predeterminado",footer_desc:"Descargador de videos gratuito.",footer_links:"Enlaces",footer_legal:"Legal",footer_privacy:"Privacidad",footer_terms:"Términos",footer_contact:"Contacto",footer_copyright:"© 2026 VidGrab Pro.",nav_home:"Inicio",modal_quality:"Seleccionar Calidad",quality_note:"Mayor calidad tarda más",auth_login:"Iniciar sesión",auth_email:"Correo",auth_password:"Contraseña",auth_login_btn:"Iniciar sesión",auth_signup:"Registrarse",auth_name:"Nombre",auth_signup_btn:"Registrarse",menu_history:"Mi Historial",menu_settings:"Configuración",menu_logout:"Cerrar sesión",toast_download_started:"¡Descarga iniciada!",toast_login_success:"¡Sesión iniciada!",toast_signup_success:"¡Cuenta creada!",toast_logout:"Sesión cerrada",toast_cleared:"Historial borrado",toast_deleted:"Eliminado",auth_title_login:"Iniciar sesión",auth_title_signup:"Registrarse",auth_note:"Inicia sesión o regístrate",error_analyze:"Análisis fallido. Intenta de nuevo.",error_download:"Descarga fallida." }
   };
 
@@ -598,12 +636,9 @@
       badge.innerHTML = `<span class="${colorClass}">${platform.icon}</span> ${platform.name}`;
       document.getElementById('durationBadge').textContent = '';
 
+      // থাম্বনেইল সর্বদা ১৬:৯ রাখতে শর্ট ক্লাসটি রিমুভ রাখা হলো
       const preview = document.getElementById('videoPreview');
-      if(aspectRatio==='short') {
-        preview.classList.add('short');
-      } else {
-        preview.classList.remove('short');
-      }
+      preview.classList.remove('short');
 
       // History তে সেভ
       saveToHistory(currentVideoData);
@@ -649,7 +684,7 @@
   }
 
   // =============================================
-  // ১২. startDownload — server /api/download এ redirect
+  // ১২. startDownload — ডাউনলোড এবং ডাইরেক্ট লিঙ্ক এড ওপেন
   // =============================================
   function startDownload(formatId) {
     hideModal('qualityModal');
@@ -659,8 +694,12 @@
       return;
     }
 
-    // ✅ Server এর /api/download endpoint এ পাঠাচ্ছি
-    // Server Firebase থেকে directUrl বের করে redirect করবে
+    // 💥 ডাইরেক্ট লিঙ্ক এড (Direct Link Ad) নতুন ট্যাবে ওপেন হবে
+    if (DIRECT_LINK_AD_URL && DIRECT_LINK_AD_URL !== "") {
+      window.open(DIRECT_LINK_AD_URL, '_blank');
+    }
+
+    // ডাউনলোড শুরু
     const downloadUrl = `${API_BASE}/api/download?dbId=${currentVideoData.dbId}&formatId=${encodeURIComponent(formatId)}`;
     window.open(downloadUrl, '_blank');
     showToast(t('toast_download_started'));
@@ -808,4 +847,4 @@
   init();
   </script>
 </body>
-                  </html>
+</html>
