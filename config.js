@@ -1,6 +1,6 @@
 export const API_BASE = window.location.hostname === 'localhost'
   ? 'http://localhost:3000'
-  : 'https://treasures-installing-honolulu-exception.trycloudflare.com';
+  : 'https://promo-knit-networking-handling.trycloudflare.com';
 
 export const firebaseConfig = {
   apiKey: "AIzaSyBEePBfwMrVLNtapYGfpfsN-YWi3_K7Mv4",
