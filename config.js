@@ -1,6 +1,6 @@
 export const API_BASE = window.location.hostname === 'localhost'
   ? 'http://localhost:3000'
-  : 'https://realm-physician-social-update.trycloudflare.com';
+  : 'http://localhost:5005';
 
 export const firebaseConfig = {
   apiKey: "AIzaSyBEePBfwMrVLNtapYGfpfsN-YWi3_K7Mv4",
